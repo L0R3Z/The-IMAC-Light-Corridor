@@ -6,6 +6,9 @@
 #include <stdio.h>
 #include <math.h>
 
+extern float building_width;
+extern float building_height;
+
 void drawBase();
 
 void drawArm();

@@ -1,9 +1,9 @@
 #include "3D_tools.h"
 
 /* Camera parameters and functions */
-float theta = 45.0f; // Angle between x axis and viewpoint
-float phy = 60.0f; // Angle between z axis and viewpoint
-float dist_zoom = 30.0f; // Distance between origin and viewpoint
+float theta = -90.0f; // Angle between x axis and viewpoint (45.0f originally)
+float phy = 90.0f; // Angle between z axis and viewpoint (60.0f originally)
+float dist_zoom = 30.0f; // Distance between origin and viewpoint (30.0f originally)
 
 void setCamera() {
 	gluLookAt(dist_zoom*cos(toRad(theta))*sin(toRad(phy)),
