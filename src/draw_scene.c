@@ -3,46 +3,66 @@
 
 float building_width = 36.0f;
 float building_height = building_width/2;
+float building_depth = 12.0f;
+float aperture = 60.0; // Ouverture de la caméra 60.0 de base
+// float building_width = 12.0f;
+// float building_height = 50.0f;
+// float building_depth = 100.0f;
 
 // Fonction qui dessine une grille et une origine
 void drawFrame() {
-    //GRID
+    // WIDTH GRID
     for (int i = - building_width/2; i < building_width/2+1; i++)
     {          
-        // Z
-        // glColor3f((GLfloat)0 / 255, (GLfloat)0 / 255, (GLfloat)63 / 255);
-        // glColor4f(0,0,1,0.1);
-        // glBegin(GL_LINES);
-        //     glVertex2f((GLfloat) i, building_width/2);
-        //     glVertex2f((GLfloat) i, -building_width/2);
-        // glEnd();
-        // glBegin(GL_LINES);
-        //     glVertex2f(-building_width/2, (GLfloat) i);
-        //     glVertex2f(building_width/2, (GLfloat) i);
-        // glEnd();
+        // Y AXIS
+        glColor4f(0,1,0,0.2);
+        glBegin(GL_LINES);
+                glVertex3f((GLfloat) i, 0, building_height/2);
+                glVertex3f((GLfloat) i, 0, -building_height/2);
+        glEnd();
 
-        // X
-        // glColor3f((GLfloat)63 / 255, (GLfloat)0 / 255, (GLfloat)0 / 255);
-        // glColor4f(1,0,0,0.1);
-        // glBegin(GL_LINES);
-        //         glVertex3f(0.0, building_width/2, (GLfloat) i);
-        //         glVertex3f(0.0, -building_width/2, (GLfloat) i);
-        // glEnd();
-        // glBegin(GL_LINES);
-        //         glVertex3f(0.0, (GLfloat) i, building_width/2);
-        //         glVertex3f(0.0, (GLfloat) i, -building_width/2);
-        // glEnd();
-
-        // Y
-        // glColor3f((GLfloat)0 / 255, (GLfloat)63 / 255, (GLfloat)0 / 255);
-        glColor4f(0,1,0,0.1);
+        // Z AXIS
+        glColor4f(0,0,1,0.2);
+        glBegin(GL_LINES);
+            glVertex2f((GLfloat) i, building_depth/2);
+            glVertex2f((GLfloat) i, -building_depth/2);
+        glEnd();
+        
+    }
+    // HEIGHT GRID
+    for (int i = - building_height/2; i < building_height/2+1; i++)
+    {
+        // Y AXIS
+        glColor4f(0,1,0,0.2);
         glBegin(GL_LINES);
                 glVertex3f(building_width/2, 0, (GLfloat) i);
                 glVertex3f(-building_width/2, 0, (GLfloat) i);
         glEnd();
+
+        // X AXIS
+        glColor4f(1,0,0,0.2);
         glBegin(GL_LINES);
-                glVertex3f((GLfloat) i, 0, building_height/2);
-                glVertex3f((GLfloat) i, 0, -building_height/2);
+                glVertex3f(0.0, building_depth/2, (GLfloat) i);
+                glVertex3f(0.0, -building_depth/2, (GLfloat) i);
+        glEnd();
+        
+    }
+
+    // DEPTH GRID
+    for (int i = - building_depth/2; i < building_depth/2+1; i++)
+    {
+        // X AXIS
+        glColor4f(1,0,0,0.2);
+        glBegin(GL_LINES);
+                glVertex3f(0.0, (GLfloat) i, building_height/2);
+                glVertex3f(0.0, (GLfloat) i, -building_height/2);
+        glEnd();
+
+        // Z AXIS
+        glColor4f(0,0,1,0.2);
+        glBegin(GL_LINES);
+            glVertex2f(-building_width/2, (GLfloat) i);
+            glVertex2f(building_width/2, (GLfloat) i);
         glEnd();
     }
 

@@ -17,11 +17,48 @@ using namespace std;
 /* Textures table */
 vector<GLuint> textures;
 
+static double xpos, ypos;
+
 /* Window properties */
-static const unsigned int WINDOW_WIDTH = 640;
-static const unsigned int WINDOW_HEIGHT = 400;
+static unsigned int WINDOW_WIDTH = 640;
+static unsigned int WINDOW_HEIGHT = 400;
 static const char WINDOW_TITLE[] = "The IMAC Light Corridor";
 static float aspectRatio = 1.0;
+static const float _viewSize = 18.0; // Correspond à building height
+
+struct Vertex
+{
+    GLfloat positionX;
+    GLfloat positionY;
+    GLfloat colorR;
+    GLfloat colorG;
+    GLfloat colorB;
+
+    Vertex(int positionX, int positionY)
+    {
+		
+		// if (aspectRatio > 1)
+        // {
+            this->positionX = (_viewSize * aspectRatio) / WINDOW_WIDTH * positionX - (_viewSize * aspectRatio) / 2.0;
+            this->positionY = -_viewSize / WINDOW_HEIGHT * positionY + _viewSize / 2.0;
+        // }
+        // else
+        // {
+        //     this->positionX = _viewSize / WINDOW_WIDTH * positionX - _viewSize / 2.0;
+        //     this->positionY = -(_viewSize * (1 / aspectRatio)) / WINDOW_HEIGHT * positionY + (_viewSize * (1 / aspectRatio)) / 2.0;
+        // }
+        this->colorR = ((((GLfloat)(rand() % 180)) + 75) / 255);
+        this->colorG = ((((GLfloat)(rand() % 180)) + 75) / 255);
+        this->colorB = ((((GLfloat)(rand() % 180)) + 75) / 255);
+		printf("%f \n", _viewSize);
+		printf("%i %i \n", positionX, positionY);
+
+		printf("%f %f \n", this->positionX, this->positionY);
+    }
+};
+
+vector<Vertex> pointsToDraw;
+int formToDraw = GL_POINTS;
 
 /* Minimal time wanted between two images */
 static const double FRAMERATE_IN_SECONDS = 1. / 90.;
@@ -45,12 +82,30 @@ void onError(int error, const char* description) {
 void onWindowResized(GLFWwindow* window, int width, int height)
 {
 	aspectRatio = width / (float) height;
-
+	WINDOW_WIDTH = width;
+    WINDOW_HEIGHT = height;
 	glViewport(0, 0, width, height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(60.0,aspectRatio,Z_NEAR,Z_FAR);
+	gluPerspective(aperture,aspectRatio,Z_NEAR,Z_FAR);
 	glMatrixMode(GL_MODELVIEW);
+}
+
+/* User mouse button handling function */
+void mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
+{
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+    {
+        glfwGetCursorPos(window, &xpos, &ypos);
+        printf("%f %f \n", xpos, ypos);
+        pointsToDraw.push_back(Vertex(xpos, ypos));
+    }
+}
+
+void cursor_position_callback(GLFWwindow *window, double xpos, double ypos)
+{
+    // double r = (float)xpos/(WINDOW_WIDTH), g = 0, b = (float)ypos/(WINDOW_HEIGHT), a = 0;
+    // glClearColor(r, g, b, a);
 }
 
 void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -100,10 +155,20 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 				std::cout << "Theta is " << theta << std::endl;
 				break;
 			case GLFW_KEY_W :
-				game_depth+=10;
+				game_depth+=5;
 				break;
 			case GLFW_KEY_S :
-				game_depth-=10;
+				game_depth-=5;
+				break;
+			case GLFW_KEY_SPACE :
+				if (formToDraw == GL_POLYGON)
+				{
+					formToDraw = GL_POINTS;
+				}
+				else
+				{
+					formToDraw = GL_POLYGON;
+				}
 				break;
 			default:
 				std::cout << "Touche non gérée (" << key << ")" << std::endl;
@@ -190,43 +255,44 @@ void drawTunnelPart(int tunnel_depth) {
 	// Top wall
 	glColor4f(0./255,0./255,69./255,0.8);
 	glPushMatrix();
-		glTranslatef(0,building_width*tunnel_depth,building_width/2);
-		glScalef(building_width, building_width, building_width);
+		glTranslatef(0,building_depth/2+building_depth*tunnel_depth,building_height/2);
+		glScalef(building_width, building_depth, building_height);
 		drawSquare();
 	glPopMatrix();
 
 	// Right wall
 	glColor4f(69./255,69./255,142./255,0.8);
 	glPushMatrix();
-		glTranslatef(building_width/2,building_width*tunnel_depth,0);
+		glTranslatef(building_width/2,building_depth/2+building_depth*tunnel_depth,0);
 		glRotatef(90, 0, 1, 0);
-		glScalef(building_width, building_width, building_width);
+		glScalef(building_height, building_depth, building_height);
 		drawSquare();
 	glPopMatrix();
 
 	// Bottom wall
 	glColor4f(69./255,69./255,105./255,0.8);
 	glPushMatrix();
-		glTranslatef(0,building_width*tunnel_depth,-building_width/2);
-		glScalef(building_width, building_width, building_width);
+		glTranslatef(0,building_depth/2+building_depth*tunnel_depth,-building_height/2);
+		glScalef(building_width, building_depth, building_height);
 		drawSquare();
 	glPopMatrix();
 
 	// Left wall
 	glColor4f(69./255,105./255,178./255,0.8);
 	glPushMatrix();
-		glTranslatef(-building_width/2,building_width*tunnel_depth,0);
+		glTranslatef(-building_width/2,building_depth/2+building_depth*tunnel_depth,0);
 		glRotatef(90, 0, 1, 0);
-		glScalef(building_width, building_width, building_width);
+		glScalef(building_height, building_depth, building_height);
 		drawSquare();
 	glPopMatrix();
 
 	// Bottom
 	glColor4f(0.,0.,0.,0.8);
 	glPushMatrix();
-		glTranslatef(0,building_width*tunnel_depth+building_width/2,0);
+		glTranslatef(0,building_depth+building_depth*tunnel_depth,0);
+		glScalef(building_width, 1, building_height);
 		glRotatef(90, 1, 0, 0);
-		glScalef(building_width, building_width, building_width);
+		
 		if (tunnel_depth==9)
 		{
 			drawSquare();
@@ -239,6 +305,34 @@ void drawTunnelPart(int tunnel_depth) {
 					glVertex2f(-0.5f, -0.5f);
 			glEnd();
 			glLineWidth(1.0);
+		}
+	glPopMatrix();
+
+	// Wall test
+	glColor4f(0.,0.,1.,0.8);
+	glPushMatrix();
+		glTranslatef(0,building_depth+building_depth*tunnel_depth,0);
+		glTranslatef(-building_width/2,0,0);
+		glTranslatef(-(-building_width/3)/2,0,0);
+		glScalef(building_width/3, 1, building_height);
+		glRotatef(90, 1, 0, 0);
+		if (tunnel_depth==5)
+		{
+			drawSquare();
+		}
+	glPopMatrix();
+
+	// Wall test
+	glColor4f(0.,1.,0,0.8);
+	glPushMatrix();
+		glTranslatef(0,building_depth+building_depth*tunnel_depth,0);
+		glTranslatef(0,0,building_height/2);
+		glTranslatef(0,0,-(building_height/2)/2);
+		glScalef(building_width, 1, building_height/2);
+		glRotatef(90, 1, 0, 0);
+		if (tunnel_depth==2)
+		{
+			drawSquare();
 		}
 	glPopMatrix();
 }
@@ -290,16 +384,41 @@ void drawBalance() {
 
 void draw() {
 	// drawBalance();
-	drawFrame();
+	
+	
 	
 	glPushMatrix();
 		glTranslatef(0,-game_depth,0);
-		for (int i = 0; i < 10; i++)
+		// for (int i = 0; i < 10; i++)
+		for (int i = 9; i > -1; i--)
 		{
 			drawTunnelPart(i);
 		}
 	glPopMatrix();
+	
+	drawFrame();
+	
 	drawTestTextures();
+
+	glPointSize(25.0);
+
+    glBegin(formToDraw);
+    for (unsigned int i = 0; i < pointsToDraw.size(); i++)
+    {
+        glColor4f(pointsToDraw.at(i).colorR, pointsToDraw.at(i).colorG, pointsToDraw.at(i).colorB, 1.0);
+        // glVertex3f(pointsToDraw.at(i).positionX,0, pointsToDraw.at(i).positionY);
+		glVertex3f(pointsToDraw.at(i).positionX,0, pointsToDraw.at(i).positionY);
+    }
+    glEnd();
+
+
+	glBegin(GL_QUADS);
+    glColor3f((GLfloat)165 / 255, (GLfloat)172 / 255, (GLfloat)255 / 255);
+    glVertex2f(-0.5f, -0.5f);
+    glVertex2f(0.5f, -0.5f);
+    glVertex2f(0.5f, 0.5f);
+    glVertex2f(-0.5f, 0.5f);
+    glEnd();
 
 	//DESSIN DE LA SPHERE
 		glColor4f(1,0,0,0.5);
@@ -340,6 +459,12 @@ int main() {
 
     glfwSetWindowSizeCallback(window,onWindowResized);
 	glfwSetKeyCallback(window, onKey);
+	
+	/* Callback to a function if the mouse is clicked */
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
+
+    /* Callback to a function if the mouse is moved */
+    glfwSetCursorPosCallback(window, cursor_position_callback);
 
     onWindowResized(window,WINDOW_WIDTH,WINDOW_HEIGHT);
 
@@ -359,7 +484,8 @@ int main() {
 		double startTime = glfwGetTime();
 
 		/* Cleaning buffers and setting Matrix Mode */
-		glClearColor(1.0,1.0,1.,0.0);
+		// glClearColor(1.0,1.0,1.,0.0);
+		glClearColor(0.0,0.0,0.,0.0);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

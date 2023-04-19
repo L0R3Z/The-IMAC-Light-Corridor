@@ -1,17 +1,26 @@
 #include "3D_tools.h"
+#include "draw_scene.h"
 
 /* Camera parameters and functions */
 float theta = -90.0f; // Angle between x axis and viewpoint (45.0f originally)
 float phy = 90.0f; // Angle between z axis and viewpoint (60.0f originally)
-float dist_zoom = 30.0f; // Distance between origin and viewpoint (30.0f originally)
+float dist_zoom = (building_height)/(2*tan(toRad(aperture/2))); // Distance between origin and viewpoint (30.0f originally)
+// Le 60 c'est dans window resized maintenant aperture
+// + 4 sur building height est du padding
 
 void setCamera() {
+	// gluLookAt(dist_zoom*cos(toRad(theta))*sin(toRad(phy)),
+	// 		  dist_zoom*sin(toRad(theta))*sin(toRad(phy)),
+	// 		  dist_zoom*cos(toRad(phy)),
+	// 		  0.0,0.0,0.0,
+	// 		  0.0,0.0,1.0);
 	gluLookAt(dist_zoom*cos(toRad(theta))*sin(toRad(phy)),
-			  dist_zoom*sin(toRad(theta))*sin(toRad(phy)),
+			  -dist_zoom,
 			  dist_zoom*cos(toRad(phy)),
 			  0.0,0.0,0.0,
 			  0.0,0.0,1.0);
-}
+} // 6 c'est une demi-section bg 
+// Attention au + 16
 
 /* Convert degree to radians */
 float toRad(float deg) {
