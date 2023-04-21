@@ -8,6 +8,8 @@
 
 extern float building_width;
 extern float building_height;
+extern float building_depth;
+extern float aperture;
 
 void drawBase();
 
