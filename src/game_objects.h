@@ -8,11 +8,11 @@
 
 // Tool struct for colors
 typedef struct Colors {
-    int r, g, b, h, s, l;
+    GLfloat r, g, b, h, s, l;
     
     Colors() {}
 
-    Colors(int r, int g, int b) {
+    Colors(GLfloat r, GLfloat g, GLfloat b) {
         this->r = r;
         this->g = g;
         this->b = b;
@@ -48,7 +48,7 @@ typedef struct Speed {
 
 // Ball struct
 typedef struct Ball {
-    int radius;
+    GLfloat radius;
     Position pos;
     Speed speed;
     GLuint* texture; // texture from the textures array
@@ -56,7 +56,7 @@ typedef struct Ball {
 
     Ball() {}
 
-    Ball(int rad, Position pos, Speed speed, GLuint* texture) {
+    Ball(GLfloat rad, Position pos, Speed speed, GLuint* texture) {
         this->radius = rad;
         this->pos = pos;
         this->speed = speed;
@@ -66,14 +66,14 @@ typedef struct Ball {
 
 // Wall struct
 typedef struct Wall {
-    int width;
-    int height;
+    GLfloat width;
+    GLfloat height;
     Position pos;
     GLuint* texture;
 
     Wall() {}
 
-    Wall(int width, int height, Position pos, GLuint* texture) {
+    Wall(GLfloat width, GLfloat height, Position pos, GLuint* texture) {
         this->width = width;
         this->height = height;
         this->pos = pos;
@@ -83,16 +83,18 @@ typedef struct Wall {
 
 // WallStep struct for obtacles groups, situated at precise steps inside the corridor
 typedef struct WallStep {
-    int width;
-    int height;
+    GLfloat width;
+    GLfloat height;
+    GLfloat depth;
     Position pos;
     std::vector<Wall> walls;
 
     WallStep() {}
 
-    WallStep(int width, int height, Position pos, std::vector<Wall> walls) {
+    WallStep(GLfloat width, GLfloat height, GLfloat depth, Position pos, std::vector<Wall> walls) {
         this->width = width;
         this->height = height;
+        this->depth = depth;
         this->pos = pos;
         this->walls = walls;
     }
@@ -100,8 +102,8 @@ typedef struct WallStep {
 
 // Corridor struct
 typedef struct Corridor {
-    int width;
-    int height;
+    GLfloat width;
+    GLfloat height;
     std::vector<WallStep> wallSteps;
     GLuint* sideWallsTexture;
     GLuint* groundTexture;
@@ -109,12 +111,12 @@ typedef struct Corridor {
 
     Corridor() {}
 
-    Corridor(int width, int height) {
+    Corridor(GLfloat width, GLfloat height) {
         this->width = width;
         this->height = height;
     }
 
-    Corridor(int width, int height, std::vector<WallStep> wallSteps, GLuint* sideWallsTexture, GLuint* groundTexture, GLuint* ceilingTexture) {
+    Corridor(GLfloat width, GLfloat height, std::vector<WallStep> wallSteps, GLuint* sideWallsTexture, GLuint* groundTexture, GLuint* ceilingTexture) {
         this->width = width;
         this->height = height;
         this->wallSteps = wallSteps;
