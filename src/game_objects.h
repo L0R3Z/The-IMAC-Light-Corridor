@@ -6,6 +6,20 @@
 #include <GL/glu.h>
 #include <vector>
 
+// Tool struct for colors
+typedef struct Colors {
+    int r, g, b, h, s, l;
+    
+    Colors() {}
+
+    Colors(int r, int g, int b) {
+        this->r = r;
+        this->g = g;
+        this->b = b;
+    }
+
+} Colors;
+
 // Tool struct for 3D positions
 typedef struct Position {
     GLfloat x, y, z; // y -> profondeur
