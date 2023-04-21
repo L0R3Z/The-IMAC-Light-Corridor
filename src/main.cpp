@@ -11,6 +11,7 @@
 #include "stb_image.h"
 #include "3D_tools.h"
 #include "draw_scene.h"
+#include "game_objects.h"
 
 using namespace std;
 
@@ -504,6 +505,15 @@ int main() {
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
 	loadTextures();
+
+	Position testPos = Position(1, 2, 30);
+	printf("x: %f", testPos.x);
+	printf("y: %f", testPos.y);
+	printf("z: %f", testPos.z);
+	Corridor corridor = Corridor(400, 200);
+	printf("corridor width: %i", corridor.width);
+	printf("corridor height: %i", corridor.height);
+
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
