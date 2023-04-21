@@ -308,7 +308,7 @@ void drawTunnelPart(int tunnel_depth) {
 		}
 	glPopMatrix();
 
-	// Wall test
+	// Wall test 1
 	glColor4f(0.,0.,1.,0.8);
 	glPushMatrix();
 		glTranslatef(0,building_depth+building_depth*tunnel_depth,0);
@@ -322,7 +322,7 @@ void drawTunnelPart(int tunnel_depth) {
 		}
 	glPopMatrix();
 
-	// Wall test
+	// Wall test 2
 	glColor4f(0.,1.,0,0.8);
 	glPushMatrix();
 		glTranslatef(0,building_depth+building_depth*tunnel_depth,0);
@@ -331,6 +331,34 @@ void drawTunnelPart(int tunnel_depth) {
 		glScalef(building_width, 1, building_height/2);
 		glRotatef(90, 1, 0, 0);
 		if (tunnel_depth==2)
+		{
+			drawSquare();
+		}
+	glPopMatrix();
+
+	// Wall test 3
+	glColor4f(1.,0.,0,0.8);
+	glPushMatrix();
+		glTranslatef(0,building_depth+building_depth*tunnel_depth,0);
+		glTranslatef(-building_width/2,0,building_height/2);
+		glTranslatef((building_width/4)/2,0,-(building_height)/2);
+		glScalef(building_width/4, 1, building_height);
+		glRotatef(90, 1, 0, 0);
+		if (tunnel_depth==0)
+		{
+			drawSquare();
+		}
+	glPopMatrix();
+
+	// Wall test 4
+	glColor4f(1.,1.,0,0.8);
+	glPushMatrix();
+		glTranslatef(0,building_depth+building_depth*tunnel_depth,0);
+		glTranslatef(-building_width/6,0,building_height/3);
+		glTranslatef((building_width/3)/2,0,-(2*building_height/3)/2);
+		glScalef(building_width/3, 1, 2*building_height/3);
+		glRotatef(90, 1, 0, 0);
+		if (tunnel_depth==7)
 		{
 			drawSquare();
 		}
