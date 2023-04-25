@@ -69,9 +69,17 @@ typedef struct Wall {
     int width;
     int height;
     Position pos;
+    float depth;
     GLuint* texture;
 
     Wall() {}
+
+    Wall(int width, int height, Position pos, float depth) {
+        this->width = width;
+        this->height = height;
+        this->pos = pos;
+        this->depth=depth;
+    }
 
     Wall(int width, int height, Position pos, GLuint* texture) {
         this->width = width;
@@ -83,14 +91,21 @@ typedef struct Wall {
 
 // WallStep struct for obtacles groups, situated at precise steps inside the corridor
 typedef struct WallStep {
-    int width;
-    int height;
+    float width;
+    float height;
+    float depth; // Correspond au fond du wallStep sur l'axe Y
     Position pos;
     std::vector<Wall> walls;
 
-    WallStep() {}
+    WallStep() {
 
-    WallStep(int width, int height, Position pos, std::vector<Wall> walls) {
+    }
+
+    WallStep(float depth) {
+        this->depth = depth;
+    }
+
+    WallStep(float width, float height, Position pos, std::vector<Wall> walls) {
         this->width = width;
         this->height = height;
         this->pos = pos;
@@ -102,6 +117,8 @@ typedef struct WallStep {
 typedef struct Corridor {
     int width;
     int height;
+    float depthOfAStep;
+    int numberOfSteps;
     std::vector<WallStep> wallSteps;
     GLuint* sideWallsTexture;
     GLuint* groundTexture;
@@ -109,9 +126,18 @@ typedef struct Corridor {
 
     Corridor() {}
 
-    Corridor(int width, int height) {
-        this->width = width;
-        this->height = height;
+    Corridor(float depthOfAStep, int numberOfSteps) {
+        this->depthOfAStep = depthOfAStep;
+        this->numberOfSteps = numberOfSteps;
+    }
+
+    // Corridor(int width, int height) {
+    //     this->width = width;
+    //     this->height = height;
+    // }
+
+    Corridor(std::vector<WallStep> wallSteps) {
+        this->wallSteps = wallSteps;
     }
 
     Corridor(int width, int height, std::vector<WallStep> wallSteps, GLuint* sideWallsTexture, GLuint* groundTexture, GLuint* ceilingTexture) {
