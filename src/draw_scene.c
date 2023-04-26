@@ -198,9 +198,6 @@ void drawTunnelPart(int tunnel_depth) {
 }
 
 void drawCorridor(Corridor myCorridor) {
-	// Appel de la fonction pour dessiner les wallSteps du corridor
-    drawWallStep(myCorridor.wallSteps);
-
 	// Bottom
 	glColor4f(0.,1.,0.,0.8);
 	glPushMatrix();
@@ -209,6 +206,9 @@ void drawCorridor(Corridor myCorridor) {
 		glRotatef(90, 1, 0, 0);
 		drawSquare();
 	glPopMatrix();
+	
+	// Appel de la fonction pour dessiner les wallSteps du corridor
+    drawWallStep(myCorridor.wallSteps);
 }
 
 void drawWallStep(vector<WallStep> myWallSteps) {
@@ -317,3 +317,18 @@ void drawPlayer(Player myPlayer) {
 	glPopMatrix();
 }
 
+void drawBall(Ball myBall) {
+	// Dessin de la balle
+	glPushMatrix();
+		// Placement de la balle
+		glTranslatef(myBall.pos.x,myBall.pos.y,myBall.pos.z);
+		// Taille du mur
+		glScalef(myBall.radius*2, myBall.radius*2, myBall.radius*2);
+		// glRotatef(90, 1, 0, 0);
+		glColor4f((float) 69/255,(float) 69/255,(float) 142/255,1.);
+		drawSphere();
+		// glLineWidth(1.0);
+		// glColor4f((float) 178/255,(float) 178/255,(float) 178/255,.25);
+		// drawSquare();
+	glPopMatrix();
+}

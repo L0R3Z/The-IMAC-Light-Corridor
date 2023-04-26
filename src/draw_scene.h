@@ -25,3 +25,5 @@ void drawWallStep(std::vector<WallStep> myWallSteps);
 void drawWall(std::vector<Wall> myWalls);
 
 void drawPlayer(Player myPlayer);
+
+void drawBall(Ball myBall);

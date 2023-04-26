@@ -36,6 +36,7 @@ static const float _viewSize = building_height; // Correspond à building height
 
 Corridor myCorridor = Corridor(12, rand() % 30 + 10); // Profondeur d'une étape (building_depth) / Nombre d'étapes 
 Player myPlayer = Player(building_width/6);
+Ball myBall = Ball(building_width/24);
 
 struct Vertex
 {
@@ -327,9 +328,12 @@ void draw() {
 	glPushMatrix();
 		glTranslatef(0,-game_depth,0);
 		drawCorridor(myCorridor);
+		drawBall(myBall);
 	glPopMatrix();
 
 	drawFrame();
+
+	
 
 	drawPlayer(myPlayer);
 

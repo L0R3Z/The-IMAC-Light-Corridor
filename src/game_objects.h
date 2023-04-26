@@ -60,6 +60,11 @@ typedef struct Ball {
 
     Ball() {}
 
+    Ball(int rad) {
+        this->radius = rad;
+        this->pos = Position(0,24.,0);
+    }
+
     Ball(int rad, Position pos, Speed speed, GLuint* texture) {
         this->radius = rad;
         this->pos = pos;
