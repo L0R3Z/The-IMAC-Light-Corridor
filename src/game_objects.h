@@ -8,11 +8,15 @@
 
 // Tool struct for colors
 typedef struct Colors {
-    int r, g, b, h, s, l;
+    float r, g, b, h, s, l;
     
-    Colors() {}
+    Colors() {
+        this->r = ((((GLfloat)(rand() % 180)) + 75) / 255);
+        this->g = ((((GLfloat)(rand() % 180)) + 75) / 255);
+        this->b = ((((GLfloat)(rand() % 180)) + 75) / 255);
+    }
 
-    Colors(int r, int g, int b) {
+    Colors(float r, float g, float b) {
         this->r = r;
         this->g = g;
         this->b = b;
@@ -71,6 +75,7 @@ typedef struct Wall {
     Position pos;
     float depth;
     GLuint* texture;
+    // Colors color;
 
     Wall() {}
 
@@ -95,6 +100,7 @@ typedef struct WallStep {
     float height;
     float depth; // Correspond au fond du wallStep sur l'axe Y
     Position pos;
+    Colors color;
     std::vector<Wall> walls;
 
     WallStep() {
@@ -103,6 +109,7 @@ typedef struct WallStep {
 
     WallStep(float depth) {
         this->depth = depth;
+        this->color = Colors();
     }
 
     WallStep(float width, float height, Position pos, std::vector<Wall> walls) {
@@ -154,7 +161,23 @@ typedef struct Corridor {
 typedef struct Player : Wall {
     // Light light;
 
-    Player() {}
+    Player() {
+        this->pos.y=0;
+    }
+
+    Player(float width) {
+        this->pos.x=0;
+        this->pos.y=0;
+        this->pos.y=0;
+        this->width=width;
+        this->height=width;
+    }
+
+    void updatePosition(int positionX, int positionY, int WINDOW_WIDTH, int WINDOW_HEIGHT, float _viewSize, float aspectRatio) {
+        this->pos.x = (_viewSize * aspectRatio) / WINDOW_WIDTH * positionX - (_viewSize * aspectRatio) / 2.0;
+		this->pos.z = -_viewSize / WINDOW_HEIGHT * positionY + _viewSize / 2.0;
+    }
+
 } Player;
 
 // General game struct containing all the elements needed

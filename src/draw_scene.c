@@ -265,6 +265,7 @@ void drawWallStep(vector<WallStep> myWallSteps) {
 		glPopMatrix();
 
 		// Appel de la fonction pour dessiner les murs du wallStep
+		glColor4f(myWallSteps[i].color.r, myWallSteps[i].color.g, myWallSteps[i].color.b,0.8);
 		drawWall(myWallSteps[i].walls);
     }
 }
@@ -275,7 +276,8 @@ void drawWall(vector<Wall> myWalls){
         if (myWalls[i].depth-game_depth >= 0)
 		{
 			// Wall
-			glColor4f(1.,1.,0,0.8);
+			// glColor4f(1.,1.,0,0.8);
+			// glColor4f(myWalls[i].color.r, myWalls[i].color.g, myWalls[i].color.b,0.8);
 			glPushMatrix();
 				// Placement du mur au fond du wallStep
 				glTranslatef(0,myWalls[i].depth,0);
@@ -292,4 +294,26 @@ void drawWall(vector<Wall> myWalls){
     }
 }
 
+void drawPlayer(Player myPlayer) {
+	glPushMatrix();
+		// Placement du mur au fond du wallStep
+		glTranslatef(0,myPlayer.depth,0);
+		// Placement du mur
+		glTranslatef(myPlayer.pos.x,0,myPlayer.pos.z);
+		// Taille du mur
+		glScalef(myPlayer.width, 1, myPlayer.height);
+		glRotatef(90, 1, 0, 0);
+		glColor4f((float) 178/255,(float) 178/255,(float) 178/255,1.);
+		glLineWidth(3.0);
+		glBegin(GL_LINE_LOOP);
+				glVertex2f(-0.5f, 0.5f);
+				glVertex2f(0.5f, 0.5f);
+				glVertex2f(0.5f, -0.5f);
+				glVertex2f(-0.5f, -0.5f);
+		glEnd();
+		glLineWidth(1.0);
+		glColor4f((float) 178/255,(float) 178/255,(float) 178/255,.25);
+		drawSquare();
+	glPopMatrix();
+}
 

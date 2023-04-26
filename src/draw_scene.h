@@ -23,3 +23,5 @@ void drawCorridor(Corridor myCorridor);
 void drawWallStep(std::vector<WallStep> myWallSteps); 
 
 void drawWall(std::vector<Wall> myWalls);
+
+void drawPlayer(Player myPlayer);

@@ -35,6 +35,7 @@ float game_depth=0;
 static const float _viewSize = building_height; // Correspond à building height à cause du cadrage sur le tunnel (peut changer)
 
 Corridor myCorridor = Corridor(12, rand() % 30 + 10); // Profondeur d'une étape (building_depth) / Nombre d'étapes 
+Player myPlayer = Player(building_width/6);
 
 struct Vertex
 {
@@ -103,8 +104,7 @@ void mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
 
 void cursor_position_callback(GLFWwindow *window, double xpos, double ypos)
 {
-    // double r = (float)xpos/(WINDOW_WIDTH), g = 0, b = (float)ypos/(WINDOW_HEIGHT), a = 0;
-    // glClearColor(r, g, b, a);
+    myPlayer.updatePosition(xpos, ypos, WINDOW_WIDTH, WINDOW_HEIGHT, _viewSize, aspectRatio);
 }
 
 void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -148,9 +148,9 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 			case GLFW_KEY_LEFT :
 				theta -= 5;
 				std::cout << "Theta is " << theta << std::endl;
-				// break;
+				break;
 			case GLFW_KEY_RIGHT :
-				// theta += 5;
+				theta += 5;
 				std::cout << "Theta is " << theta << std::endl;
 				break;
 			case GLFW_KEY_W :
@@ -322,12 +322,16 @@ void generateCorridor() {
 	}
 }
 
-void draw() {
+void draw() {	
 	
 	glPushMatrix();
 		glTranslatef(0,-game_depth,0);
 		drawCorridor(myCorridor);
 	glPopMatrix();
+
+	drawFrame();
+
+	drawPlayer(myPlayer);
 
 	// glPushMatrix();
 	// 	glTranslatef(0,-game_depth,0);
@@ -338,7 +342,7 @@ void draw() {
 	// 	}
 	// glPopMatrix();
 	
-	drawFrame();
+	
 	
 	drawTestTextures();
 
