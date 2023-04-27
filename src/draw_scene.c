@@ -199,48 +199,56 @@ void drawTunnelPart(int tunnel_depth) {
 
 void drawCorridor(Corridor myCorridor) {
 	// Bottom
-	glColor4f(0.,1.,0.,0.8);
+	glColor4f(myCorridor.colorSideWalls.r,myCorridor.colorSideWalls.g,myCorridor.colorSideWalls.b,0.8);
 	glPushMatrix();
-		glTranslatef(0,building_depth+building_depth*(myCorridor.wallSteps.size()-1),0);
+		glTranslatef(0,building_depth+building_depth*(myCorridor.numberOfSteps-1),0);
 		glScalef(building_width, 1, building_height);
 		glRotatef(90, 1, 0, 0);
 		drawSquare();
 	glPopMatrix();
+
+	// Last ring
+	glColor4f(myCorridor.colorRings.r,myCorridor.colorRings.g,myCorridor.colorRings.b,0.8);
+	glPushMatrix();
+		glTranslatef(0,building_depth+building_depth*(myCorridor.numberOfSteps-1)-(float) 1/100,0);
+		glScalef(building_width, 1, building_height);
+		glRotatef(90, 1, 0, 0);
+		glLineWidth(6.0);
+		glBegin(GL_LINE_LOOP);
+			glVertex2f(-0.5f, 0.5f);
+			glVertex2f(0.5f, 0.5f);
+			glVertex2f(0.5f, -0.5f);
+			glVertex2f(-0.5f, -0.5f);
+		glEnd();
+		glLineWidth(1.0);
+	glPopMatrix();
 	
 	// Appel de la fonction pour dessiner les wallSteps du corridor
-    drawWallStep(myCorridor.wallSteps);
+    drawWallStep(myCorridor.wallSteps, myCorridor);
 }
 
-void drawWallStep(vector<WallStep> myWallSteps) {
+void drawWallStep(vector<WallStep> myWallSteps, Corridor myCorridor) {
     for (int i = myWallSteps.size()-1; i > -1; i--)
     {
+		glColor4f(myCorridor.colorCeillingWalls.r,myCorridor.colorCeillingWalls.g,myCorridor.colorCeillingWalls.b,0.8);
+		
 		// Top wall
-        glColor4f(0./255,0./255,69./255,0.8);
         glPushMatrix();
             glTranslatef(0,myWallSteps[i].depth-building_depth/2,building_height/2);
             glScalef(building_width, building_depth, building_height);
             drawSquare();
         glPopMatrix();
 
-        // Right wall
-        glColor4f(69./255,69./255,142./255,0.8);
-        glPushMatrix();
-            glTranslatef(building_width/2,myWallSteps[i].depth-building_depth/2,0);
-            glRotatef(90, 0, 1, 0);
-            glScalef(building_height, building_depth, building_height);
-            drawSquare();
-        glPopMatrix();
-
         // Bottom wall
-        glColor4f(69./255,69./255,105./255,0.8);
         glPushMatrix();
             glTranslatef(0,myWallSteps[i].depth-building_depth/2,-building_height/2);
             glScalef(building_width, building_depth, building_height);
             drawSquare();
         glPopMatrix();
 
+		glColor4f(myCorridor.colorSideWalls.r,myCorridor.colorSideWalls.g,myCorridor.colorSideWalls.b,0.8);
+
         // Left wall
-        glColor4f(69./255,105./255,178./255,0.8);
         glPushMatrix();
             glTranslatef(-building_width/2,myWallSteps[i].depth-building_depth/2,0);
             glRotatef(90, 0, 1, 0);
@@ -248,21 +256,32 @@ void drawWallStep(vector<WallStep> myWallSteps) {
             drawSquare();
         glPopMatrix();
 
-		// Ring
-		glColor4f(0.,0.,0.,0.8);
-		glPushMatrix();
-			glTranslatef(0,myWallSteps[i].depth,0);
-			glScalef(building_width, 1, building_height);
-			glRotatef(90, 1, 0, 0);
-			glLineWidth(6.0);
-			glBegin(GL_LINE_LOOP);
-				glVertex2f(-0.5f, 0.5f);
-				glVertex2f(0.5f, 0.5f);
-				glVertex2f(0.5f, -0.5f);
-				glVertex2f(-0.5f, -0.5f);
-			glEnd();
-			glLineWidth(1.0);
-		glPopMatrix();
+		// Right wall
+        glPushMatrix();
+            glTranslatef(building_width/2,myWallSteps[i].depth-building_depth/2,0);
+            glRotatef(90, 0, 1, 0);
+            glScalef(building_height, building_depth, building_height);
+            drawSquare();
+        glPopMatrix();
+
+		if (i != myWallSteps.size()-1)
+		{
+			// Ring
+			glColor4f(myCorridor.colorRings.r,myCorridor.colorRings.g,myCorridor.colorRings.b,0.8);
+			glPushMatrix();
+				glTranslatef(0,myWallSteps[i].depth,0);
+				glScalef(building_width, 1, building_height);
+				glRotatef(90, 1, 0, 0);
+				glLineWidth(6.0);
+				glBegin(GL_LINE_LOOP);
+					glVertex2f(-0.5f, 0.5f);
+					glVertex2f(0.5f, 0.5f);
+					glVertex2f(0.5f, -0.5f);
+					glVertex2f(-0.5f, -0.5f);
+				glEnd();
+				glLineWidth(1.0);
+			glPopMatrix();
+		}
 
 		// Appel de la fonction pour dessiner les murs du wallStep
 		glColor4f(myWallSteps[i].color.r, myWallSteps[i].color.g, myWallSteps[i].color.b,0.8);
@@ -276,8 +295,6 @@ void drawWall(vector<Wall> myWalls){
         if (myWalls[i].depth-game_depth >= 0)
 		{
 			// Wall
-			// glColor4f(1.,1.,0,0.8);
-			// glColor4f(myWalls[i].color.r, myWalls[i].color.g, myWalls[i].color.b,0.8);
 			glPushMatrix();
 				// Placement du mur au fond du wallStep
 				glTranslatef(0,myWalls[i].depth,0);
@@ -324,11 +341,7 @@ void drawBall(Ball myBall) {
 		glTranslatef(myBall.pos.x,myBall.pos.y,myBall.pos.z);
 		// Taille du mur
 		glScalef(myBall.radius*2, myBall.radius*2, myBall.radius*2);
-		// glRotatef(90, 1, 0, 0);
 		glColor4f((float) 69/255,(float) 69/255,(float) 142/255,1.);
 		drawSphere();
-		// glLineWidth(1.0);
-		// glColor4f((float) 178/255,(float) 178/255,(float) 178/255,.25);
-		// drawSquare();
 	glPopMatrix();
 }

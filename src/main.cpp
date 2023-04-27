@@ -34,6 +34,7 @@ float game_depth=0;
 
 static const float _viewSize = building_height; // Correspond à building height à cause du cadrage sur le tunnel (peut changer)
 
+
 Corridor myCorridor = Corridor(12, rand() % 30 + 10); // Profondeur d'une étape (building_depth) / Nombre d'étapes 
 Player myPlayer = Player(building_width/6);
 Ball myBall = Ball(building_width/24);
@@ -214,12 +215,14 @@ GLuint loadImage(const char* filename) {
 void loadTextures() {
 	textures.push_back(loadImage("../res/0.png"));
 	textures.push_back(loadImage("../res/1.png"));
+	// textures.push_back(loadImage("../res/poulpile.jpg"));
 }
 
 // Function that delete the textures used in game
 void deleteTextures() {
 	glDeleteTextures(1, &textures[0]);
 	glDeleteTextures(1, &textures[1]);
+	// glDeleteTextures(1, &textures[2]);
 }
 
 void drawTestTextures() {
@@ -271,7 +274,7 @@ void generateCorridor() {
 		WallStep myWallStep = WallStep(myCorridor.depthOfAStep + myCorridor.depthOfAStep*i);
 		
 		randomTemp = rand() % 100 + 1;
-		if (randomTemp < 20 && i!=50-1)
+		if (randomTemp < 25 && i!=myCorridor.numberOfSteps-1)
 		{
 			randomTemp = rand() % 4 + 1;
 			switch(randomTemp) {
@@ -327,8 +330,8 @@ void draw() {
 	
 	glPushMatrix();
 		glTranslatef(0,-game_depth,0);
-		drawCorridor(myCorridor);
 		drawBall(myBall);
+		drawCorridor(myCorridor);
 	glPopMatrix();
 
 	drawFrame();
@@ -418,6 +421,9 @@ int main() {
 	printf("corridor height: %i", corridor.height);
 
 	printf("corridor numberOfSteps: %i", myCorridor.numberOfSteps);
+
+
+	
 
 	generateCorridor();
 

@@ -6,20 +6,101 @@
 #include <GL/glu.h>
 #include <vector>
 
+#include <stdlib.h>
+#include <time.h>
+
 // Tool struct for colors
 typedef struct Colors {
     float r, g, b, h, s, l;
     
     Colors() {
-        this->r = ((((GLfloat)(rand() % 180)) + 75) / 255);
-        this->g = ((((GLfloat)(rand() % 180)) + 75) / 255);
-        this->b = ((((GLfloat)(rand() % 180)) + 75) / 255);
+        
+        
+        this->r = (float) ((rand() % 180) + 75) / 255;
+        this->g = (float) ((rand() % 180) + 75) / 255;
+        this->b = (float) ((rand() % 180) + 75) / 255;
     }
 
     Colors(float r, float g, float b) {
         this->r = r;
         this->g = g;
         this->b = b;
+    }
+
+    void updateHSL() {
+        float max_val = std::max(this->r, std::max(this->g, this->b));
+        float min_val = std::min(r, std::min(this->g, this->b));
+        float delta = max_val - min_val;
+
+        // Calculate hue
+        if (delta == 0) {
+            this->h = 0;
+        } else if (max_val == r) {
+            this->h = 60 * ((g - b) / delta);
+            if (this->h < 0) this->h += 360;
+        } else if (max_val == g) {
+            this->h = 60 * ((this->b - this->r) / delta + 2);
+        } else {
+            this->h = 60 * ((this->r - this->g) / delta + 4);
+        }
+
+        // Calculate lightness
+        this->l = (max_val + min_val) / 2;
+
+        // Calculate saturation
+        if (delta == 0) {
+            this->s = 0;
+        } else {
+            this->s = delta / (1 - std::abs(2 * this->l - 1));
+        }
+    }
+
+    void updateRGB() {
+        float max_val = (1 - std::abs(2 * this->l - 1)) * this->s;
+        float min_val = this->l - max_val / 2.;
+
+        float h_prime = this->h / 60.;
+        float delta = max_val * (1 - std::abs(fmod(h_prime, 2) - 1));
+
+        if (h_prime < 1) {
+            this->r = max_val;
+            this->g = delta;
+            this->b = 0;
+        } else if (h_prime < 2) {
+            this->r = delta;
+            this->g = max_val;
+            this->b = 0;
+        } else if (h_prime < 3) {
+            this->r = 0;
+            this->g = max_val;
+            this->b = delta;
+        } else if (h_prime < 4) {
+            this->r = 0;
+            this->g = delta;
+            this->b = max_val;
+        } else if (h_prime < 5) {
+            this->r = delta;
+            this->g = 0;
+            this->b = max_val;
+        } else {
+            this->r = max_val;
+            this->g = 0;
+            this->b = delta;
+        }
+
+        this->r += min_val;
+        this->g += min_val;
+        this->b += min_val;
+    }
+
+    Colors generateAlternateColor(float h_delta, float s_delta, float b_delta) {
+        Colors newColor = Colors(this->r, this->g, this->b);
+        newColor.updateHSL();
+        newColor.h += (float) h_delta/360;
+        newColor.s += (float) s_delta/100;
+        newColor.b += (float) b_delta/100;
+        newColor.updateRGB();
+        return newColor;
     }
 
 } Colors;
@@ -132,6 +213,9 @@ typedef struct Corridor {
     float depthOfAStep;
     int numberOfSteps;
     std::vector<WallStep> wallSteps;
+    Colors colorSideWalls;
+    Colors colorCeillingWalls;
+    Colors colorRings;
     GLuint* sideWallsTexture;
     GLuint* groundTexture;
     GLuint* ceilingTexture;
@@ -139,8 +223,13 @@ typedef struct Corridor {
     Corridor() {}
 
     Corridor(float depthOfAStep, int numberOfSteps) {
+        srand(time(NULL));
+
         this->depthOfAStep = depthOfAStep;
         this->numberOfSteps = numberOfSteps;
+        this->colorSideWalls = Colors();
+        this->colorCeillingWalls = colorSideWalls.generateAlternateColor(20, -23, 14);
+        this->colorRings = colorSideWalls.generateAlternateColor(8, 52, 15);
     }
 
     // Corridor(int width, int height) {

@@ -20,7 +20,7 @@ void drawTunnelPart(int tunnel_depth);
 
 void drawCorridor(Corridor myCorridor);
 
-void drawWallStep(std::vector<WallStep> myWallSteps); 
+void drawWallStep(std::vector<WallStep> myWallSteps, Corridor myCorridor); 
 
 void drawWall(std::vector<Wall> myWalls);
 
