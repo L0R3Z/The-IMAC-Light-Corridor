@@ -340,7 +340,7 @@ void draw() {
 	glPushMatrix();
 		glTranslatef(0,-game_depth,0);
 		drawBall(myBall);
-		drawCorridor(myCorridor);
+		drawCorridor(myCorridor, myBall.pos, myPlayer.pos);
 	glPopMatrix();
 
 	// drawFrame();

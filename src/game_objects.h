@@ -10,6 +10,19 @@
 #include <time.h>
 #include <math.h>
 
+// Tool struct for 3D positions
+typedef struct Position {
+    GLfloat x, y, z; // y -> profondeur
+
+    Position() {}
+
+    Position(GLfloat x, GLfloat y, GLfloat z) {
+        this->x = x;
+        this->y = y;
+        this->z = z;
+    }
+} Position;
+
 
 // Tool struct for colors
 typedef struct Colors {
@@ -108,20 +121,43 @@ typedef struct Colors {
         return newColor;
     }
 
-} Colors;
+    Colors displayColor(Position posBall, Position posPlayer, Position posObject, float game_depth) {
+        // Position posBall = Position(0,12*10-game_depth+ballTempY,0);
+        posBall.y -= game_depth;
+        posObject.y -= game_depth;
 
-// Tool struct for 3D positions
-typedef struct Position {
-    GLfloat x, y, z; // y -> profondeur
+        // printf("\n\n\nposBall.x = %f | posPlayer.x = %f | posObject.x %f \n", posBall.x, posPlayer.x, posObject.x);
+        // printf("posBall.y = %f | posPlayer.y = %f | posObject.y %f \n", posBall.y, posPlayer.y, posObject.y);
+        // printf("posBall.z = %f | posPlayer.z = %f | posObject.z %f \n", posBall.z, posPlayer.z, posObject.z);
+        
+        Colors newColor = *this;
+        this->updateHSL();
 
-    Position() {}
+        float distancePlayer = std::sqrt(pow((posObject.x-posPlayer.x),2)+pow((posObject.y-posPlayer.y),2)+pow((posObject.z-posPlayer.z),2));
+        float distanceBall = std::sqrt(pow((posObject.x-posBall.x),2)+pow((posObject.y-posBall.y),2)+pow((posObject.z-posBall.z),2));
+        
+        // Set the light parameters
+        float lightPropagationPlayer = 60.0f;
+        float lightIntensityPlayer = 0.6f;
+        float lightPropagationBall = 40.0f;
+        float lightIntensityBall = 0.4f;
 
-    Position(GLfloat x, GLfloat y, GLfloat z) {
-        this->x = x;
-        this->y = y;
-        this->z = z;
+        // Calculate the brightness
+        float brightnessPlayer = 1.0f - (distancePlayer / lightPropagationPlayer);
+        float brightnessBall = 1.0f - (distanceBall / lightPropagationPlayer);
+
+        // Clamp the brightness to [0, 1] range
+        brightnessPlayer = std::max(std::min(brightnessPlayer, 1.0f), 0.0f);
+        brightnessBall = std::max(std::min(brightnessBall, 1.0f), 0.0f);
+
+        Colors colorPlayer = this->generateAlternateColor(0, 0, - this->l * 100 + brightnessPlayer * lightIntensityPlayer * (this->l * 100));
+        Colors colorBall = this->generateAlternateColor(0, 0, - this->l * 100 + brightnessBall * lightIntensityBall * (this->l * 100));
+
+        newColor =  this->generateAlternateColor(0, 0, -this->l*100 + ((colorPlayer.l+colorBall.l)/1)*100);
+        return newColor;
     }
-} Position;
+
+} Colors;
 
 // Tool struct for 3D speed
 typedef struct Speed {
@@ -208,6 +244,7 @@ typedef struct WallStep {
 
     WallStep(float depth) {
         this->depth = depth;
+        this->pos = Position(0,this->depth,0);
         this->color = Colors();
     }
 
@@ -225,30 +262,36 @@ typedef struct WallStep {
 
         Position posPlayer = Position(0, 0, 0);
         float distancePlayer = std::sqrt(pow((posWall.x-posPlayer.x),2)+pow((posWall.y-posPlayer.y),2)+pow((posWall.z-posPlayer.z),2));
-        // float intensityPlayer = 60;
-        // Colors colorPlayer = colorTunnel.generateAlternateColor(0,0,-(distancePlayer/intensityPlayer)*(colorTunnel.l*100));
+        
+        // Set the light parameters
+        float lightPropagationPlayer = 60.0f;
+        float lightIntensityPlayer = 0.6f;
 
-        // Set the light intensity
-        float lightPropagation = 80.0f;
-        float lightIntensity = 0.8f;
+        // Calculate the brightness
+        float brightnessPlayer = 1.0f - (distancePlayer / lightPropagationPlayer);
 
-        // Calculate the brightness based on the distance and the light intensity
-        float brightness = 1.0f - (distancePlayer / lightPropagation);
+        // Clamp the brightness to [0, 1] range
+        brightnessPlayer = std::max(std::min(brightnessPlayer, 1.0f), 0.0f);
 
-        // Clamp the brightness to [0, lightIntensity] range
-        brightness = std::max(std::min(brightness, 1.0f), 0.0f);
-
-        Colors colorPlayer = colorTunnel.generateAlternateColor(0, 0, - colorTunnel.l * 100 + brightness * lightIntensity * (colorTunnel.l * 100));
-
+        Colors colorPlayer = colorTunnel.generateAlternateColor(0, 0, - colorTunnel.l * 100 + brightnessPlayer * lightIntensityPlayer * (colorTunnel.l * 100));
 
         Position posBall = Position(0,12*10-game_depth+ballTempY,0);
         float distanceBall = std::sqrt(pow((posWall.x-posBall.x),2)+pow((posWall.y-posBall.y),2)+pow((posWall.z-posBall.z),2));
-        float intensityBall = 60;
-        Colors colorBall = colorTunnel.generateAlternateColor(0,0,-(distanceBall/intensityBall)*(colorTunnel.l*100));
+
+        // Set the light parameters
+        float lightPropagationBall = 40.0f;
+        float lightIntensityBall = 0.4f;
+
+        // Calculate the brightness
+        float brightnessBall = 1.0f - (distanceBall / lightPropagationPlayer);
+
+        // Clamp the brightness to [0, 1] range
+        brightnessBall = std::max(std::min(brightnessBall, 1.0f), 0.0f);
+
+        Colors colorBall = colorTunnel.generateAlternateColor(0, 0, - colorTunnel.l * 100 + brightnessBall * lightIntensityBall * (colorTunnel.l * 100));
 
         this->displayColor =  colorTunnel.generateAlternateColor(0, 0, -colorTunnel.l*100 + ((colorPlayer.l+colorBall.l)/1)*100);
         // this->displayColor =  colorTunnel.generateAlternateColor(0, 0, -colorTunnel.l*100 + ((colorPlayer.l)/1)*100);
-        // this->displayColor = colorTunnel.generateAlternateColor(0,0,-((distancePlayer/intensityPlayer)+(distanceBall/intensityBall))*(colorTunnel.l*100));
 
     }
 
