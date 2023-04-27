@@ -230,7 +230,9 @@ void drawCorridor(Corridor myCorridor) {
 void drawWallStep(vector<WallStep> myWallSteps, Corridor myCorridor) {
     for (int i = myWallSteps.size()-1; i > -1; i--)
     {
-		glColor4f(myCorridor.colorCeillingWalls.r,myCorridor.colorCeillingWalls.g,myCorridor.colorCeillingWalls.b,0.8);
+		// glColor4f(myCorridor.colorCeillingWalls.r,myCorridor.colorCeillingWalls.g,myCorridor.colorCeillingWalls.b,0.8);
+		myWallSteps[i].lightImpact(myCorridor.colorCeillingWalls, game_depth, ballTempY);
+		glColor4f(myWallSteps[i].displayColor.r,myWallSteps[i].displayColor.g,myWallSteps[i].displayColor.b,0.8);
 		
 		// Top wall
         glPushMatrix();
@@ -246,7 +248,9 @@ void drawWallStep(vector<WallStep> myWallSteps, Corridor myCorridor) {
             drawSquare();
         glPopMatrix();
 
-		glColor4f(myCorridor.colorSideWalls.r,myCorridor.colorSideWalls.g,myCorridor.colorSideWalls.b,0.8);
+		myWallSteps[i].lightImpact(myCorridor.colorSideWalls, game_depth, ballTempY);
+		glColor4f(myWallSteps[i].displayColor.r,myWallSteps[i].displayColor.g,myWallSteps[i].displayColor.b,0.8);
+		// glColor4f(myCorridor.colorSideWalls.r,myCorridor.colorSideWalls.g,myCorridor.colorSideWalls.b,0.8);
 
         // Left wall
         glPushMatrix();
@@ -267,7 +271,10 @@ void drawWallStep(vector<WallStep> myWallSteps, Corridor myCorridor) {
 		if (i != myWallSteps.size()-1)
 		{
 			// Ring
-			glColor4f(myCorridor.colorRings.r,myCorridor.colorRings.g,myCorridor.colorRings.b,0.8);
+			myWallSteps[i].lightImpact(myCorridor.colorRings, game_depth, ballTempY);
+			glColor4f(myWallSteps[i].displayColor.r,myWallSteps[i].displayColor.g,myWallSteps[i].displayColor.b,0.8);
+
+			// glColor4f(myCorridor.colorRings.r,myCorridor.colorRings.g,myCorridor.colorRings.b,0.8);
 			glPushMatrix();
 				glTranslatef(0,myWallSteps[i].depth,0);
 				glScalef(building_width, 1, building_height);
@@ -305,7 +312,7 @@ void drawWall(vector<Wall> myWalls){
 				// Taille du mur
 				glScalef(myWalls[i].width, 1, myWalls[i].height);
 				glRotatef(90, 1, 0, 0);
-				drawSquare();
+				// drawSquare();
 			glPopMatrix();
 		}
     }

@@ -14,6 +14,8 @@ extern float building_depth;
 extern float aperture;
 extern float game_depth;
 
+extern float ballTempY;
+
 void drawFrame();
 
 void drawTunnelPart(int tunnel_depth);

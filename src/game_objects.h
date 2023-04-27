@@ -8,6 +8,8 @@
 
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
+
 
 // Tool struct for colors
 typedef struct Colors {
@@ -93,12 +95,15 @@ typedef struct Colors {
         this->b += min_val;
     }
 
-    Colors generateAlternateColor(float h_delta, float s_delta, float b_delta) {
+    Colors generateAlternateColor(float h_delta, float s_delta, float l_delta) {
         Colors newColor = Colors(this->r, this->g, this->b);
         newColor.updateHSL();
         newColor.h += (float) h_delta/360;
         newColor.s += (float) s_delta/100;
-        newColor.b += (float) b_delta/100;
+        newColor.l += (float) l_delta/100;
+        if (newColor.h < 0) {newColor.h = 0;}
+        if (newColor.s < 0) {newColor.s = 0;}
+        if (newColor.l < 0) {newColor.l = 0;}
         newColor.updateRGB();
         return newColor;
     }
@@ -143,7 +148,7 @@ typedef struct Ball {
 
     Ball(int rad) {
         this->radius = rad;
-        this->pos = Position(0,24.,0);
+        this->pos = Position(0,12*10.,0);
     }
 
     Ball(int rad, Position pos, Speed speed, GLuint* texture) {
@@ -152,6 +157,13 @@ typedef struct Ball {
         this->speed = speed;
         this->texture = texture;
     }
+
+    void moveBall(float moveX, float moveY, float moveZ) {
+        this->pos.x += moveX;
+        this->pos.y += moveY;
+        this->pos.z += moveZ;
+    }
+
 } Ball;
 
 // Wall struct
@@ -187,6 +199,7 @@ typedef struct WallStep {
     float depth; // Correspond au fond du wallStep sur l'axe Y
     Position pos;
     Colors color;
+    Colors displayColor;
     std::vector<Wall> walls;
 
     WallStep() {
@@ -204,6 +217,41 @@ typedef struct WallStep {
         this->pos = pos;
         this->walls = walls;
     }
+
+    void lightImpact(Colors colorTunnel, float game_depth, float ballTempY) {
+        this->displayColor = colorTunnel;
+        Position posWall = Position(0, this->depth-game_depth, 0);
+        colorTunnel.updateHSL();
+
+        Position posPlayer = Position(0, 0, 0);
+        float distancePlayer = std::sqrt(pow((posWall.x-posPlayer.x),2)+pow((posWall.y-posPlayer.y),2)+pow((posWall.z-posPlayer.z),2));
+        // float intensityPlayer = 60;
+        // Colors colorPlayer = colorTunnel.generateAlternateColor(0,0,-(distancePlayer/intensityPlayer)*(colorTunnel.l*100));
+
+        // Set the light intensity
+        float lightPropagation = 80.0f;
+        float lightIntensity = 0.8f;
+
+        // Calculate the brightness based on the distance and the light intensity
+        float brightness = 1.0f - (distancePlayer / lightPropagation);
+
+        // Clamp the brightness to [0, lightIntensity] range
+        brightness = std::max(std::min(brightness, 1.0f), 0.0f);
+
+        Colors colorPlayer = colorTunnel.generateAlternateColor(0, 0, - colorTunnel.l * 100 + brightness * lightIntensity * (colorTunnel.l * 100));
+
+
+        Position posBall = Position(0,12*10-game_depth+ballTempY,0);
+        float distanceBall = std::sqrt(pow((posWall.x-posBall.x),2)+pow((posWall.y-posBall.y),2)+pow((posWall.z-posBall.z),2));
+        float intensityBall = 60;
+        Colors colorBall = colorTunnel.generateAlternateColor(0,0,-(distanceBall/intensityBall)*(colorTunnel.l*100));
+
+        this->displayColor =  colorTunnel.generateAlternateColor(0, 0, -colorTunnel.l*100 + ((colorPlayer.l+colorBall.l)/1)*100);
+        // this->displayColor =  colorTunnel.generateAlternateColor(0, 0, -colorTunnel.l*100 + ((colorPlayer.l)/1)*100);
+        // this->displayColor = colorTunnel.generateAlternateColor(0,0,-((distancePlayer/intensityPlayer)+(distanceBall/intensityBall))*(colorTunnel.l*100));
+
+    }
+
 } WallStep;
 
 // Corridor struct
@@ -249,6 +297,7 @@ typedef struct Corridor {
         this->groundTexture = groundTexture;
         this->ceilingTexture = ceilingTexture;
     }
+
 } Corridor;
 
 // Player struct for the racket that the player controls

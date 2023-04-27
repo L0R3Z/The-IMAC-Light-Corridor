@@ -31,6 +31,7 @@ float building_height = building_width/2;
 float building_depth = 12.0f;
 float aperture = 60.0; // Ouverture de la caméra 60.0 de base
 float game_depth=0;
+float ballTempY = 0;
 
 static const float _viewSize = building_height; // Correspond à building height à cause du cadrage sur le tunnel (peut changer)
 
@@ -183,6 +184,14 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 			case GLFW_KEY_S :
 				game_depth-=1;
 				break;
+			case GLFW_KEY_KP_7 :
+				myBall.moveBall(0,1,0);
+				ballTempY+=1;
+				break;
+			case GLFW_KEY_KP_1 :
+				myBall.moveBall(0,-1,0);
+				ballTempY-=1;
+				break;
 			default:
 					std::cout << "Touche non gérée (" << key << ")" << std::endl;
 		}
@@ -334,7 +343,7 @@ void draw() {
 		drawCorridor(myCorridor);
 	glPopMatrix();
 
-	drawFrame();
+	// drawFrame();
 
 	
 
@@ -421,9 +430,6 @@ int main() {
 	printf("corridor height: %i", corridor.height);
 
 	printf("corridor numberOfSteps: %i", myCorridor.numberOfSteps);
-
-
-	
 
 	generateCorridor();
 
