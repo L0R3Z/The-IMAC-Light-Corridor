@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include "vector"
+#include <vector>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include "3D_tools.h"
@@ -25,7 +25,20 @@ static unsigned int WINDOW_WIDTH = 640;
 static unsigned int WINDOW_HEIGHT = 400;
 static const char WINDOW_TITLE[] = "The IMAC Light Corridor";
 static float aspectRatio = 1.0;
-static const float _viewSize = 18.0; // Correspond à building height
+
+float building_width = 24.0f;
+float building_height = building_width/2;
+float building_depth = 12.0f;
+float aperture = 60.0; // Ouverture de la caméra 60.0 de base
+float game_depth=0;
+float ballTempY = 0;
+
+static const float _viewSize = building_height; // Correspond à building height à cause du cadrage sur le tunnel (peut changer)
+
+
+Corridor myCorridor = Corridor(12, rand() % 30 + 10); // Profondeur d'une étape (building_depth) / Nombre d'étapes 
+Player myPlayer = Player(building_width/6);
+Ball myBall = Ball(building_width/24);
 
 struct Vertex
 {
@@ -37,17 +50,8 @@ struct Vertex
 
     Vertex(int positionX, int positionY)
     {
-		
-		// if (aspectRatio > 1)
-        // {
-            this->positionX = (_viewSize * aspectRatio) / WINDOW_WIDTH * positionX - (_viewSize * aspectRatio) / 2.0;
-            this->positionY = -_viewSize / WINDOW_HEIGHT * positionY + _viewSize / 2.0;
-        // }
-        // else
-        // {
-        //     this->positionX = _viewSize / WINDOW_WIDTH * positionX - _viewSize / 2.0;
-        //     this->positionY = -(_viewSize * (1 / aspectRatio)) / WINDOW_HEIGHT * positionY + (_viewSize * (1 / aspectRatio)) / 2.0;
-        // }
+		this->positionX = (_viewSize * aspectRatio) / WINDOW_WIDTH * positionX - (_viewSize * aspectRatio) / 2.0;
+		this->positionY = -_viewSize / WINDOW_HEIGHT * positionY + _viewSize / 2.0;
         this->colorR = ((((GLfloat)(rand() % 180)) + 75) / 255);
         this->colorG = ((((GLfloat)(rand() % 180)) + 75) / 255);
         this->colorB = ((((GLfloat)(rand() % 180)) + 75) / 255);
@@ -67,8 +71,6 @@ static const double FRAMERATE_IN_SECONDS = 1. / 90.;
 /* IHM flag */
 static int flag_animate_rot_scale = 0;
 static int flag_animate_rot_arm = 0;
-
-float game_depth=0;
 
 // Rotation variables
 	float alpha = 0;
@@ -105,8 +107,7 @@ void mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
 
 void cursor_position_callback(GLFWwindow *window, double xpos, double ypos)
 {
-    // double r = (float)xpos/(WINDOW_WIDTH), g = 0, b = (float)ypos/(WINDOW_HEIGHT), a = 0;
-    // glClearColor(r, g, b, a);
+    myPlayer.updatePosition(xpos, ypos, WINDOW_WIDTH, WINDOW_HEIGHT, _viewSize, aspectRatio);
 }
 
 void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -175,6 +176,38 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 				std::cout << "Touche non gérée (" << key << ")" << std::endl;
 		}
 	}
+	if (action == GLFW_REPEAT) {
+		switch(key) {
+			case GLFW_KEY_W :
+				game_depth+=1;
+				break;
+			case GLFW_KEY_S :
+				game_depth-=1;
+				break;
+			case GLFW_KEY_KP_7 :
+				myBall.moveBall(0,1,0);
+				ballTempY+=1;
+				break;
+			case GLFW_KEY_KP_1 :
+				myBall.moveBall(0,-1,0);
+				ballTempY-=1;
+				break;
+			case GLFW_KEY_KP_4 :
+				myBall.moveBall(-1,0,0);
+				break;
+			case GLFW_KEY_KP_5 :
+				myBall.moveBall(1,0,0);
+				break;
+			case GLFW_KEY_KP_8 :
+				myBall.moveBall(0,0,1);
+				break;
+			case GLFW_KEY_KP_2 :
+				myBall.moveBall(0,0,-1);
+				break;
+			default:
+					std::cout << "Touche non gérée (" << key << ")" << std::endl;
+		}
+	}
 }
 
 // Code a texture from the file path
@@ -203,12 +236,14 @@ GLuint loadImage(const char* filename) {
 void loadTextures() {
 	textures.push_back(loadImage("../res/0.png"));
 	textures.push_back(loadImage("../res/1.png"));
+	// textures.push_back(loadImage("../res/poulpile.jpg"));
 }
 
 // Function that delete the textures used in game
 void deleteTextures() {
 	glDeleteTextures(1, &textures[0]);
 	glDeleteTextures(1, &textures[1]);
+	// glDeleteTextures(1, &textures[2]);
 }
 
 void drawTestTextures() {
@@ -252,152 +287,90 @@ void drawTestTextures() {
 	glDisable(GL_TEXTURE_2D);
 }
 
-void drawTunnelPart(int tunnel_depth) {
-	// Top wall
-	glColor4f(0./255,0./255,69./255,0.8);
-	glPushMatrix();
-		glTranslatef(0,building_depth/2+building_depth*tunnel_depth,building_height/2);
-		glScalef(building_width, building_depth, building_height);
-		drawSquare();
-	glPopMatrix();
-
-	// Right wall
-	glColor4f(69./255,69./255,142./255,0.8);
-	glPushMatrix();
-		glTranslatef(building_width/2,building_depth/2+building_depth*tunnel_depth,0);
-		glRotatef(90, 0, 1, 0);
-		glScalef(building_height, building_depth, building_height);
-		drawSquare();
-	glPopMatrix();
-
-	// Bottom wall
-	glColor4f(69./255,69./255,105./255,0.8);
-	glPushMatrix();
-		glTranslatef(0,building_depth/2+building_depth*tunnel_depth,-building_height/2);
-		glScalef(building_width, building_depth, building_height);
-		drawSquare();
-	glPopMatrix();
-
-	// Left wall
-	glColor4f(69./255,105./255,178./255,0.8);
-	glPushMatrix();
-		glTranslatef(-building_width/2,building_depth/2+building_depth*tunnel_depth,0);
-		glRotatef(90, 0, 1, 0);
-		glScalef(building_height, building_depth, building_height);
-		drawSquare();
-	glPopMatrix();
-
-	// Bottom
-	glColor4f(0.,0.,0.,0.8);
-	glPushMatrix();
-		glTranslatef(0,building_depth+building_depth*tunnel_depth,0);
-		glScalef(building_width, 1, building_height);
-		glRotatef(90, 1, 0, 0);
+void generateCorridor() {
+	int randomTemp = 0;
+	
+	for (int i = 0; i < myCorridor.numberOfSteps; i++)
+	{
+		WallStep myWallStep = WallStep(myCorridor.depthOfAStep + myCorridor.depthOfAStep*i);
 		
-		if (tunnel_depth==9)
+		randomTemp = rand() % 100 + 1;
+		if (randomTemp < 25 && i!=myCorridor.numberOfSteps-1)
 		{
-			drawSquare();
-		} else {
-			glLineWidth(6.0);
-			glBegin(GL_LINE_LOOP);
-					glVertex2f(-0.5f, 0.5f);
-					glVertex2f(0.5f, 0.5f);
-					glVertex2f(0.5f, -0.5f);
-					glVertex2f(-0.5f, -0.5f);
-			glEnd();
-			glLineWidth(1.0);
-		}
-	glPopMatrix();
+			randomTemp = rand() % 4 + 1;
+			switch(randomTemp) {
+				// Moitié gauche
+				case 1: {
+					Position myPosition = Position(-building_width/2,0,building_height/2);
+					Wall myWall = Wall(building_width/2,building_height, myPosition, myWallStep.depth);
+					myWallStep.walls.push_back(myWall);
+					std::cout << "Moitié gauche (" << i << ")" << std::endl;
+					break;
+				}
+					
+				// Moitié droite
+				case 2: {
+					Position myPosition = Position(0,0,building_height/2);
+					Wall myWall = Wall(building_width/2,building_height, myPosition, myWallStep.depth);
+					myWallStep.walls.push_back(myWall);
+					std::cout << "Moitié droite (" << i << ")" << std::endl;
+					break;
+				}
+				
+				// Petit gauche
+				case 3: {
+					Position myPosition = Position(-building_width/2,0,building_height/2);
+					Wall myWall = Wall(building_width/4,building_height, myPosition, myWallStep.depth);
+					myWallStep.walls.push_back(myWall);
+					std::cout << "Petit gauche (" << i << ")" << std::endl;
+					break;
+				}
 
-	// Wall test
-	glColor4f(0.,0.,1.,0.8);
-	glPushMatrix();
-		glTranslatef(0,building_depth+building_depth*tunnel_depth,0);
-		glTranslatef(-building_width/2,0,0);
-		glTranslatef(-(-building_width/3)/2,0,0);
-		glScalef(building_width/3, 1, building_height);
-		glRotatef(90, 1, 0, 0);
-		if (tunnel_depth==5)
-		{
-			drawSquare();
-		}
-	glPopMatrix();
+				// Petit droit
+				case 4: {
+					Position myPosition = Position(building_width/4,0,building_height/2);
+					Wall myWall = Wall(building_width/4,building_height, myPosition, myWallStep.depth);
+					myWallStep.walls.push_back(myWall);
+					std::cout << "Petit droit (" << i << ")" << std::endl;
+					break;
+				}
 
-	// Wall test
-	glColor4f(0.,1.,0,0.8);
-	glPushMatrix();
-		glTranslatef(0,building_depth+building_depth*tunnel_depth,0);
-		glTranslatef(0,0,building_height/2);
-		glTranslatef(0,0,-(building_height/2)/2);
-		glScalef(building_width, 1, building_height/2);
-		glRotatef(90, 1, 0, 0);
-		if (tunnel_depth==2)
-		{
-			drawSquare();
-		}
-	glPopMatrix();
-}
-
-void drawBalance() {
-	// alpha+=0.1;
-		alpha += 0.1;
-		alpha2 += 1*flag_animate_rot_scale;
-		alpha3 += 0.05*flag_animate_rot_arm;
-
+				default: {
+					std::cout << "No wall for the random value (" << randomTemp << ")" << std::endl;
+				}
+					
+			}
 			
-	/* Initial scenery setup */
-	// glTranslatef(cos(alpha2), sin(alpha2), 0);
-	glPushMatrix();
-		glTranslatef(0.0,0.0,-0.01);
-		glScalef(10.0,10.0,1.0);
-		glColor3f(0.0,0.0,0.1);
-		drawSquare();
-		glBegin(GL_POINTS);
-			glColor3f(1.0,1.0,0.0);
-			glVertex3f(0.0,0.0,0.0);
-		glEnd();
-	glPopMatrix();
-	
-	/* Scene rendering */
-	drawBase();
-
-	glPushMatrix();
-		glPushMatrix();
-			glTranslatef(0,0,10);
-			glRotatef(alpha2, 0, 0, 1);
-			glRotatef(cos(alpha3)*20, 1, 1, 0);
-			drawArm();
-
-			glPushMatrix();
-				glTranslatef(-7,7,0);
-				glRotatef(-cos(alpha3)*20, 1, 1, 0);
-				drawPan();
-			glPopMatrix();
-
-			glPushMatrix();
-				glTranslatef(7,-7,0);
-				glRotatef(-cos(alpha3)*20, 1, 1, 0);
-				drawPan();
-			glPopMatrix();
-		glPopMatrix();		
-	glPopMatrix();
+		}
+		
+		myCorridor.wallSteps.push_back(myWallStep);
+	}
 }
 
-void draw(Game game) {
-	// drawBalance();
+void draw() {	
 	
-	
-
 	glPushMatrix();
 		glTranslatef(0,-game_depth,0);
-		// for (int i = 0; i < 10; i++)
-		for (int i = 9; i > -1; i--)
-		{
-			drawTunnelPart(i);
-		}
+		drawBall(myBall);
+		drawCorridor(myCorridor, myBall.pos, myPlayer.pos);
 	glPopMatrix();
+
+	// drawFrame();
+
 	
-	drawFrame();
+
+	drawPlayer(myPlayer);
+
+	// glPushMatrix();
+	// 	glTranslatef(0,-game_depth,0);
+	// 	// for (int i = 0; i < 10; i++)
+	// 	for (int i = 9; i > -1; i--)
+	// 	{
+	// 		drawTunnelPart(i);
+	// 	}
+	// glPopMatrix();
+	
+	
 	
 	drawTestTextures();
 
@@ -407,27 +380,9 @@ void draw(Game game) {
     for (unsigned int i = 0; i < pointsToDraw.size(); i++)
     {
         glColor4f(pointsToDraw.at(i).colorR, pointsToDraw.at(i).colorG, pointsToDraw.at(i).colorB, 1.0);
-        // glVertex3f(pointsToDraw.at(i).positionX,0, pointsToDraw.at(i).positionY);
 		glVertex3f(pointsToDraw.at(i).positionX,0, pointsToDraw.at(i).positionY);
     }
     glEnd();
-
-
-	glBegin(GL_QUADS);
-    glColor3f((GLfloat)165 / 255, (GLfloat)172 / 255, (GLfloat)255 / 255);
-    glVertex2f(-0.5f, -0.5f);
-    glVertex2f(0.5f, -0.5f);
-    glVertex2f(0.5f, 0.5f);
-    glVertex2f(-0.5f, 0.5f);
-    glEnd();
-
-	//DESSIN DE LA SPHERE
-		glColor4f(1,0,0,0.5);
-		//on fait tourner la sphere sur le cercle de rayon 4
-		//methode 1 -> 1 seule translation
-		glTranslatef(4*cos(alpha), 4*sin(alpha), 5); 
-		//methode 2 -> 1 translation, 1 rotation, 1 translation
-		drawSphere();
 }
 
 
@@ -483,8 +438,10 @@ int main() {
 	player.height = building_height;
 	player.pos = Position(0, 0, 0);
 
-	Game game;
-	game.player = player;
+	printf("corridor numberOfSteps: %i", myCorridor.numberOfSteps);
+
+	generateCorridor();
+
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
@@ -502,7 +459,7 @@ int main() {
 		glLoadIdentity();
 		setCamera();
 
-		draw(game);
+		draw();
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
