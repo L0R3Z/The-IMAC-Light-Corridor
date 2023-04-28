@@ -7,6 +7,7 @@ using namespace std;
 
 Colors tempColor = Colors();
 Position posBottom = Position(0,0,0);
+Position tempPos = Position(0,0,0);
 
 // Fonction qui dessine une grille et une origine
 void drawFrame() {
@@ -205,31 +206,66 @@ void drawCorridor(Corridor myCorridor, Position posBall, Position posPlayer) {
 	// glColor4f(myCorridor.colorSideWalls.r,myCorridor.colorSideWalls.g,myCorridor.colorSideWalls.b,0.8);
 
 	posBottom.y=building_depth+building_depth*(myCorridor.numberOfSteps-1);
-	tempColor = myCorridor.colorSideWalls.displayColor(posBall, posPlayer, posBottom, game_depth);
-	glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
+	// tempColor = myCorridor.colorSideWalls.displayColor(posBall, posPlayer, posBottom, game_depth);
+	// glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
 
 	glPushMatrix();
 		glTranslatef(0,building_depth+building_depth*(myCorridor.numberOfSteps-1),0);
 		glScalef(building_width, 1, building_height);
 		glRotatef(90, 1, 0, 0);
-		drawSquare();
+		glBegin(GL_TRIANGLE_FAN);
+			tempPos = Position(-building_width/2,posBottom.y,-building_height/2);
+			tempColor = myCorridor.colorSideWalls.displayColor(posBall, posPlayer, tempPos, game_depth);
+			glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
+			glVertex3f(-0.5,-0.5,0.0);
+
+			tempPos = Position(building_width/2,posBottom.y,-building_height/2);
+			tempColor = myCorridor.colorSideWalls.displayColor(posBall, posPlayer, tempPos, game_depth);
+			glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
+			glVertex3f(0.5,-0.5,0.0);
+
+			tempPos = Position(building_width/2,posBottom.y,building_height/2);
+			tempColor = myCorridor.colorSideWalls.displayColor(posBall, posPlayer, tempPos, game_depth);
+			glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
+			glVertex3f(0.5,0.5,0.0);
+
+			tempPos = Position(-building_width/2,posBottom.y,building_height/2);
+			tempColor = myCorridor.colorSideWalls.displayColor(posBall, posPlayer, tempPos, game_depth);
+			glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
+			glVertex3f(-0.5,0.5,0.0);
+		glEnd();
 	glPopMatrix();
 
 	// Last ring
 	// glColor4f(myCorridor.colorRings.r,myCorridor.colorRings.g,myCorridor.colorRings.b,0.8);
 
-	tempColor = myCorridor.colorRings.displayColor(posBall, posPlayer, posBottom, game_depth);
-	glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
+	// tempColor = myCorridor.colorRings.displayColor(posBall, posPlayer, posBottom, game_depth);
+	// glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
 
 	glPushMatrix();
 		glTranslatef(0,building_depth+building_depth*(myCorridor.numberOfSteps-1)-(float) 1/100,0);
 		glScalef(building_width, 1, building_height);
 		glRotatef(90, 1, 0, 0);
-		glLineWidth(6.0);
+		glLineWidth(3.0);
 		glBegin(GL_LINE_LOOP);
+			tempPos = Position(-building_width/2,posBottom.y,building_height/2);
+			tempColor = myCorridor.colorRings.displayColor(posBall, posPlayer, tempPos, game_depth);
+			glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
 			glVertex2f(-0.5f, 0.5f);
+
+			tempPos = Position(building_width/2,posBottom.y,building_height/2);
+			tempColor = myCorridor.colorRings.displayColor(posBall, posPlayer, tempPos, game_depth);
+			glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
 			glVertex2f(0.5f, 0.5f);
+
+			tempPos = Position(building_width/2,posBottom.y,-building_height/2);
+			tempColor = myCorridor.colorRings.displayColor(posBall, posPlayer, tempPos, game_depth);
+			glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
 			glVertex2f(0.5f, -0.5f);
+
+			tempPos = Position(-building_width/2,posBottom.y,-building_height/2);
+			tempColor = myCorridor.colorRings.displayColor(posBall, posPlayer, tempPos, game_depth);
+			glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
 			glVertex2f(-0.5f, -0.5f);
 		glEnd();
 		glLineWidth(1.0);
@@ -246,36 +282,112 @@ void drawWallStep(std::vector<WallStep> myWallSteps, Corridor myCorridor, Positi
 		// myWallSteps[i].lightImpact(myCorridor.colorCeillingWalls, game_depth, ballTempY);
 		// glColor4f(myWallSteps[i].displayColor.r,myWallSteps[i].displayColor.g,myWallSteps[i].displayColor.b,0.8);
 
-		tempColor = myCorridor.colorCeillingWalls.displayColor(posBall, posPlayer, myWallSteps[i].pos, game_depth);
-		glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
+		// tempColor = myCorridor.colorCeillingWalls.displayColor(posBall, posPlayer, myWallSteps[i].pos, game_depth);
+		// glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
 		
 		// Top wall
         glPushMatrix();
             glTranslatef(0,myWallSteps[i].depth-building_depth/2,building_height/2);
             glScalef(building_width, building_depth, building_height);
-            drawSquare();
+            // drawSquare();
+			glBegin(GL_TRIANGLE_FAN);
+				tempPos = Position(-building_width/2,myWallSteps[i].pos.y-building_depth,building_height/2);
+				tempColor = myCorridor.colorCeillingWalls.displayColor(posBall, posPlayer, tempPos, game_depth);
+				glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
+				// glColor4f(1,0,0,0.8);
+				glVertex3f(-0.5,-0.5,0.0);
+
+				tempPos = Position(building_width/2,myWallSteps[i].pos.y-building_depth,building_height/2);
+				tempColor = myCorridor.colorCeillingWalls.displayColor(posBall, posPlayer, tempPos, game_depth);
+				glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
+				// glColor4f(0,1,0,0.8);
+				glVertex3f(0.5,-0.5,0.0);
+
+				tempPos = Position(building_width/2,myWallSteps[i].pos.y,building_height/2);
+				tempColor = myCorridor.colorCeillingWalls.displayColor(posBall, posPlayer, tempPos, game_depth);
+				glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
+				// glColor4f(0,0,1,0.8);
+				glVertex3f(0.5,0.5,0.0);
+
+				tempPos = Position(-building_width/2,myWallSteps[i].pos.y,building_height/2);
+				tempColor = myCorridor.colorCeillingWalls.displayColor(posBall, posPlayer, tempPos, game_depth);
+				glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
+				// glColor4f(1,1,1,0.8);
+				glVertex3f(-0.5,0.5,0.0);
+			glEnd();
         glPopMatrix();
 
         // Bottom wall
         glPushMatrix();
             glTranslatef(0,myWallSteps[i].depth-building_depth/2,-building_height/2);
             glScalef(building_width, building_depth, building_height);
-            drawSquare();
+            // drawSquare();
+			glBegin(GL_TRIANGLE_FAN);
+				tempPos = Position(-building_width/2,myWallSteps[i].pos.y-building_depth,-building_height/2);
+				tempColor = myCorridor.colorCeillingWalls.displayColor(posBall, posPlayer, tempPos, game_depth);
+				glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
+				// glColor4f(1,0,0,0.8);
+				glVertex3f(-0.5,-0.5,0.0);
+
+				tempPos = Position(building_width/2,myWallSteps[i].pos.y-building_depth,-building_height/2);
+				tempColor = myCorridor.colorCeillingWalls.displayColor(posBall, posPlayer, tempPos, game_depth);
+				glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
+				// glColor4f(0,1,0,0.8);
+				glVertex3f(0.5,-0.5,0.0);
+
+				tempPos = Position(building_width/2,myWallSteps[i].pos.y,-building_height/2);
+				tempColor = myCorridor.colorCeillingWalls.displayColor(posBall, posPlayer, tempPos, game_depth);
+				glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
+				// glColor4f(0,0,1,0.8);
+				glVertex3f(0.5,0.5,0.0);
+
+				tempPos = Position(-building_width/2,myWallSteps[i].pos.y,-building_height/2);
+				tempColor = myCorridor.colorCeillingWalls.displayColor(posBall, posPlayer, tempPos, game_depth);
+				glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
+				// glColor4f(1,1,1,0.8);
+				glVertex3f(-0.5,0.5,0.0);
+			glEnd();
         glPopMatrix();
 
 		// myWallSteps[i].lightImpact(myCorridor.colorSideWalls, game_depth, ballTempY);
 		// glColor4f(myWallSteps[i].displayColor.r,myWallSteps[i].displayColor.g,myWallSteps[i].displayColor.b,0.8);
 		// glColor4f(myCorridor.colorSideWalls.r,myCorridor.colorSideWalls.g,myCorridor.colorSideWalls.b,0.8);
 
-		tempColor = myCorridor.colorSideWalls.displayColor(posBall, posPlayer, myWallSteps[i].pos, game_depth);
-		glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
+		// tempColor = myCorridor.colorSideWalls.displayColor(posBall, posPlayer, myWallSteps[i].pos, game_depth);
+		// glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
 
         // Left wall
         glPushMatrix();
             glTranslatef(-building_width/2,myWallSteps[i].depth-building_depth/2,0);
             glRotatef(90, 0, 1, 0);
             glScalef(building_height, building_depth, building_height);
-            drawSquare();
+            // drawSquare();
+			glBegin(GL_TRIANGLE_FAN);
+				tempPos = Position(-building_width/2,myWallSteps[i].pos.y-building_depth,building_height/2);
+				tempColor = myCorridor.colorSideWalls.displayColor(posBall, posPlayer, tempPos, game_depth);
+				glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
+				// glColor4f(1,0,0,0.8);
+				glVertex3f(-0.5,-0.5,0.0);
+
+				tempPos = Position(-building_width/2,myWallSteps[i].pos.y-building_depth,-building_height/2);
+				tempColor = myCorridor.colorSideWalls.displayColor(posBall, posPlayer, tempPos, game_depth);
+				glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
+				// glColor4f(0,1,0,0.8);
+				glVertex3f(0.5,-0.5,0.0);
+				
+				tempPos = Position(-building_width/2,myWallSteps[i].pos.y,-building_height/2);
+				tempColor = myCorridor.colorSideWalls.displayColor(posBall, posPlayer, tempPos, game_depth);
+				glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
+				// glColor4f(0,0,1,0.8);
+				glVertex3f(0.5,0.5,0.0);
+
+				
+				tempPos = Position(-building_width/2,myWallSteps[i].pos.y,building_height/2);
+				tempColor = myCorridor.colorSideWalls.displayColor(posBall, posPlayer, tempPos, game_depth);
+				glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
+				// glColor4f(1,1,1,0.8);
+				glVertex3f(-0.5,0.5,0.0);
+			glEnd();
         glPopMatrix();
 
 		// Right wall
@@ -283,7 +395,33 @@ void drawWallStep(std::vector<WallStep> myWallSteps, Corridor myCorridor, Positi
             glTranslatef(building_width/2,myWallSteps[i].depth-building_depth/2,0);
             glRotatef(90, 0, 1, 0);
             glScalef(building_height, building_depth, building_height);
-            drawSquare();
+            // drawSquare();
+			glBegin(GL_TRIANGLE_FAN);
+				tempPos = Position(building_width/2,myWallSteps[i].pos.y-building_depth,building_height/2);
+				tempColor = myCorridor.colorSideWalls.displayColor(posBall, posPlayer, tempPos, game_depth);
+				glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
+				// glColor4f(1,0,0,0.8);
+				glVertex3f(-0.5,-0.5,0.0);
+
+				tempPos = Position(building_width/2,myWallSteps[i].pos.y-building_depth,-building_height/2);
+				tempColor = myCorridor.colorSideWalls.displayColor(posBall, posPlayer, tempPos, game_depth);
+				glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
+				// glColor4f(0,1,0,0.8);
+				glVertex3f(0.5,-0.5,0.0);
+				
+				tempPos = Position(building_width/2,myWallSteps[i].pos.y,-building_height/2);
+				tempColor = myCorridor.colorSideWalls.displayColor(posBall, posPlayer, tempPos, game_depth);
+				glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
+				// glColor4f(0,0,1,0.8);
+				glVertex3f(0.5,0.5,0.0);
+
+				
+				tempPos = Position(building_width/2,myWallSteps[i].pos.y,building_height/2);
+				tempColor = myCorridor.colorSideWalls.displayColor(posBall, posPlayer, tempPos, game_depth);
+				glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
+				// glColor4f(1,1,1,0.8);
+				glVertex3f(-0.5,0.5,0.0);
+			glEnd();
         glPopMatrix();
 
 		if ((int) i != myWallSteps.size()-1)
@@ -300,11 +438,26 @@ void drawWallStep(std::vector<WallStep> myWallSteps, Corridor myCorridor, Positi
 				glTranslatef(0,myWallSteps[i].depth,0);
 				glScalef(building_width, 1, building_height);
 				glRotatef(90, 1, 0, 0);
-				glLineWidth(6.0);
+				glLineWidth(3.0);
 				glBegin(GL_LINE_LOOP);
+					tempPos = Position(-building_width/2,myWallSteps[i].pos.y,building_height/2);
+					tempColor = myCorridor.colorRings.displayColor(posBall, posPlayer, tempPos, game_depth);
+					glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
 					glVertex2f(-0.5f, 0.5f);
+
+					tempPos = Position(building_width/2,myWallSteps[i].pos.y,building_height/2);
+					tempColor = myCorridor.colorRings.displayColor(posBall, posPlayer, tempPos, game_depth);
+					glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
 					glVertex2f(0.5f, 0.5f);
+
+					tempPos = Position(building_width/2,myWallSteps[i].pos.y,-building_height/2);
+					tempColor = myCorridor.colorRings.displayColor(posBall, posPlayer, tempPos, game_depth);
+					glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
 					glVertex2f(0.5f, -0.5f);
+
+					tempPos = Position(-building_width/2,myWallSteps[i].pos.y,-building_height/2);
+					tempColor = myCorridor.colorRings.displayColor(posBall, posPlayer, tempPos, game_depth);
+					glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
 					glVertex2f(-0.5f, -0.5f);
 				glEnd();
 				glLineWidth(1.0);
@@ -314,14 +467,14 @@ void drawWallStep(std::vector<WallStep> myWallSteps, Corridor myCorridor, Positi
 		// Appel de la fonction pour dessiner les murs du wallStep
 		// glColor4f(myWallSteps[i].color.r, myWallSteps[i].color.g, myWallSteps[i].color.b,0.8);
 
-		tempColor = myWallSteps[i].color.displayColor(posBall, posPlayer, myWallSteps[i].pos, game_depth);
-		glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
+		// tempColor = myWallSteps[i].color.displayColor(posBall, posPlayer, myWallSteps[i].pos, game_depth);
+		// glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
 
-		drawWall(myWallSteps[i].walls, posBall, posPlayer);
+		drawWall(myWallSteps[i].walls, posBall, posPlayer, myWallSteps[i].color);
     }
 }
 
-void drawWall(std::vector<Wall> myWalls, Position posBall, Position posPlayer) {
+void drawWall(std::vector<Wall> myWalls, Position posBall, Position posPlayer, Colors wallColor) {
     for (int i = 0; i < (int) myWalls.size(); i++)
     {
         if (myWalls[i].depth-game_depth >= 0)
@@ -337,7 +490,36 @@ void drawWall(std::vector<Wall> myWalls, Position posBall, Position posPlayer) {
 				// Taille du mur
 				glScalef(myWalls[i].width, 1, myWalls[i].height);
 				glRotatef(90, 1, 0, 0);
-				drawSquare();
+				// drawSquare();
+
+				glBegin(GL_TRIANGLE_FAN);
+					
+					
+					tempPos = Position(myWalls[i].pos.x,myWalls[i].depth,myWalls[i].pos.z-myWalls[i].height);
+					tempColor = wallColor.displayColor(posBall, posPlayer, tempPos, game_depth);
+					glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
+					// glColor4f(1,0,0,0.8);
+					glVertex3f(-0.5,-0.5,0.0);
+
+					
+					tempPos = Position(myWalls[i].pos.x+myWalls[i].width,myWalls[i].depth,myWalls[i].pos.z-myWalls[i].height);
+					tempColor = wallColor.displayColor(posBall, posPlayer, tempPos, game_depth);
+					glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
+					// glColor4f(0,1,0,0.8);
+					glVertex3f(0.5,-0.5,0.0);
+					
+					tempPos = Position(myWalls[i].pos.x+myWalls[i].width,myWalls[i].depth,myWalls[i].pos.z);
+					tempColor = wallColor.displayColor(posBall, posPlayer, tempPos, game_depth);
+					glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
+					// glColor4f(0,0,1,0.8);
+					glVertex3f(0.5,0.5,0.0);
+
+					tempPos = Position(myWalls[i].pos.x,myWalls[i].depth,myWalls[i].pos.z);
+					tempColor = wallColor.displayColor(posBall, posPlayer, tempPos, game_depth);
+					glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
+					// glColor4f(1,1,1,0.8);
+					glVertex3f(-0.5,0.5,0.0);
+				glEnd();
 			glPopMatrix();
 		}
     }

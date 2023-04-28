@@ -26,7 +26,7 @@ void drawCorridor(Corridor myCorridor, Position posBall, Position posPlayer);
 
 void drawWallStep(std::vector<WallStep> myWallSteps, Corridor myCorridor, Position posBall, Position posPlayer); 
 
-void drawWall(std::vector<Wall> myWalls, Position posBall, Position posPlayer);
+void drawWall(std::vector<Wall> myWalls, Position posBall, Position posPlayer, Colors wallColor);
 
 void drawPlayer(Player myPlayer);
 

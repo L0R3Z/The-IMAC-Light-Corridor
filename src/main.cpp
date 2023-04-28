@@ -192,6 +192,18 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 				myBall.moveBall(0,-1,0);
 				ballTempY-=1;
 				break;
+			case GLFW_KEY_KP_4 :
+				myBall.moveBall(-1,0,0);
+				break;
+			case GLFW_KEY_KP_5 :
+				myBall.moveBall(1,0,0);
+				break;
+			case GLFW_KEY_KP_8 :
+				myBall.moveBall(0,0,1);
+				break;
+			case GLFW_KEY_KP_2 :
+				myBall.moveBall(0,0,-1);
+				break;
 			default:
 					std::cout << "Touche non gérée (" << key << ")" << std::endl;
 		}
