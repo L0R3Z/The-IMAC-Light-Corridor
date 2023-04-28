@@ -83,17 +83,12 @@ typedef struct Wall {
 
 // WallStep struct for obtacles groups, situated at precise steps inside the corridor
 typedef struct WallStep {
-    GLfloat width;
-    GLfloat height;
-    GLfloat depth;
     Position pos;
     std::vector<Wall> walls;
 
     WallStep() {}
 
-    WallStep(GLfloat width, GLfloat height, GLfloat depth, Position pos, std::vector<Wall> walls) {
-        this->width = width;
-        this->height = height;
+    WallStep(GLfloat depth, Position pos, std::vector<Wall> walls) {
         this->depth = depth;
         this->pos = pos;
         this->walls = walls;
@@ -104,6 +99,7 @@ typedef struct WallStep {
 typedef struct Corridor {
     GLfloat width;
     GLfloat height;
+    GLfloat stepDepth;
     std::vector<WallStep> wallSteps;
     GLuint* sideWallsTexture;
     GLuint* groundTexture;
@@ -116,9 +112,10 @@ typedef struct Corridor {
         this->height = height;
     }
 
-    Corridor(GLfloat width, GLfloat height, std::vector<WallStep> wallSteps, GLuint* sideWallsTexture, GLuint* groundTexture, GLuint* ceilingTexture) {
+    Corridor(GLfloat width, GLfloat height, GLfloat stepDepth, std::vector<WallStep> wallSteps, GLuint* sideWallsTexture, GLuint* groundTexture, GLuint* ceilingTexture) {
         this->width = width;
         this->height = height;
+        this->stepDepth = stepDepth;
         this->wallSteps = wallSteps;
         this->sideWallsTexture = sideWallsTexture;
         this->groundTexture = groundTexture;
@@ -135,6 +132,8 @@ typedef struct Player : Wall {
 
 // General game struct containing all the elements needed
 typedef struct Game {
+    GLfloat viewWidth;
+    GLfloat viewHeight;
     Player player;
     Corridor corridor;
     std::vector<Ball> balls;
@@ -144,7 +143,9 @@ typedef struct Game {
 
     Game() {}
 
-    Game(Player player, Corridor corridor, std::vector<Ball> balls, int lives, int gameState, int renderSkinId) {
+    Game(GLfloat viewWidth, GLfloat viewHeight, Player player, Corridor corridor, std::vector<Ball> balls, int lives, int gameState, int renderSkinId) {
+        this->viewWidth = viewWidth;
+        this->viewHeight = viewHeight;
         this->player = player;
         this->corridor = corridor;
         this->balls = balls;

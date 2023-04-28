@@ -383,11 +383,11 @@ void drawBalance() {
 	glPopMatrix();
 }
 
-void draw() {
+void draw(Game game) {
 	// drawBalance();
 	
 	
-	
+
 	glPushMatrix();
 		glTranslatef(0,-game_depth,0);
 		// for (int i = 0; i < 10; i++)
@@ -478,14 +478,13 @@ int main() {
 
 	loadTextures();
 
-	Position testPos = Position(1, 2, 30);
-	printf("x: %f", testPos.x);
-	printf("y: %f", testPos.y);
-	printf("z: %f", testPos.z);
-	Corridor corridor = Corridor(400, 200);
-	printf("corridor width: %i", corridor.width);
-	printf("corridor height: %i", corridor.height);
+	Player player;
+	player.width = building_width;
+	player.height = building_height;
+	player.pos = Position(0, 0, 0);
 
+	Game game;
+	game.player = player;
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
@@ -503,7 +502,7 @@ int main() {
 		glLoadIdentity();
 		setCamera();
 
-		draw();
+		draw(game);
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
