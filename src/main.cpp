@@ -31,7 +31,6 @@ float building_height = building_width/2;
 float building_depth = 12.0f;
 float aperture = 60.0; // Ouverture de la caméra 60.0 de base
 float game_depth=0;
-float ballTempY = 0;
 
 static const float _viewSize = building_height; // Correspond à building height à cause du cadrage sur le tunnel (peut changer)
 
@@ -67,15 +66,6 @@ int formToDraw = GL_POINTS;
 
 /* Minimal time wanted between two images */
 static const double FRAMERATE_IN_SECONDS = 1. / 90.;
-
-/* IHM flag */
-static int flag_animate_rot_scale = 0;
-static int flag_animate_rot_arm = 0;
-
-// Rotation variables
-	float alpha = 0;
-	float alpha2 = 0;
-	float alpha3 = 3.14/2;
 
 /* Error handling function */
 void onError(int error, const char* description) {
@@ -123,12 +113,6 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 				break;
 			case GLFW_KEY_P :
 				glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-				break;
-			case GLFW_KEY_R :
-				flag_animate_rot_arm = 1-flag_animate_rot_arm;
-				break;
-			case GLFW_KEY_T :
-				flag_animate_rot_scale = 1-flag_animate_rot_scale;
 				break;
 			case GLFW_KEY_KP_9 :
 				// if(dist_zoom<100.0f) dist_zoom*=1.1;
@@ -186,11 +170,9 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 				break;
 			case GLFW_KEY_KP_7 :
 				myBall.moveBall(0,1,0);
-				ballTempY+=1;
 				break;
 			case GLFW_KEY_KP_1 :
 				myBall.moveBall(0,-1,0);
-				ballTempY-=1;
 				break;
 			case GLFW_KEY_KP_4 :
 				myBall.moveBall(-1,0,0);
@@ -236,18 +218,15 @@ GLuint loadImage(const char* filename) {
 void loadTextures() {
 	textures.push_back(loadImage("../res/0.png"));
 	textures.push_back(loadImage("../res/1.png"));
-	// textures.push_back(loadImage("../res/poulpile.jpg"));
 }
 
 // Function that delete the textures used in game
 void deleteTextures() {
 	glDeleteTextures(1, &textures[0]);
 	glDeleteTextures(1, &textures[1]);
-	// glDeleteTextures(1, &textures[2]);
 }
 
 void drawTestTextures() {
-	// glColor4f(1., 1., 1.,1);
 	glColor3f(1., 1., 1.);
 	glEnable(GL_TEXTURE_2D);
 	
@@ -295,16 +274,16 @@ void generateCorridor() {
 		WallStep myWallStep = WallStep(myCorridor.depthOfAStep + myCorridor.depthOfAStep*i);
 		
 		randomTemp = rand() % 100 + 1;
-		if (randomTemp < 25 && i!=myCorridor.numberOfSteps-1)
+		if (randomTemp < 80 && i!=myCorridor.numberOfSteps-1)
 		{
-			randomTemp = rand() % 4 + 1;
+			randomTemp = rand() % 5 + 1;
 			switch(randomTemp) {
 				// Moitié gauche
 				case 1: {
 					Position myPosition = Position(-building_width/2,0,building_height/2);
 					Wall myWall = Wall(building_width/2,building_height, myPosition, myWallStep.depth);
 					myWallStep.walls.push_back(myWall);
-					std::cout << "Moitié gauche (" << i << ")" << std::endl;
+					std::cout << "Moitie gauche (" << i << ")" << std::endl;
 					break;
 				}
 					
@@ -313,7 +292,7 @@ void generateCorridor() {
 					Position myPosition = Position(0,0,building_height/2);
 					Wall myWall = Wall(building_width/2,building_height, myPosition, myWallStep.depth);
 					myWallStep.walls.push_back(myWall);
-					std::cout << "Moitié droite (" << i << ")" << std::endl;
+					std::cout << "Moitie droite (" << i << ")" << std::endl;
 					break;
 				}
 				
@@ -335,6 +314,18 @@ void generateCorridor() {
 					break;
 				}
 
+				// Porte grande ouverte
+				case 5: {
+					Position myPosition = Position(building_width/4,0,building_height/2);
+					Wall myWall = Wall(building_width/4,building_height, myPosition, myWallStep.depth);
+					myWallStep.walls.push_back(myWall);
+					Position mySecondPosition = Position(-building_width/2,0,building_height/2);
+					Wall mySecondWall = Wall(building_width/4,building_height, mySecondPosition, myWallStep.depth);
+					myWallStep.walls.push_back(mySecondWall);
+					std::cout << "Porte grande ouverte (" << i << ")" << std::endl;
+					break;
+				}
+
 				default: {
 					std::cout << "No wall for the random value (" << randomTemp << ")" << std::endl;
 				}
@@ -347,42 +338,25 @@ void generateCorridor() {
 	}
 }
 
-void draw() {	
-	
+void draw() {
 	glPushMatrix();
 		glTranslatef(0,-game_depth,0);
 		drawBall(myBall);
 		drawCorridor(myCorridor, myBall.pos, myPlayer.pos);
 	glPopMatrix();
-
 	// drawFrame();
-
-	
-
 	drawPlayer(myPlayer);
 
-	// glPushMatrix();
-	// 	glTranslatef(0,-game_depth,0);
-	// 	// for (int i = 0; i < 10; i++)
-	// 	for (int i = 9; i > -1; i--)
-	// 	{
-	// 		drawTunnelPart(i);
-	// 	}
-	// glPopMatrix();
-	
-	
-	
-	drawTestTextures();
-
-	glPointSize(25.0);
-
-    glBegin(formToDraw);
-    for (unsigned int i = 0; i < pointsToDraw.size(); i++)
-    {
-        glColor4f(pointsToDraw.at(i).colorR, pointsToDraw.at(i).colorG, pointsToDraw.at(i).colorB, 1.0);
-		glVertex3f(pointsToDraw.at(i).positionX,0, pointsToDraw.at(i).positionY);
-    }
-    glEnd();
+	// Test drawing function
+	// drawTestTextures();
+	// glPointSize(25.0);
+    // glBegin(formToDraw);
+    // for (unsigned int i = 0; i < pointsToDraw.size(); i++)
+    // {
+    //     glColor4f(pointsToDraw.at(i).colorR, pointsToDraw.at(i).colorG, pointsToDraw.at(i).colorB, 1.0);
+	// 	glVertex3f(pointsToDraw.at(i).positionX,0, pointsToDraw.at(i).positionY);
+    // }
+    // glEnd();
 }
 
 
@@ -433,15 +407,9 @@ int main() {
 
 	loadTextures();
 
-	Player player;
-	player.width = building_width;
-	player.height = building_height;
-	player.pos = Position(0, 0, 0);
-
-	printf("corridor numberOfSteps: %i", myCorridor.numberOfSteps);
+	printf("corridor numberOfSteps: %i\n", myCorridor.numberOfSteps);
 
 	generateCorridor();
-
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))

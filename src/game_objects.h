@@ -121,7 +121,6 @@ typedef struct Colors {
     }
 
     Colors displayColor(Position posBall, Position posPlayer, Position posObject, float game_depth) {
-        // Position posBall = Position(0,12*10-game_depth+ballTempY,0);
         posBall.y -= game_depth;
         posObject.y -= game_depth;
 
@@ -143,7 +142,7 @@ typedef struct Colors {
 
         // Calculate the brightness
         float brightnessPlayer = 1.0f - (distancePlayer / lightPropagationPlayer);
-        float brightnessBall = 1.0f - (distanceBall / lightPropagationPlayer);
+        float brightnessBall = 1.0f - (distanceBall / lightPropagationBall);
 
         // Clamp the brightness to [0, 1] range
         brightnessPlayer = std::max(std::min(brightnessPlayer, 1.0f), 0.0f);
@@ -251,47 +250,7 @@ typedef struct WallStep {
         this->pos = pos;
         this->walls = walls;
     }
-
-    void lightImpact(Colors colorTunnel, float game_depth, float ballTempY) {
-        this->displayColor = colorTunnel;
-        Position posWall = Position(0, this->depth-game_depth, 0);
-        colorTunnel.updateHSL();
-
-        Position posPlayer = Position(0, 0, 0);
-        float distancePlayer = std::sqrt(pow((posWall.x-posPlayer.x),2)+pow((posWall.y-posPlayer.y),2)+pow((posWall.z-posPlayer.z),2));
-        
-        // Set the light parameters
-        float lightPropagationPlayer = 60.0f;
-        float lightIntensityPlayer = 0.6f;
-
-        // Calculate the brightness
-        float brightnessPlayer = 1.0f - (distancePlayer / lightPropagationPlayer);
-
-        // Clamp the brightness to [0, 1] range
-        brightnessPlayer = std::max(std::min(brightnessPlayer, 1.0f), 0.0f);
-
-        Colors colorPlayer = colorTunnel.generateAlternateColor(0, 0, - colorTunnel.l * 100 + brightnessPlayer * lightIntensityPlayer * (colorTunnel.l * 100));
-
-        Position posBall = Position(0,12*10-game_depth+ballTempY,0);
-        float distanceBall = std::sqrt(pow((posWall.x-posBall.x),2)+pow((posWall.y-posBall.y),2)+pow((posWall.z-posBall.z),2));
-
-        // Set the light parameters
-        float lightPropagationBall = 40.0f;
-        float lightIntensityBall = 0.4f;
-
-        // Calculate the brightness
-        float brightnessBall = 1.0f - (distanceBall / lightPropagationPlayer);
-
-        // Clamp the brightness to [0, 1] range
-        brightnessBall = std::max(std::min(brightnessBall, 1.0f), 0.0f);
-
-        Colors colorBall = colorTunnel.generateAlternateColor(0, 0, - colorTunnel.l * 100 + brightnessBall * lightIntensityBall * (colorTunnel.l * 100));
-
-        this->displayColor =  colorTunnel.generateAlternateColor(0, 0, -colorTunnel.l*100 + ((colorPlayer.l+colorBall.l)/1)*100);
-        // this->displayColor =  colorTunnel.generateAlternateColor(0, 0, -colorTunnel.l*100 + ((colorPlayer.l)/1)*100);
-
-    }
-
+    
 } WallStep;
 
 // Corridor struct
