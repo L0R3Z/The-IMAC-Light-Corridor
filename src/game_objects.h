@@ -11,7 +11,7 @@
 
 // Tool struct for 3D positions
 typedef struct Position {
-    GLfloat x, y, z; // y -> profondeur
+    GLfloat x, y, z; // y is the depth axis
 
     Position() {}
 
@@ -28,8 +28,6 @@ typedef struct Colors {
     float r, g, b, h, s, l;
     
     Colors() {
-        
-        
         this->r = (float) ((rand() % 180) + 75) / 255;
         this->g = (float) ((rand() % 180) + 75) / 255;
         this->b = (float) ((rand() % 180) + 75) / 255;
@@ -41,6 +39,7 @@ typedef struct Colors {
         this->b = b;
     }
 
+    // Function to update the HSL values of the color according to its RGB values
     void updateHSL() {
         float max_val = std::max(this->r, std::max(this->g, this->b));
         float min_val = std::min(r, std::min(this->g, this->b));
@@ -69,6 +68,7 @@ typedef struct Colors {
         }
     }
 
+    // Function to update the RGB values of the color according to its HSL values
     void updateRGB() {
         float max_val = (1 - std::abs(2 * this->l - 1)) * this->s;
         float min_val = this->l - max_val / 2.;
@@ -107,6 +107,7 @@ typedef struct Colors {
         this->b += min_val;
     }
 
+    // Generates a new color from another by modifying its HSL values
     Colors generateAlternateColor(float h_delta, float s_delta, float l_delta) {
         Colors newColor = Colors(this->r, this->g, this->b);
         newColor.updateHSL();
@@ -120,10 +121,13 @@ typedef struct Colors {
         return newColor;
     }
 
+    // Calculation of the color to be displayed according to the points of light, the position of the object to be illuminated and its base color
     Colors displayColor(Position posBall, Position posPlayer, Position posObject, float game_depth) {
+        // Position update based on game position
         posBall.y -= game_depth;
         posObject.y -= game_depth;
 
+        // Print to console for debug
         // printf("\n\n\nposBall.x = %f | posPlayer.x = %f | posObject.x %f \n", posBall.x, posPlayer.x, posObject.x);
         // printf("posBall.y = %f | posPlayer.y = %f | posObject.y %f \n", posBall.y, posPlayer.y, posObject.y);
         // printf("posBall.z = %f | posPlayer.z = %f | posObject.z %f \n", posBall.z, posPlayer.z, posObject.z);
@@ -131,6 +135,7 @@ typedef struct Colors {
         Colors newColor = *this;
         this->updateHSL();
 
+        // Calculation of the distance between the object and the points of light
         float distancePlayer = std::sqrt(pow((posObject.x-posPlayer.x),2)+pow((posObject.y-posPlayer.y),2)+pow((posObject.z-posPlayer.z),2));
         float distanceBall = std::sqrt(pow((posObject.x-posBall.x),2)+pow((posObject.y-posBall.y),2)+pow((posObject.z-posBall.z),2));
         
@@ -148,9 +153,11 @@ typedef struct Colors {
         brightnessPlayer = std::max(std::min(brightnessPlayer, 1.0f), 0.0f);
         brightnessBall = std::max(std::min(brightnessBall, 1.0f), 0.0f);
 
+        // Individual color calculation for each point of light
         Colors colorPlayer = this->generateAlternateColor(0, 0, - this->l * 100 + brightnessPlayer * lightIntensityPlayer * (this->l * 100));
         Colors colorBall = this->generateAlternateColor(0, 0, - this->l * 100 + brightnessBall * lightIntensityBall * (this->l * 100));
 
+        // Fusion of the two calculated colors
         newColor =  this->generateAlternateColor(0, 0, -this->l*100 + ((colorPlayer.l+colorBall.l)/1)*100);
         return newColor;
     }
@@ -180,6 +187,7 @@ typedef struct Ball {
 
     Ball() {}
 
+    // Currently used constructor
     Ball(int rad) {
         this->radius = rad;
         this->pos = Position(0,12*10.,0);
@@ -211,11 +219,12 @@ typedef struct Wall {
 
     Wall() {}
 
+    // Currently used constructor
     Wall(int width, int height, Position pos, float depth) {
         this->width = width;
         this->height = height;
         this->pos = pos;
-        this->depth=depth;
+        this->depth = depth;
     }
 
     Wall(GLfloat width, GLfloat height, Position pos, GLuint* texture) {
@@ -238,6 +247,7 @@ typedef struct WallStep {
 
     WallStep() {}
 
+    // Currently used constructor
     WallStep(float depth) {
         this->depth = depth;
         this->pos = Position(0,this->depth,0);
@@ -250,7 +260,7 @@ typedef struct WallStep {
         this->pos = pos;
         this->walls = walls;
     }
-    
+
 } WallStep;
 
 // Corridor struct
@@ -269,11 +279,14 @@ typedef struct Corridor {
 
     Corridor() {}
 
+    // Currently used constructor
     Corridor(float depthOfAStep, int numberOfSteps) {
         srand(time(NULL));
 
         this->depthOfAStep = depthOfAStep;
         this->numberOfSteps = numberOfSteps;
+
+        // Generating corridor colors from a random color
         this->colorSideWalls = Colors();
         this->colorCeillingWalls = colorSideWalls.generateAlternateColor(20, -23, 14);
         this->colorRings = colorSideWalls.generateAlternateColor(8, 52, 15);
@@ -307,6 +320,7 @@ typedef struct Player : Wall {
         this->pos.y=0;
     }
 
+    // Currently used constructor
     Player(float width) {
         this->pos.x=0;
         this->pos.y=0;
@@ -315,6 +329,7 @@ typedef struct Player : Wall {
         this->height=width;
     }
 
+    // Updates the position of the puck relative to the user's mouse
     void updatePosition(int positionX, int positionY, int WINDOW_WIDTH, int WINDOW_HEIGHT, float _viewSize, float aspectRatio) {
         this->pos.x = (_viewSize * aspectRatio) / WINDOW_WIDTH * positionX - (_viewSize * aspectRatio) / 2.0;
 		this->pos.z = -_viewSize / WINDOW_HEIGHT * positionY + _viewSize / 2.0;
