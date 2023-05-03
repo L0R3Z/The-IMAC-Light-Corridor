@@ -12,7 +12,7 @@
 // Tool struct for 3D positions
 typedef struct Position
 {
-    GLfloat x, y, z; // y -> profondeur
+    GLfloat x, y, z; // y is the depth axis
 
     Position() {}
 
@@ -43,6 +43,7 @@ typedef struct Colors
         this->b = b;
     }
 
+    // Function to update the HSL values of the color according to its RGB values
     void updateHSL()
     {
         float max_val = std::max(this->r, std::max(this->g, this->b));
@@ -83,6 +84,7 @@ typedef struct Colors
         }
     }
 
+    // Function to update the RGB values of the color according to its HSL values
     void updateRGB()
     {
         float max_val = (1 - std::abs(2 * this->l - 1)) * this->s;
@@ -133,6 +135,7 @@ typedef struct Colors
         this->b += min_val;
     }
 
+    // Generates a new color from another by modifying its HSL values
     Colors generateAlternateColor(float h_delta, float s_delta, float l_delta)
     {
         Colors newColor = Colors(this->r, this->g, this->b);
@@ -156,12 +159,14 @@ typedef struct Colors
         return newColor;
     }
 
+    // Calculation of the color to be displayed according to the points of light, the position of the object to be illuminated and its base color
     Colors displayColor(Position posBall, Position posPlayer, Position posObject, float game_depth)
     {
-        // Position posBall = Position(0,12*10-game_depth+ballTempY,0);
+        // Position update based on game position
         posBall.y -= game_depth;
         posObject.y -= game_depth;
 
+        // Print to console for debug
         // printf("\n\n\nposBall.x = %f | posPlayer.x = %f | posObject.x %f \n", posBall.x, posPlayer.x, posObject.x);
         // printf("posBall.y = %f | posPlayer.y = %f | posObject.y %f \n", posBall.y, posPlayer.y, posObject.y);
         // printf("posBall.z = %f | posPlayer.z = %f | posObject.z %f \n", posBall.z, posPlayer.z, posObject.z);
@@ -169,6 +174,7 @@ typedef struct Colors
         Colors newColor = *this;
         this->updateHSL();
 
+        // Calculation of the distance between the object and the points of light
         float distancePlayer = std::sqrt(pow((posObject.x - posPlayer.x), 2) + pow((posObject.y - posPlayer.y), 2) + pow((posObject.z - posPlayer.z), 2));
         float distanceBall = std::sqrt(pow((posObject.x - posBall.x), 2) + pow((posObject.y - posBall.y), 2) + pow((posObject.z - posBall.z), 2));
 
@@ -180,15 +186,17 @@ typedef struct Colors
 
         // Calculate the brightness
         float brightnessPlayer = 1.0f - (distancePlayer / lightPropagationPlayer);
-        float brightnessBall = 1.0f - (distanceBall / lightPropagationPlayer);
+        float brightnessBall = 1.0f - (distanceBall / lightPropagationBall);
 
         // Clamp the brightness to [0, 1] range
         brightnessPlayer = std::max(std::min(brightnessPlayer, 1.0f), 0.0f);
         brightnessBall = std::max(std::min(brightnessBall, 1.0f), 0.0f);
 
+        // Individual color calculation for each point of light
         Colors colorPlayer = this->generateAlternateColor(0, 0, -this->l * 100 + brightnessPlayer * lightIntensityPlayer * (this->l * 100));
         Colors colorBall = this->generateAlternateColor(0, 0, -this->l * 100 + brightnessBall * lightIntensityBall * (this->l * 100));
 
+        // Fusion of the two calculated colors
         newColor = this->generateAlternateColor(0, 0, -this->l * 100 + ((colorPlayer.l + colorBall.l) / 1) * 100);
         return newColor;
     }
@@ -221,6 +229,7 @@ typedef struct Ball
 
     Ball() {}
 
+    // Currently used constructor
     Ball(int rad)
     {
         this->radius = rad;
@@ -255,6 +264,7 @@ typedef struct Wall
 
     Wall() {}
 
+    // Currently used constructor
     Wall(int width, int height, Position pos)
     {
         this->width = width;
@@ -286,6 +296,7 @@ typedef struct WallStep
 
     WallStep() {}
 
+    // Currently used constructor
     WallStep(float y)
     {
         // this->depth = depth;
@@ -301,45 +312,45 @@ typedef struct WallStep
         this->walls = walls;
     }
 
-    void lightImpact(Colors colorTunnel, float game_depth, float ballTempY)
-    {
-        // this->displayColor = colorTunnel;
-        Position posWall = Position(0, this->pos.y - game_depth, 0);
-        colorTunnel.updateHSL();
+    // void lightImpact(Colors colorTunnel, float game_depth, float ballTempY)
+    // {
+    //     // this->displayColor = colorTunnel;
+    //     Position posWall = Position(0, this->pos.y - game_depth, 0);
+    //     colorTunnel.updateHSL();
 
-        Position posPlayer = Position(0, 0, 0);
-        float distancePlayer = std::sqrt(pow((posWall.x - posPlayer.x), 2) + pow((posWall.y - posPlayer.y), 2) + pow((posWall.z - posPlayer.z), 2));
+    //     Position posPlayer = Position(0, 0, 0);
+    //     float distancePlayer = std::sqrt(pow((posWall.x - posPlayer.x), 2) + pow((posWall.y - posPlayer.y), 2) + pow((posWall.z - posPlayer.z), 2));
 
-        // Set the light parameters
-        float lightPropagationPlayer = 60.0f;
-        float lightIntensityPlayer = 0.6f;
+    //     // Set the light parameters
+    //     float lightPropagationPlayer = 60.0f;
+    //     float lightIntensityPlayer = 0.6f;
 
-        // Calculate the brightness
-        float brightnessPlayer = 1.0f - (distancePlayer / lightPropagationPlayer);
+    //     // Calculate the brightness
+    //     float brightnessPlayer = 1.0f - (distancePlayer / lightPropagationPlayer);
 
-        // Clamp the brightness to [0, 1] range
-        brightnessPlayer = std::max(std::min(brightnessPlayer, 1.0f), 0.0f);
+    //     // Clamp the brightness to [0, 1] range
+    //     brightnessPlayer = std::max(std::min(brightnessPlayer, 1.0f), 0.0f);
 
-        Colors colorPlayer = colorTunnel.generateAlternateColor(0, 0, -colorTunnel.l * 100 + brightnessPlayer * lightIntensityPlayer * (colorTunnel.l * 100));
+    //     Colors colorPlayer = colorTunnel.generateAlternateColor(0, 0, -colorTunnel.l * 100 + brightnessPlayer * lightIntensityPlayer * (colorTunnel.l * 100));
 
-        Position posBall = Position(0, 12 * 10 - game_depth + ballTempY, 0);
-        float distanceBall = std::sqrt(pow((posWall.x - posBall.x), 2) + pow((posWall.y - posBall.y), 2) + pow((posWall.z - posBall.z), 2));
+    //     Position posBall = Position(0, 12 * 10 - game_depth + ballTempY, 0);
+    //     float distanceBall = std::sqrt(pow((posWall.x - posBall.x), 2) + pow((posWall.y - posBall.y), 2) + pow((posWall.z - posBall.z), 2));
 
-        // Set the light parameters
-        float lightPropagationBall = 40.0f;
-        float lightIntensityBall = 0.4f;
+    //     // Set the light parameters
+    //     float lightPropagationBall = 40.0f;
+    //     float lightIntensityBall = 0.4f;
 
-        // Calculate the brightness
-        float brightnessBall = 1.0f - (distanceBall / lightPropagationPlayer);
+    //     // Calculate the brightness
+    //     float brightnessBall = 1.0f - (distanceBall / lightPropagationPlayer);
 
-        // Clamp the brightness to [0, 1] range
-        brightnessBall = std::max(std::min(brightnessBall, 1.0f), 0.0f);
+    //     // Clamp the brightness to [0, 1] range
+    //     brightnessBall = std::max(std::min(brightnessBall, 1.0f), 0.0f);
 
-        Colors colorBall = colorTunnel.generateAlternateColor(0, 0, -colorTunnel.l * 100 + brightnessBall * lightIntensityBall * (colorTunnel.l * 100));
+    //     Colors colorBall = colorTunnel.generateAlternateColor(0, 0, -colorTunnel.l * 100 + brightnessBall * lightIntensityBall * (colorTunnel.l * 100));
 
-        // this->displayColor = colorTunnel.generateAlternateColor(0, 0, -colorTunnel.l * 100 + ((colorPlayer.l + colorBall.l) / 1) * 100);
-        // this->displayColor =  colorTunnel.generateAlternateColor(0, 0, -colorTunnel.l*100 + ((colorPlayer.l)/1)*100);
-    }
+    //     // this->displayColor = colorTunnel.generateAlternateColor(0, 0, -colorTunnel.l * 100 + ((colorPlayer.l + colorBall.l) / 1) * 100);
+    //     // this->displayColor =  colorTunnel.generateAlternateColor(0, 0, -colorTunnel.l*100 + ((colorPlayer.l)/1)*100);
+    // }
 
 } WallStep;
 
@@ -360,12 +371,15 @@ typedef struct Corridor
 
     Corridor() {}
 
+    // Currently used constructor
     Corridor(float depthOfAStep, int numberOfSteps)
     {
         srand(time(NULL));
 
         this->depthOfAStep = depthOfAStep;
         this->numberOfSteps = numberOfSteps;
+
+        // Generating corridor colors from a random color
         this->colorSideWalls = Colors();
         this->colorCeillingWalls = colorSideWalls.generateAlternateColor(20, -23, 14);
         this->colorRings = colorSideWalls.generateAlternateColor(8, 52, 15);
@@ -400,9 +414,9 @@ typedef struct Corridor
             WallStep myWallStep = WallStep(this->depthOfAStep + this->depthOfAStep * i);
 
             randomTemp = rand() % 100 + 1;
-            if (randomTemp < 25 && i != this->numberOfSteps - 1)
+            if (randomTemp < 80 && i != this->numberOfSteps - 1)
             {
-                randomTemp = rand() % 4 + 1;
+                randomTemp = rand() % 5 + 1;
                 switch (randomTemp)
                 {
                 // Moitié gauche
@@ -411,7 +425,7 @@ typedef struct Corridor
                     Position myPosition = Position(-building_width / 2, myWallStep.pos.y, building_height / 2);
                     Wall myWall = Wall(building_width / 2, building_height, myPosition);
                     myWallStep.walls.push_back(myWall);
-                    std::cout << "Moitié gauche (" << i << ")" << std::endl;
+                    std::cout << "Moitie gauche (" << i << ")" << std::endl;
                     break;
                 }
 
@@ -421,7 +435,7 @@ typedef struct Corridor
                     Position myPosition = Position(0, myWallStep.pos.y, building_height / 2);
                     Wall myWall = Wall(building_width / 2, building_height, myPosition);
                     myWallStep.walls.push_back(myWall);
-                    std::cout << "Moitié droite (" << i << ")" << std::endl;
+                    std::cout << "Moitie droite (" << i << ")" << std::endl;
                     break;
                 }
 
@@ -442,6 +456,19 @@ typedef struct Corridor
                     Wall myWall = Wall(building_width / 4, building_height, myPosition);
                     myWallStep.walls.push_back(myWall);
                     std::cout << "Petit droit (" << i << ")" << std::endl;
+                    break;
+                }
+
+                // Porte grande ouverte
+                case 5:
+                {
+                    Position myPosition = Position(building_width / 4, myWallStep.pos.y, building_height / 2);
+                    Wall myWall = Wall(building_width / 4, building_height, myPosition);
+                    myWallStep.walls.push_back(myWall);
+                    Position mySecondPosition = Position(-building_width / 2, myWallStep.pos.y, building_height / 2);
+                    Wall mySecondWall = Wall(building_width / 4, building_height, mySecondPosition);
+                    myWallStep.walls.push_back(mySecondWall);
+                    std::cout << "Porte grande ouverte (" << i << ")" << std::endl;
                     break;
                 }
 
@@ -468,6 +495,7 @@ typedef struct Player : Wall
         this->pos.y = 0;
     }
 
+    // Currently used constructor
     Player(float width)
     {
         this->pos.x = 0;
@@ -477,6 +505,7 @@ typedef struct Player : Wall
         this->height = width;
     }
 
+    // Updates the position of the puck relative to the user's mouse
     void updatePosition(int positionX, int positionY, int WINDOW_WIDTH, int WINDOW_HEIGHT, float _viewSize, float aspectRatio)
     {
         this->pos.x = (_viewSize * aspectRatio) / WINDOW_WIDTH * positionX - (_viewSize * aspectRatio) / 2.0;
@@ -493,7 +522,7 @@ typedef struct GameParameters
     float aperture; // Ouverture de la caméra 60.0 de base
     float game_depth;
     float ballTempY;
-    
+
     GameParameters() {}
 } GameParameters;
 
