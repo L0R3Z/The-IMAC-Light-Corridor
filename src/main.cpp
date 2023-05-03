@@ -35,10 +35,7 @@ float ballTempY = 0;
 
 static const float _viewSize = building_height; // Correspond à building height à cause du cadrage sur le tunnel (peut changer)
 
-
-Corridor myCorridor = Corridor(12, rand() % 30 + 10); // Profondeur d'une étape (building_depth) / Nombre d'étapes 
-Player myPlayer = Player(building_width/6);
-Ball myBall = Ball(building_width/24);
+Game myGame;
 
 struct Vertex
 {
@@ -107,7 +104,7 @@ void mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
 
 void cursor_position_callback(GLFWwindow *window, double xpos, double ypos)
 {
-    myPlayer.updatePosition(xpos, ypos, WINDOW_WIDTH, WINDOW_HEIGHT, _viewSize, aspectRatio);
+    myGame.player.updatePosition(xpos, ypos, WINDOW_WIDTH, WINDOW_HEIGHT, _viewSize, aspectRatio);
 }
 
 void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -185,24 +182,24 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 				game_depth-=1;
 				break;
 			case GLFW_KEY_KP_7 :
-				myBall.moveBall(0,1,0);
+				myGame.balls[0].moveBall(0,1,0);
 				ballTempY+=1;
 				break;
 			case GLFW_KEY_KP_1 :
-				myBall.moveBall(0,-1,0);
+				myGame.balls[0].moveBall(0,-1,0);
 				ballTempY-=1;
 				break;
 			case GLFW_KEY_KP_4 :
-				myBall.moveBall(-1,0,0);
+				myGame.balls[0].moveBall(-1,0,0);
 				break;
 			case GLFW_KEY_KP_5 :
-				myBall.moveBall(1,0,0);
+				myGame.balls[0].moveBall(1,0,0);
 				break;
 			case GLFW_KEY_KP_8 :
-				myBall.moveBall(0,0,1);
+				myGame.balls[0].moveBall(0,0,1);
 				break;
 			case GLFW_KEY_KP_2 :
-				myBall.moveBall(0,0,-1);
+				myGame.balls[0].moveBall(0,0,-1);
 				break;
 			default:
 					std::cout << "Touche non gérée (" << key << ")" << std::endl;
@@ -287,79 +284,19 @@ void drawTestTextures() {
 	glDisable(GL_TEXTURE_2D);
 }
 
-void generateCorridor() {
-	int randomTemp = 0;
-	
-	for (int i = 0; i < myCorridor.numberOfSteps; i++)
-	{
-		WallStep myWallStep = WallStep(myCorridor.depthOfAStep + myCorridor.depthOfAStep*i);
-		
-		randomTemp = rand() % 100 + 1;
-		if (randomTemp < 25 && i!=myCorridor.numberOfSteps-1)
-		{
-			randomTemp = rand() % 4 + 1;
-			switch(randomTemp) {
-				// Moitié gauche
-				case 1: {
-					Position myPosition = Position(-building_width/2,0,building_height/2);
-					Wall myWall = Wall(building_width/2,building_height, myPosition, myWallStep.depth);
-					myWallStep.walls.push_back(myWall);
-					std::cout << "Moitié gauche (" << i << ")" << std::endl;
-					break;
-				}
-					
-				// Moitié droite
-				case 2: {
-					Position myPosition = Position(0,0,building_height/2);
-					Wall myWall = Wall(building_width/2,building_height, myPosition, myWallStep.depth);
-					myWallStep.walls.push_back(myWall);
-					std::cout << "Moitié droite (" << i << ")" << std::endl;
-					break;
-				}
-				
-				// Petit gauche
-				case 3: {
-					Position myPosition = Position(-building_width/2,0,building_height/2);
-					Wall myWall = Wall(building_width/4,building_height, myPosition, myWallStep.depth);
-					myWallStep.walls.push_back(myWall);
-					std::cout << "Petit gauche (" << i << ")" << std::endl;
-					break;
-				}
-
-				// Petit droit
-				case 4: {
-					Position myPosition = Position(building_width/4,0,building_height/2);
-					Wall myWall = Wall(building_width/4,building_height, myPosition, myWallStep.depth);
-					myWallStep.walls.push_back(myWall);
-					std::cout << "Petit droit (" << i << ")" << std::endl;
-					break;
-				}
-
-				default: {
-					std::cout << "No wall for the random value (" << randomTemp << ")" << std::endl;
-				}
-					
-			}
-			
-		}
-		
-		myCorridor.wallSteps.push_back(myWallStep);
-	}
-}
-
 void draw() {	
 	
 	glPushMatrix();
 		glTranslatef(0,-game_depth,0);
-		drawBall(myBall);
-		drawCorridor(myCorridor, myBall.pos, myPlayer.pos);
+		drawBall(myGame.balls[0]);
+		drawCorridor(myGame.corridor, myGame.balls[0].pos, myGame.player.pos); // pk posBall et posPlayer pour dessiner le corridor ??
 	glPopMatrix();
 
 	// drawFrame();
 
 	
 
-	drawPlayer(myPlayer);
+	drawPlayer(myGame.player);
 
 	// glPushMatrix();
 	// 	glTranslatef(0,-game_depth,0);
@@ -410,6 +347,24 @@ int main() {
         return -1;
     }
 
+
+	// Déclaration des variables utiles au jeu
+	
+	Corridor myCorridor = Corridor(building_depth, rand() % 30 + 10); // Profondeur d'une étape (building_depth) / Nombre d'étapes 
+	Player myPlayer = Player(building_width/6);
+	Ball myBall = Ball(building_width/24);
+	myGame.viewHeight = WINDOW_HEIGHT;
+	myGame.viewWidth = WINDOW_WIDTH;
+	myGame.corridor = myCorridor;
+	myGame.player = myPlayer;
+	myGame.balls.push_back(myBall);
+	myGame.lives = 3;
+	myGame.gameState = 1;
+
+	//  myGame.corridor = Corridor(12, rand() % 30 + 10);
+	// 	myGame.player = Player(building_width/6);
+	// 	myGame.balls.push_back(Ball(building_width/24));
+
     // Make the window's context current
     glfwMakeContextCurrent(window);
 
@@ -433,14 +388,10 @@ int main() {
 
 	loadTextures();
 
-	Player player;
-	player.width = building_width;
-	player.height = building_height;
-	player.pos = Position(0, 0, 0);
 
-	printf("corridor numberOfSteps: %i", myCorridor.numberOfSteps);
+	printf("corridor numberOfSteps: %i", myGame.corridor.numberOfSteps);
 
-	generateCorridor();
+	myGame.corridor.generateCorridor(building_width, building_height);
 
 
 	/* Loop until the user closes the window */

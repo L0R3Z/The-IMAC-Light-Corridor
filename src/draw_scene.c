@@ -287,7 +287,7 @@ void drawWallStep(std::vector<WallStep> myWallSteps, Corridor myCorridor, Positi
 		
 		// Top wall
         glPushMatrix();
-            glTranslatef(0,myWallSteps[i].depth-building_depth/2,building_height/2);
+            glTranslatef(0,myWallSteps[i].pos.y-building_depth/2,building_height/2);
             glScalef(building_width, building_depth, building_height);
             // drawSquare();
 			glBegin(GL_TRIANGLE_FAN);
@@ -319,7 +319,7 @@ void drawWallStep(std::vector<WallStep> myWallSteps, Corridor myCorridor, Positi
 
         // Bottom wall
         glPushMatrix();
-            glTranslatef(0,myWallSteps[i].depth-building_depth/2,-building_height/2);
+            glTranslatef(0,myWallSteps[i].pos.y-building_depth/2,-building_height/2);
             glScalef(building_width, building_depth, building_height);
             // drawSquare();
 			glBegin(GL_TRIANGLE_FAN);
@@ -358,7 +358,7 @@ void drawWallStep(std::vector<WallStep> myWallSteps, Corridor myCorridor, Positi
 
         // Left wall
         glPushMatrix();
-            glTranslatef(-building_width/2,myWallSteps[i].depth-building_depth/2,0);
+            glTranslatef(-building_width/2,myWallSteps[i].pos.y-building_depth/2,0);
             glRotatef(90, 0, 1, 0);
             glScalef(building_height, building_depth, building_height);
             // drawSquare();
@@ -392,7 +392,7 @@ void drawWallStep(std::vector<WallStep> myWallSteps, Corridor myCorridor, Positi
 
 		// Right wall
         glPushMatrix();
-            glTranslatef(building_width/2,myWallSteps[i].depth-building_depth/2,0);
+            glTranslatef(building_width/2,myWallSteps[i].pos.y-building_depth/2,0);
             glRotatef(90, 0, 1, 0);
             glScalef(building_height, building_depth, building_height);
             // drawSquare();
@@ -435,7 +435,7 @@ void drawWallStep(std::vector<WallStep> myWallSteps, Corridor myCorridor, Positi
 
 			// glColor4f(myCorridor.colorRings.r,myCorridor.colorRings.g,myCorridor.colorRings.b,0.8);
 			glPushMatrix();
-				glTranslatef(0,myWallSteps[i].depth,0);
+				glTranslatef(0,myWallSteps[i].pos.y,0);
 				glScalef(building_width, 1, building_height);
 				glRotatef(90, 1, 0, 0);
 				glLineWidth(3.0);
@@ -477,44 +477,44 @@ void drawWallStep(std::vector<WallStep> myWallSteps, Corridor myCorridor, Positi
 void drawWall(std::vector<Wall> myWalls, Position posBall, Position posPlayer, Colors wallColor) {
     for (int i = 0; i < (int) myWalls.size(); i++)
     {
-        if (myWalls[i].depth-game_depth >= 0)
+        if (myWalls[i].pos.y-game_depth >= 0)
 		{
 			// Wall
 			glPushMatrix();
 				// Placement du mur au fond du wallStep
-				glTranslatef(0,myWalls[i].depth,0);
+				glTranslatef(0,myWalls[i].pos.y,0);
+
 				// Placement du mur
 				glTranslatef(myWalls[i].pos.x,0,myWalls[i].pos.z);
+
 				// Compensation pour placer l'origine du mur en haut à gauche
 				glTranslatef((myWalls[i].width)/2,0,-(myWalls[i].height)/2);
+
 				// Taille du mur
 				glScalef(myWalls[i].width, 1, myWalls[i].height);
 				glRotatef(90, 1, 0, 0);
 				// drawSquare();
 
 				glBegin(GL_TRIANGLE_FAN);
-					
-					
-					tempPos = Position(myWalls[i].pos.x,myWalls[i].depth,myWalls[i].pos.z-myWalls[i].height);
+					tempPos = Position(myWalls[i].pos.x, myWalls[i].pos.y, myWalls[i].pos.z-myWalls[i].height);
 					tempColor = wallColor.displayColor(posBall, posPlayer, tempPos, game_depth);
 					glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
 					// glColor4f(1,0,0,0.8);
 					glVertex3f(-0.5,-0.5,0.0);
 
-					
-					tempPos = Position(myWalls[i].pos.x+myWalls[i].width,myWalls[i].depth,myWalls[i].pos.z-myWalls[i].height);
+					tempPos = Position(myWalls[i].pos.x+myWalls[i].width, myWalls[i].pos.y, myWalls[i].pos.z-myWalls[i].height);
 					tempColor = wallColor.displayColor(posBall, posPlayer, tempPos, game_depth);
 					glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
 					// glColor4f(0,1,0,0.8);
 					glVertex3f(0.5,-0.5,0.0);
 					
-					tempPos = Position(myWalls[i].pos.x+myWalls[i].width,myWalls[i].depth,myWalls[i].pos.z);
+					tempPos = Position(myWalls[i].pos.x+myWalls[i].width, myWalls[i].pos.y, myWalls[i].pos.z);
 					tempColor = wallColor.displayColor(posBall, posPlayer, tempPos, game_depth);
 					glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
 					// glColor4f(0,0,1,0.8);
 					glVertex3f(0.5,0.5,0.0);
 
-					tempPos = Position(myWalls[i].pos.x,myWalls[i].depth,myWalls[i].pos.z);
+					tempPos = Position(myWalls[i].pos.x, myWalls[i].pos.y, myWalls[i].pos.z);
 					tempColor = wallColor.displayColor(posBall, posPlayer, tempPos, game_depth);
 					glColor4f(tempColor.r,tempColor.g,tempColor.b,0.8);
 					// glColor4f(1,1,1,0.8);
@@ -528,9 +528,11 @@ void drawWall(std::vector<Wall> myWalls, Position posBall, Position posPlayer, C
 void drawPlayer(Player myPlayer) {
 	glPushMatrix();
 		// Placement du mur au fond du wallStep
-		glTranslatef(0,myPlayer.depth,0);
+		glTranslatef(0, myPlayer.pos.y, 0);
+
 		// Placement du mur
 		glTranslatef(myPlayer.pos.x,0,myPlayer.pos.z);
+
 		// Taille du mur
 		glScalef(myPlayer.width, 1, myPlayer.height);
 		glRotatef(90, 1, 0, 0);
@@ -542,6 +544,7 @@ void drawPlayer(Player myPlayer) {
 				glVertex2f(0.5f, -0.5f);
 				glVertex2f(-0.5f, -0.5f);
 		glEnd();
+
 		glLineWidth(1.0);
 		glColor4f((float) 178/255,(float) 178/255,(float) 178/255,.25);
 		drawSquare();
@@ -552,7 +555,8 @@ void drawBall(Ball myBall) {
 	// Dessin de la balle
 	glPushMatrix();
 		// Placement de la balle
-		glTranslatef(myBall.pos.x,myBall.pos.y,myBall.pos.z);
+		glTranslatef(myBall.pos.x, myBall.pos.y, myBall.pos.z);
+
 		// Taille du mur
 		glScalef(myBall.radius*2, myBall.radius*2, myBall.radius*2);
 		glColor4f((float) 69/255,(float) 69/255,(float) 142/255,1.);
