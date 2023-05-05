@@ -95,6 +95,9 @@ void mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
 void cursor_position_callback(GLFWwindow *window, double xpos, double ypos)
 {
     myGame.player.updatePosition(xpos, ypos, WINDOW_WIDTH, WINDOW_HEIGHT, _viewSize, aspectRatio);
+	for(Ball& ball : myGame.balls) {
+		if(!ball.isLaunched) ball.updatePosition(xpos, ypos, WINDOW_WIDTH, WINDOW_HEIGHT, _viewSize, aspectRatio);
+	}
 }
 
 void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -137,22 +140,52 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 				theta += 5;
 				std::cout << "Theta is " << theta << std::endl;
 				break;
-			case GLFW_KEY_W :
-				game_depth+=5;
-				break;
-			case GLFW_KEY_S :
-				game_depth-=5;
-				break;
+			// Player can move only if he launched all his balls
+			if(myGame.gameState == 2) {
+				case GLFW_KEY_W :
+					game_depth+=5;
+					break;
+				case GLFW_KEY_S :
+					game_depth-=5;
+					break;
+			}
 			case GLFW_KEY_SPACE :
-				if (formToDraw == GL_POLYGON)
 				{
-					formToDraw = GL_POINTS;
+					// Launch the first unlaunched ball in the array
+					for (Ball& ball : myGame.balls) {
+						if (!ball.isLaunched) {
+							ball.isLaunched = true;
+							// If all the balls are launched, enable gameState 2
+							if (++myGame.nbOfBallsLaunched == myGame.balls.size()) {
+								myGame.gameState = 2;
+							}
+							break;
+						}
+					}
+					break;
 				}
-				else
-				{
-					formToDraw = GL_POLYGON;
-				}
+					// bool launched = false;
+					// int nbOfLaunched = 0;
+					// for(Ball& ball : myGame.balls) {
+					// 	if(!ball.isLaunched && !launched) {
+					// 		ball.isLaunched = !ball.isLaunched;
+					// 		launched = !launched;
+					// 	}
+					// 	if(ball.isLaunched) nbOfLaunched++;
+					// }
+					// if(nbOfLaunched == myGame.balls.size()) {
+					// 	if(myGame.gameState == 1) myGame.gameState = 2;
+					// }
+					// printf("nbOfLaunched: %i", nbOfLaunched);
 				break;
+				// if (formToDraw == GL_POLYGON)
+				// {
+				// 	formToDraw = GL_POINTS;
+				// }
+				// else
+				// {
+				// 	formToDraw = GL_POLYGON;
+				// }
 			default:
 				std::cout << "Touche non gérée (" << key << ")" << std::endl;
 		}
@@ -265,10 +298,11 @@ void drawTestTextures() {
 
 void draw() {	
 	glPushMatrix();
-		glTranslatef(0,-game_depth,0);
-		drawBall(myGame.balls[0]);
-		drawCorridor(myGame.corridor, myGame.balls[0].pos, myGame.player.pos); // pk posBall et posPlayer pour dessiner le corridor ??
+		glTranslatef(0,-game_depth,0);	
+		drawBalls(myGame.balls);
+		drawCorridor(myGame, myGame.corridor, myGame.balls[0].pos, myGame.player.pos); // pk posBall et posPlayer pour dessiner le corridor ??
 	glPopMatrix();
+	
 	// drawFrame();
 
 	drawPlayer(myGame.player);
@@ -315,12 +349,16 @@ int main() {
 	
 	Corridor myCorridor = Corridor(building_depth, rand() % 30 + 10); // Profondeur d'une étape (building_depth) / Nombre d'étapes 
 	Player myPlayer = Player(building_width/6);
-	Ball myBall = Ball(building_width/24);
+	Ball myBall = Ball(building_width/12);
+	Ball myBall2 = Ball(building_width/12);
+	Ball myBall3 = Ball(building_width/12);
 	myGame.viewHeight = WINDOW_HEIGHT;
 	myGame.viewWidth = WINDOW_WIDTH;
 	myGame.corridor = myCorridor;
 	myGame.player = myPlayer;
 	myGame.balls.push_back(myBall);
+	myGame.balls.push_back(myBall2);
+	myGame.balls.push_back(myBall3);
 	myGame.lives = 3;
 	myGame.gameState = 1;
 
@@ -364,7 +402,7 @@ int main() {
 
 		/* Cleaning buffers and setting Matrix Mode */
 		// glClearColor(1.0,1.0,1.,0.0);
-		glClearColor(0.0,0.0,0.,0.0);
+		glClearColor(0.0, 0.0, 0., 0.0);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -372,6 +410,17 @@ int main() {
 		glLoadIdentity();
 		setCamera();
 
+		// GAMESTATES
+		// 0: menu
+		// 1: game when no ball moving
+		// 2: game when all the balls are launched
+
+		// MODEL
+		for(Ball& ball : myGame.balls) {
+			if(ball.isLaunched) ball.gameMove();
+		}
+
+		// VIEW
 		draw();
 
 		/* Swap front and back buffers */

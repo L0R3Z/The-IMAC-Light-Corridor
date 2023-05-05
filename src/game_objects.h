@@ -9,6 +9,8 @@
 #include <time.h>
 #include <math.h>
 
+struct Game;
+
 // Tool struct for 3D positions
 typedef struct Position
 {
@@ -162,8 +164,12 @@ typedef struct Colors
     // Calculation of the color to be displayed according to the points of light, the position of the object to be illuminated and its base color
     Colors displayColor(Position posBall, Position posPlayer, Position posObject, float game_depth)
     {
+        // A METTRE AILLEURS
         // Position update based on game position
-        posBall.y -= game_depth;
+        // if (myGame.balls[0].speed.y != 0)
+        // {
+            posBall.y -= game_depth*10;
+        // }
         posObject.y -= game_depth;
 
         // Print to console for debug
@@ -200,7 +206,6 @@ typedef struct Colors
         newColor = this->generateAlternateColor(0, 0, -this->l * 100 + ((colorPlayer.l + colorBall.l) / 1) * 100);
         return newColor;
     }
-
 } Colors;
 
 // Tool struct for 3D speed
@@ -225,15 +230,16 @@ typedef struct Ball
     Position pos;
     Speed speed;
     GLuint *texture; // texture from the textures array
-    // Light light;
+    bool isLaunched = false;
 
     Ball() {}
 
     // Currently used constructor
-    Ball(int rad)
+    Ball(GLint rad)
     {
         this->radius = rad;
-        this->pos = Position(0, 12 * 10., 0);
+        this->pos = Position(0, rad, 0);
+        // this->pos = Position(0, 12 * 10., 0);
     }
 
     Ball(GLfloat rad, Position pos, Speed speed, GLuint *texture)
@@ -244,11 +250,28 @@ typedef struct Ball
         this->texture = texture;
     }
 
+    // Move the ball with precise x, y and z values
     void moveBall(float moveX, float moveY, float moveZ)
     {
         this->pos.x += moveX;
         this->pos.y += moveY;
         this->pos.z += moveZ;
+    }
+
+    // Updates the position of the ball relative to the user's mouse
+    void updatePosition(int positionX, int positionY, int WINDOW_WIDTH, int WINDOW_HEIGHT, float _viewSize, float aspectRatio)
+    {
+        // printf("positionY: %i\n", positionY); moveBall
+        // if()
+        this->pos.x = (_viewSize * aspectRatio) / WINDOW_WIDTH * positionX - (_viewSize * aspectRatio) / 2.0;
+        this->pos.z = -_viewSize / WINDOW_HEIGHT * positionY + _viewSize / 2.0;
+    }
+
+    // Move the ball every frame
+    void gameMove()
+    {
+        this->moveBall(0, .2, 0);
+        printf("inside gameMove, ball pos y %f\n", this->pos.y);
     }
 
 } Ball;
@@ -534,6 +557,7 @@ typedef struct Game
     Player player;
     Corridor corridor;
     std::vector<Ball> balls;
+    int nbOfBallsLaunched;
     int lives;
     int gameState;
     int renderSkinId;

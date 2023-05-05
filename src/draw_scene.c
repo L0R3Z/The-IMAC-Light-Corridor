@@ -87,7 +87,7 @@ void drawFrame() {
     glLineWidth(1.0);
 }
 
-void drawCorridor(Corridor myCorridor, Position posBall, Position posPlayer) {
+void drawCorridor(Game myGame, Corridor myCorridor, Position posBall, Position posPlayer) {
 	// Drawing of the bottom of the corridor
 	// Definition of the y-position of the bottom
 	posBottom.y=building_depth+building_depth*(myCorridor.numberOfSteps-1);
@@ -153,10 +153,10 @@ void drawCorridor(Corridor myCorridor, Position posBall, Position posPlayer) {
 	glPopMatrix();
 	
 	// Call of the function to draw the wallSteps of the corridor
-    drawWallStep(myCorridor.wallSteps, myCorridor, posBall, posPlayer);
+    drawWallStep(myGame, myCorridor.wallSteps, myCorridor, posBall, posPlayer);
 }
 
-void drawWallStep(std::vector<WallStep> myWallSteps, Corridor myCorridor, Position posBall, Position posPlayer) {
+void drawWallStep(Game myGame, std::vector<WallStep> myWallSteps, Corridor myCorridor, Position posBall, Position posPlayer) {
     for (int i = myWallSteps.size()-1; i > -1; i--)
     {		
 		// Top wall
@@ -324,11 +324,11 @@ void drawWallStep(std::vector<WallStep> myWallSteps, Corridor myCorridor, Positi
 		}
 
 		// Call of the function to draw the Walls of the wallStep
-		drawWall(myWallSteps[i].walls, posBall, posPlayer, myWallSteps[i].color);
+		drawWall(myGame, myWallSteps[i].walls, posBall, posPlayer, myWallSteps[i].color);
     }
 }
 
-void drawWall(std::vector<Wall> myWalls, Position posBall, Position posPlayer, Colors wallColor) {
+void drawWall(Game myGame, std::vector<Wall> myWalls, Position posBall, Position posPlayer, Colors wallColor) {
     for (int i = 0; i < (int) myWalls.size(); i++)
     {
         if (myWalls[i].pos.y-game_depth >= 0)
@@ -395,11 +395,14 @@ void drawPlayer(Player myPlayer) {
 	glPopMatrix();
 }
 
-void drawBall(Ball myBall) {
-	glPushMatrix();
-		glTranslatef(myBall.pos.x,myBall.pos.y,myBall.pos.z);
-		glScalef(myBall.radius*2, myBall.radius*2, myBall.radius*2);
-		glColor4f((float) 69/255,(float) 69/255,(float) 142/255,1.);
-		drawSphere();
-	glPopMatrix();
+void drawBalls(std::vector<Ball> balls) {
+	for(Ball ball : balls) {
+		// printf("inside drawBalls, pos y of ball: %f\n", ball.pos.y);
+		glPushMatrix();
+			glTranslatef(ball.pos.x, ball.pos.y+game_depth, ball.pos.z);
+			glScalef(ball.radius, ball.radius, ball.radius);
+			glColor4f((float) 69/255,(float) 69/255,(float) 142/255,1.);
+			drawSphere();
+		glPopMatrix();
+	}
 }
