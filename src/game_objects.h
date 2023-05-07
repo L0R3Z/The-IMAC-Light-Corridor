@@ -445,16 +445,19 @@ typedef struct Ball
     GLfloat radius;
     Position pos;
     Speed speed;
+    GLfloat defaultSpeed;
     GLuint *texture; // texture from the textures array
     bool isLaunched = false;
 
     Ball() {}
 
     // Currently used constructor
-    Ball(GLint rad)
+    Ball(GLint rad, GLfloat speed)
     {
         this->radius = rad;
-        this->pos = Position(0, rad, 0);
+        this->pos = Position(0, rad + 1, 0);
+        this->defaultSpeed = speed;
+        this->speed = Speed(0, speed, 0);
         // this->pos = Position(0, 12 * 10., 0);
     }
 
@@ -486,13 +489,138 @@ typedef struct Ball
     // Move the ball every frame
     void gameMove()
     {
-        this->moveBall(0, .2, 0);
+        this->moveBall(this->speed.x, this->speed.y, this->speed.x);
         // printf("inside gameMove, ball pos y %f\n", this->pos.y);
     }
 
-    void resetPosition(Position playerPos)
+    void resetPosition(Position playerPos, GLfloat gameDepth)
     {
-        this->pos = Position(playerPos.x, this->radius, playerPos.z);
+        this->pos = Position(playerPos.x, this->radius + gameDepth + 1, playerPos.z);
+    }
+
+    void resetSpeed()
+    {
+        this->speed = Speed(0, this->defaultSpeed, 0);
+    }
+
+    void checkWAllCollisions(Corridor corridor, Player player, GLfloat gameDepth)
+    {
+        if (checkWallsCollisions(corridor.wallSteps, gameDepth))
+        {
+            this->speed.y = -this->speed.y;
+        }
+        if (checkPlayerCollisions(player, gameDepth))
+        {
+            this->speed.y = -this->speed.y;
+        }
+    }
+
+    bool checkWallsCollisions(std::vector<WallStep> wallSteps, GLint gameDepth)
+    {
+        // Position frontPoint = Position(this->pos.x, this->pos.y+this->radius, this->pos.z);
+        // Position backPoint = Position(this->pos.x, this->pos.y-this->radius, this->pos.z);
+        for (WallStep wallStep : wallSteps)
+        {
+            for (Wall wall : wallStep.walls)
+            {
+                // // Calculate the potential new position of the ball
+                // float nextX = this->pos.x + this->speed.x;
+                // float nextY = this->pos.y + this->speed.y;
+                // float nextZ = this->pos.z + this->speed.z;
+
+                // // Calculate the closest point on the wall to the ball's center
+                // float closestX = std::max(wall.pos.x - this->radius, std::min(nextX, wall.pos.x + wall.width + this->radius));
+                // float closestY = std::max((wall.pos.y-gameDepth) - this->radius, std::min(nextY, (wall.pos.y-gameDepth) + this->radius));
+                // float closestZ = std::max(wall.pos.z + this->radius, std::min(nextZ, wall.pos.z - wall.height - this->radius));
+
+                // // printf("closestY %f\n", closestY);
+
+                // // Calculate the distance between the ball's center and the closest point on the wall
+                // float distX = closestX - nextX;
+                // float distY = closestY - nextY;
+                // float distZ = closestZ - nextZ;
+
+                // // Check if the distance is less than or equal to the sum of the ball's radius and the wall's thickness
+                // if (distX * distX + distY * distY + distZ * distZ <= (this->radius) * (this->radius))
+                // {
+                //     // Collision detected
+                //     return true;
+                // }
+
+                // Calculate the potential new position of the ball
+                float nextX = this->pos.x + this->speed.x;
+                float nextY = this->pos.y + this->speed.y;
+                float nextZ = this->pos.z + this->speed.z;
+
+                // Calculate the bounds of the ball with the radius taken into account
+                float ballMinX = nextX - this->radius;
+                float ballMaxX = nextX + this->radius;
+                float ballMinY = nextY - this->radius;
+                float ballMaxY = nextY + this->radius;
+                float ballMinZ = nextZ - this->radius;
+                float ballMaxZ = nextZ + this->radius;
+
+                // Check if the potential new position collides with the wall
+                if (ballMaxX >= wall.pos.x && ballMinX <= wall.pos.x + wall.width &&
+                    ballMaxY >= wall.pos.y && ballMinY <= wall.pos.y &&
+                    ballMinZ >= wall.pos.z - wall.height && ballMaxZ <= wall.pos.z)
+                {
+                    // Collision detected
+                    printf("collision with %s detected!", "wall");
+                    return true;
+                }
+
+                // Ne marche pas spécifiquement avec les murs jumeaux (gauche + droite)
+                // if(frontPoint.y >= wall.pos.y && backPoint.y <= wall.pos.y) this->speed.y = -this->speed.y;
+                // if(int(frontPoint.y) == int(wall.pos.y))
+                // printf("\n[WALL] pos x: %f ,", wall.pos.x);
+                // printf("pos y: %f ,", wall.pos.y);
+                // printf("pos z: %f", wall.pos.z);
+            }
+        }
+
+        // No collision
+        // printf("\n\n\n%s", "lol");
+
+        // printf("\n[BALL] pos x: %f ,", this->pos.x);
+        // printf("pos y: %f ,", this->pos.y);
+        // printf("pos z: %f", this->pos.z);
+        return false;
+    }
+
+    bool checkCorridorCollisions(Corridor corridor)
+    {
+    }
+
+    bool checkPlayerCollisions(Player player, GLfloat gameDepth)
+    {
+        // Position backPoint = Position(this->pos.x, this->pos.y - this->radius, this->pos.z);
+        // if (backPoint.y + this->speed.y <= player.pos.y + gameDepth)
+        //     return true;
+
+        // Calculate the potential new position of the ball
+        float nextX = this->pos.x + this->speed.x;
+        float nextY = this->pos.y + this->speed.y;
+        float nextZ = this->pos.z + this->speed.z;
+
+        // Calculate the bounds of the ball with the radius taken into account
+        float ballMinX = nextX - this->radius;
+        float ballMaxX = nextX + this->radius;
+        float ballMinY = nextY - this->radius;
+        float ballMaxY = nextY + this->radius;
+        float ballMinZ = nextZ - this->radius;
+        float ballMaxZ = nextZ + this->radius;
+
+        // Check if the potential new position collides with the wall
+        if (ballMaxX >= player.pos.x - player.width/2 && ballMinX <= player.pos.x + player.width/2 &&
+            ballMaxY >= player.pos.y+gameDepth && ballMinY <= player.pos.y+gameDepth &&
+            ballMaxZ >= player.pos.z - player.height/2 && ballMinZ <= player.pos.z + player.height/2)
+        {
+            // Collision detected
+            printf("collision with %s detected!", "player");
+            return true;
+        }
+        return false;
     }
 
 } Ball;
@@ -554,7 +682,7 @@ typedef struct Game
             Ball myBall;
             this->balls.push_back(myBall);
         }
-        this->balls[0] = Ball(this->parameters.buildingWidth / 12);
+        this->balls[0] = Ball(this->parameters.buildingWidth / 12, .05);
         this->lives = 3;
         this->gameState = 1;
         this->parameters.gameDepth = 0;
@@ -568,30 +696,54 @@ typedef struct Game
 
     void winGame()
     {
-        printf("You... %s", "won :)");
+        printf("\nYou... %s", "won :)");
     }
 
     void looseGame()
     {
-        printf("You... %s", "lost :(");
+        printf("\nYou... %s", "lost :(");
         this->loadGame();
     }
 
     void takeDamage()
     {
         this->lives--;
-        printf("Remaining lives: %i", this->lives);
+        printf("\nRemaining lives: %i", this->lives);
         if (this->lives == 0)
         {
             this->looseGame();
         }
         else
         {
-            this->balls[0].resetPosition(this->player.pos);
+            this->balls[0].resetPosition(this->player.pos, this->parameters.gameDepth);
+            this->balls[0].resetSpeed();
             this->balls[0].isLaunched = false;
             this->gameState = 1;
+            this->nbOfBallsLaunched--;
         }
     }
+
+    void moveFront(GLint distance)
+    {
+        if (this->gameState == 2)
+        {
+            this->parameters.gameDepth += distance;
+            if (!this->balls[0].isLaunched)
+            {
+                this->balls[0].moveBall(0, distance, 0);
+            }
+        }
+    }
+
+    // void checkAllCollisions()
+    // {
+
+    // }
+
+    // void moveBack(GLint distance)
+    // {
+    //     this->parameters.gameDepth -= distance;
+    // }
 
 } Game;
 

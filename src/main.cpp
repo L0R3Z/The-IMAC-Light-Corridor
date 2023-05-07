@@ -38,24 +38,24 @@ static const float _viewSize = myGame.parameters.buildingHeight; // Correspond �
 
 struct Vertex
 {
-    GLfloat positionX;
-    GLfloat positionY;
-    GLfloat colorR;
-    GLfloat colorG;
-    GLfloat colorB;
+	GLfloat positionX;
+	GLfloat positionY;
+	GLfloat colorR;
+	GLfloat colorG;
+	GLfloat colorB;
 
-    Vertex(int positionX, int positionY)
-    {
+	Vertex(int positionX, int positionY)
+	{
 		this->positionX = (_viewSize * aspectRatio) / WINDOW_WIDTH * positionX - (_viewSize * aspectRatio) / 2.0;
 		this->positionY = -_viewSize / WINDOW_HEIGHT * positionY + _viewSize / 2.0;
-        this->colorR = ((((GLfloat)(rand() % 180)) + 75) / 255);
-        this->colorG = ((((GLfloat)(rand() % 180)) + 75) / 255);
-        this->colorB = ((((GLfloat)(rand() % 180)) + 75) / 255);
+		this->colorR = ((((GLfloat)(rand() % 180)) + 75) / 255);
+		this->colorG = ((((GLfloat)(rand() % 180)) + 75) / 255);
+		this->colorB = ((((GLfloat)(rand() % 180)) + 75) / 255);
 		printf("%f \n", _viewSize);
 		printf("%i %i \n", positionX, positionY);
 
 		printf("%f %f \n", this->positionX, this->positionY);
-    }
+	}
 };
 
 vector<Vertex> pointsToDraw;
@@ -65,175 +65,191 @@ int formToDraw = GL_POINTS;
 static const double FRAMERATE_IN_SECONDS = 1. / 90.;
 
 /* Error handling function */
-void onError(int error, const char* description) {
-    std::cout << "GLFW Error: " << description << std::endl;
+void onError(int error, const char *description)
+{
+	std::cout << "GLFW Error: " << description << std::endl;
 }
 
-void onWindowResized(GLFWwindow* window, int width, int height)
+void onWindowResized(GLFWwindow *window, int width, int height)
 {
-	aspectRatio = width / (float) height;
+	aspectRatio = width / (float)height;
 	WINDOW_WIDTH = width;
-    WINDOW_HEIGHT = height;
+	WINDOW_HEIGHT = height;
 	glViewport(0, 0, width, height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(myGame.parameters.aperture,aspectRatio,Z_NEAR,Z_FAR);
+	gluPerspective(myGame.parameters.aperture, aspectRatio, Z_NEAR, Z_FAR);
 	glMatrixMode(GL_MODELVIEW);
 }
 
 /* User mouse button handling function */
 void mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
 {
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
-    {
-        glfwGetCursorPos(window, &xpos, &ypos);
-        printf("%f %f \n", xpos, ypos);
-        pointsToDraw.push_back(Vertex(xpos, ypos));
-    }
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	{
+		glfwGetCursorPos(window, &xpos, &ypos);
+		printf("%f %f \n", xpos, ypos);
+		pointsToDraw.push_back(Vertex(xpos, ypos));
+	}
 }
 
 void cursor_position_callback(GLFWwindow *window, double xpos, double ypos)
 {
-    myGame.player.updatePosition(xpos, ypos, WINDOW_WIDTH, WINDOW_HEIGHT, _viewSize, aspectRatio);
-	for(Ball& ball : myGame.balls) {
-		if(!ball.isLaunched) ball.updatePosition(xpos, ypos, WINDOW_WIDTH, WINDOW_HEIGHT, _viewSize, aspectRatio);
+	myGame.player.updatePosition(xpos, ypos, WINDOW_WIDTH, WINDOW_HEIGHT, _viewSize, aspectRatio);
+	for (Ball &ball : myGame.balls)
+	{
+		if (!ball.isLaunched)
+			ball.updatePosition(xpos, ypos, WINDOW_WIDTH, WINDOW_HEIGHT, _viewSize, aspectRatio);
 	}
 }
 
-void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
+void onKey(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
-	if (action == GLFW_PRESS) {
-		switch(key) {
-			case GLFW_KEY_A :
-			case GLFW_KEY_ESCAPE :
-				glfwSetWindowShouldClose(window, GLFW_TRUE);
-				break;
-			case GLFW_KEY_L :
-				glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-				break;
-			case GLFW_KEY_P :
-				glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-				break;
-			case GLFW_KEY_N :
-				myGame.takeDamage();
-				break;
-			// Restart the game
-			case GLFW_KEY_R :
-				myGame.loadGame();
-				break;
-			case GLFW_KEY_KP_9 :
-				// if(dist_zoom<100.0f) dist_zoom*=1.1;
-				if(dist_zoom<100.0f) dist_zoom+=1;
-				std::cout << "Zoom is " << dist_zoom << std::endl;
-				break;
-			case GLFW_KEY_KP_3 :
-				// if(dist_zoom>1.0f) dist_zoom*=0.9;
-				if(dist_zoom>1.0f) dist_zoom-=1;
-				std::cout << "Zoom is " << dist_zoom << std::endl;
-				break;
-			case GLFW_KEY_UP :
-				if (phy>2) phy -= 2;
-				std::cout << "Phy is " << phy << std::endl;
-				break;
-			case GLFW_KEY_DOWN :
-				if (phy<=88.) phy += 2;
-				std::cout << "Phy is " << phy << std::endl;
-				break;
-			case GLFW_KEY_LEFT :
-				theta -= 5;
-				std::cout << "Theta is " << theta << std::endl;
-				break;
-			case GLFW_KEY_RIGHT :
-				theta += 5;
-				std::cout << "Theta is " << theta << std::endl;
-				break;
-			// Player can move only if he launched all his balls
-			if(myGame.parameters.gameDepth == 2) {
-				case GLFW_KEY_W :
-					myGame.parameters.gameDepth+=5;
-					break;
-				case GLFW_KEY_S :
-					myGame.parameters.gameDepth-=5;
-					break;
-			}
-			case GLFW_KEY_SPACE :
+	if (action == GLFW_PRESS)
+	{
+		switch (key)
+		{
+		case GLFW_KEY_A:
+		case GLFW_KEY_ESCAPE:
+			glfwSetWindowShouldClose(window, GLFW_TRUE);
+			break;
+		case GLFW_KEY_L:
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			break;
+		case GLFW_KEY_P:
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			break;
+		case GLFW_KEY_N:
+			myGame.takeDamage();
+			break;
+		// Restart the game
+		case GLFW_KEY_R:
+			myGame.loadGame();
+			break;
+		case GLFW_KEY_C:
+			myGame.balls[0].checkWAllCollisions(myGame.corridor, myGame.player, myGame.parameters.gameDepth);
+			break;
+		case GLFW_KEY_KP_9:
+			// if(dist_zoom<100.0f) dist_zoom*=1.1;
+			if (dist_zoom < 100.0f)
+				dist_zoom += 1;
+			std::cout << "Zoom is " << dist_zoom << std::endl;
+			break;
+		case GLFW_KEY_KP_3:
+			// if(dist_zoom>1.0f) dist_zoom*=0.9;
+			if (dist_zoom > 1.0f)
+				dist_zoom -= 1;
+			std::cout << "Zoom is " << dist_zoom << std::endl;
+			break;
+		case GLFW_KEY_UP:
+			if (phy > 2)
+				phy -= 2;
+			std::cout << "Phy is " << phy << std::endl;
+			break;
+		case GLFW_KEY_DOWN:
+			if (phy <= 88.)
+				phy += 2;
+			std::cout << "Phy is " << phy << std::endl;
+			break;
+		case GLFW_KEY_LEFT:
+			theta -= 5;
+			std::cout << "Theta is " << theta << std::endl;
+			break;
+		case GLFW_KEY_RIGHT:
+			theta += 5;
+			std::cout << "Theta is " << theta << std::endl;
+			break;
+		case GLFW_KEY_W:
+			myGame.moveFront(5);
+			break;
+		case GLFW_KEY_S:
+			myGame.moveFront(-5);
+			break;
+		case GLFW_KEY_SPACE:
+		{
+			// Launch the first unlaunched ball in the array
+			for (Ball &ball : myGame.balls)
+			{
+				if (!ball.isLaunched)
 				{
-					// Launch the first unlaunched ball in the array
-					for (Ball& ball : myGame.balls) {
-						if (!ball.isLaunched) {
-							ball.isLaunched = true;
-							// If all the balls are launched, enable gameState 2
-							if (++myGame.nbOfBallsLaunched == myGame.balls.size()) {
-								myGame.gameState = 2;
-							}
-							break;
-						}
+					printf("ffff %s", "zzz");
+					ball.isLaunched = true;
+					// If all the balls are launched, enable gameState 2
+					if (++myGame.nbOfBallsLaunched == myGame.balls.size())
+					{
+						myGame.gameState = 2;
 					}
 					break;
 				}
-					// bool launched = false;
-					// int nbOfLaunched = 0;
-					// for(Ball& ball : myGame.balls) {
-					// 	if(!ball.isLaunched && !launched) {
-					// 		ball.isLaunched = !ball.isLaunched;
-					// 		launched = !launched;
-					// 	}
-					// 	if(ball.isLaunched) nbOfLaunched++;
-					// }
-					// if(nbOfLaunched == myGame.balls.size()) {
-					// 	if(myGame.gameState == 1) myGame.gameState = 2;
-					// }
-					// printf("nbOfLaunched: %i", nbOfLaunched);
-				break;
-				// if (formToDraw == GL_POLYGON)
-				// {
-				// 	formToDraw = GL_POINTS;
-				// }
-				// else
-				// {
-				// 	formToDraw = GL_POLYGON;
-				// }
-			default:
-				std::cout << "Touche non gérée (" << key << ")" << std::endl;
+			}
+			break;
+		}
+		// bool launched = false;
+		// int nbOfLaunched = 0;
+		// for(Ball& ball : myGame.balls) {
+		// 	if(!ball.isLaunched && !launched) {
+		// 		ball.isLaunched = !ball.isLaunched;
+		// 		launched = !launched;
+		// 	}
+		// 	if(ball.isLaunched) nbOfLaunched++;
+		// }
+		// if(nbOfLaunched == myGame.balls.size()) {
+		// 	if(myGame.gameState == 1) myGame.gameState = 2;
+		// }
+		// printf("nbOfLaunched: %i", nbOfLaunched);
+		break;
+			// if (formToDraw == GL_POLYGON)
+			// {
+			// 	formToDraw = GL_POINTS;
+			// }
+			// else
+			// {
+			// 	formToDraw = GL_POLYGON;
+			// }
+		default:
+			std::cout << "Touche non gérée (" << key << ")" << std::endl;
 		}
 	}
-	if (action == GLFW_REPEAT) {
-		switch(key) {
-			case GLFW_KEY_W :
-				myGame.parameters.gameDepth+=1;
-				break;
-			case GLFW_KEY_S :
-				myGame.parameters.gameDepth-=1;
-				break;
-			case GLFW_KEY_KP_7 :
-				myGame.balls[0].moveBall(0,1,0);
-				break;
-			case GLFW_KEY_KP_1 :
-				myGame.balls[0].moveBall(0,-1,0);
-				break;
-			case GLFW_KEY_KP_4 :
-				myGame.balls[0].moveBall(-1,0,0);
-				break;
-			case GLFW_KEY_KP_5 :
-				myGame.balls[0].moveBall(1,0,0);
-				break;
-			case GLFW_KEY_KP_8 :
-				myGame.balls[0].moveBall(0,0,1);
-				break;
-			case GLFW_KEY_KP_2 :
-				myGame.balls[0].moveBall(0,0,-1);
-				break;
-			default:
-					std::cout << "Touche non gérée (" << key << ")" << std::endl;
+	if (action == GLFW_REPEAT)
+	{
+		switch (key)
+		{
+		case GLFW_KEY_W:
+			myGame.moveFront(1);
+			break;
+		case GLFW_KEY_S:
+			myGame.moveFront(-1);
+			break;
+		case GLFW_KEY_KP_7:
+			myGame.balls[0].moveBall(0, 1, 0);
+			break;
+		case GLFW_KEY_KP_1:
+			myGame.balls[0].moveBall(0, -1, 0);
+			break;
+		case GLFW_KEY_KP_4:
+			myGame.balls[0].moveBall(-1, 0, 0);
+			break;
+		case GLFW_KEY_KP_5:
+			myGame.balls[0].moveBall(1, 0, 0);
+			break;
+		case GLFW_KEY_KP_8:
+			myGame.balls[0].moveBall(0, 0, 1);
+			break;
+		case GLFW_KEY_KP_2:
+			myGame.balls[0].moveBall(0, 0, -1);
+			break;
+		default:
+			std::cout << "Touche non gérée (" << key << ")" << std::endl;
 		}
 	}
 }
 
 // Code a texture from the file path
 // Return the GLuint representing the texture
-GLuint loadImage(const char* filename) {
+GLuint loadImage(const char *filename)
+{
 	int x, y, n;
-	unsigned char* loadedImage = stbi_load(filename, &x, &y, &n, 0);
+	unsigned char *loadedImage = stbi_load(filename, &x, &y, &n, 0);
 
 	if (loadedImage != nullptr)
 	{
@@ -247,69 +263,73 @@ GLuint loadImage(const char* filename) {
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, x, y, 0, GL_RGBA, GL_UNSIGNED_BYTE, loadedImage);
 	stbi_image_free(loadedImage);
 	glBindTexture(GL_TEXTURE_2D, 0);
-	
+
 	return tempTexture;
 }
 
 // Function that load the textures used in game
-void loadTextures() {
+void loadTextures()
+{
 	textures.push_back(loadImage("../res/0.png"));
 	textures.push_back(loadImage("../res/1.png"));
 }
 
 // Function that delete the textures used in game
-void deleteTextures() {
+void deleteTextures()
+{
 	glDeleteTextures(1, &textures[0]);
 	glDeleteTextures(1, &textures[1]);
 }
 
-void drawTestTextures() {
+void drawTestTextures()
+{
 	glColor3f(1., 1., 1.);
 	glEnable(GL_TEXTURE_2D);
-	
+
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
-		glPushMatrix();
-			glScalef(5.f, 5.f, 0.f);
-			glTranslatef(-1,-1,0);
-			glBegin(GL_POLYGON);
-				glTexCoord2f(0., 0.);
-				glVertex2f(-0.5f, 0.5f);
-				glTexCoord2f(1., 0.);
-				glVertex2f(0.5f, 0.5f);
-				glTexCoord2f(1., 1.);
-				glVertex2f(0.5f, -0.5f);
-				glTexCoord2f(0., 1.);
-				glVertex2f(-0.5f, -0.5f);
-			glEnd();
-		glPopMatrix();
+	glPushMatrix();
+	glScalef(5.f, 5.f, 0.f);
+	glTranslatef(-1, -1, 0);
+	glBegin(GL_POLYGON);
+	glTexCoord2f(0., 0.);
+	glVertex2f(-0.5f, 0.5f);
+	glTexCoord2f(1., 0.);
+	glVertex2f(0.5f, 0.5f);
+	glTexCoord2f(1., 1.);
+	glVertex2f(0.5f, -0.5f);
+	glTexCoord2f(0., 1.);
+	glVertex2f(-0.5f, -0.5f);
+	glEnd();
+	glPopMatrix();
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	glBindTexture(GL_TEXTURE_2D, textures[1]);
-		glPushMatrix();
-			glScalef(5.f, 5.f, 0.f);
-			glTranslatef(1,1,0);
-			glBegin(GL_POLYGON);
-				glTexCoord2f(0., 0.);
-				glVertex2f(-0.5f, 0.5f);
-				glTexCoord2f(1., 0.);
-				glVertex2f(0.5f, 0.5f);
-				glTexCoord2f(1., 1.);
-				glVertex2f(0.5f, -0.5f);
-				glTexCoord2f(0., 1.);
-				glVertex2f(-0.5f, -0.5f);
-			glEnd();
-		glPopMatrix();
+	glPushMatrix();
+	glScalef(5.f, 5.f, 0.f);
+	glTranslatef(1, 1, 0);
+	glBegin(GL_POLYGON);
+	glTexCoord2f(0., 0.);
+	glVertex2f(-0.5f, 0.5f);
+	glTexCoord2f(1., 0.);
+	glVertex2f(0.5f, 0.5f);
+	glTexCoord2f(1., 1.);
+	glVertex2f(0.5f, -0.5f);
+	glTexCoord2f(0., 1.);
+	glVertex2f(-0.5f, -0.5f);
+	glEnd();
+	glPopMatrix();
 
 	glDisable(GL_TEXTURE_2D);
 }
 
-void draw() {	
+void draw()
+{
 	glPushMatrix();
-		glTranslatef(0,-myGame.parameters.gameDepth,0);	
-		drawBalls(myGame.balls);
-		drawCorridor(myGame.corridor, myGame.balls[0].pos, myGame.player.pos); // pk posBall et posPlayer pour dessiner le corridor ??
+	glTranslatef(0, -myGame.parameters.gameDepth, 0);
+	drawBalls(myGame.balls);
+	drawCorridor(myGame.corridor, myGame.balls[0].pos, myGame.player.pos); // pk posBall et posPlayer pour dessiner le corridor ??
 	glPopMatrix();
-	
+
 	// drawFrame();
 
 	drawPlayer(myGame.player);
@@ -317,65 +337,66 @@ void draw() {
 	// Test drawing function
 	// drawTestTextures();
 	// glPointSize(25.0);
-    // glBegin(formToDraw);
-    // for (unsigned int i = 0; i < pointsToDraw.size(); i++)
-    // {
-    //     glColor4f(pointsToDraw.at(i).colorR, pointsToDraw.at(i).colorG, pointsToDraw.at(i).colorB, 1.0);
+	// glBegin(formToDraw);
+	// for (unsigned int i = 0; i < pointsToDraw.size(); i++)
+	// {
+	//     glColor4f(pointsToDraw.at(i).colorR, pointsToDraw.at(i).colorG, pointsToDraw.at(i).colorB, 1.0);
 	// 	glVertex3f(pointsToDraw.at(i).positionX,0, pointsToDraw.at(i).positionY);
-    // }
-    // glEnd();
+	// }
+	// glEnd();
 }
 
+int main()
+{
+	// Initialize the library
+	if (!glfwInit())
+	{
+		return -1;
+	}
 
-int main() {
-    // Initialize the library
-    if (!glfwInit()) {
-        return -1;
-    }
-
-    /* Callback to a function if an error is rised by GLFW */
+	/* Callback to a function if an error is rised by GLFW */
 	glfwSetErrorCallback(onError);
 
-    // Create a windowed mode window and its OpenGL context
+	// Create a windowed mode window and its OpenGL context
 #ifdef __APPLE__
-    // We need to explicitly ask for a 3.3 context on Mac
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	// We need to explicitly ask for a 3.3 context on Mac
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #endif
-    GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, nullptr, nullptr);
-	
-    if (!window) {
-        glfwTerminate();
-        return -1;
-    }
+	GLFWwindow *window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, nullptr, nullptr);
+
+	if (!window)
+	{
+		glfwTerminate();
+		return -1;
+	}
 
 	myGame.loadGame();
 
-    // Make the window's context current
-    glfwMakeContextCurrent(window);
+	// Make the window's context current
+	glfwMakeContextCurrent(window);
 
-    glfwSetWindowSizeCallback(window,onWindowResized);
+	glfwSetWindowSizeCallback(window, onWindowResized);
 	glfwSetKeyCallback(window, onKey);
-	
+
 	/* Callback to a function if the mouse is clicked */
-    glfwSetMouseButtonCallback(window, mouse_button_callback);
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
 
-    /* Callback to a function if the mouse is moved */
-    glfwSetCursorPosCallback(window, cursor_position_callback);
+	/* Callback to a function if the mouse is moved */
+	glfwSetCursorPosCallback(window, cursor_position_callback);
 
-    onWindowResized(window,WINDOW_WIDTH,WINDOW_HEIGHT);
+	onWindowResized(window, WINDOW_WIDTH, WINDOW_HEIGHT);
 
 	// Activate depth so that elements can render in front of others
 	glEnable(GL_DEPTH_TEST);
 
 	// Activate transparency
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	loadTextures();
-
 
 	printf("corridor numberOfSteps: %i", myGame.corridor.numberOfSteps);
 
@@ -403,8 +424,12 @@ int main() {
 		// 2: game when all the balls are launched
 
 		// MODEL
-		for(Ball& ball : myGame.balls) {
-			if(ball.isLaunched) ball.gameMove();
+		for (Ball &ball : myGame.balls)
+		{
+			if (ball.isLaunched)
+				ball.gameMove();
+			
+			ball.checkWAllCollisions(myGame.corridor, myGame.player, myGame.parameters.gameDepth);
 		}
 
 		// VIEW
@@ -419,14 +444,14 @@ int main() {
 		/* Elapsed time computation from loop begining */
 		double elapsedTime = glfwGetTime() - startTime;
 		/* If to few time is spend vs our wanted FPS, we wait */
-		if(elapsedTime < FRAMERATE_IN_SECONDS) 
+		if (elapsedTime < FRAMERATE_IN_SECONDS)
 		{
-			glfwWaitEventsTimeout(FRAMERATE_IN_SECONDS-elapsedTime);
+			glfwWaitEventsTimeout(FRAMERATE_IN_SECONDS - elapsedTime);
 		}
 	}
 
 	glDisable(GL_BLEND);
 	deleteTextures();
-    glfwTerminate();
-    return 0;
+	glfwTerminate();
+	return 0;
 }
