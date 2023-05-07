@@ -162,15 +162,11 @@ typedef struct Colors
     }
 
     // Calculation of the color to be displayed according to the points of light, the position of the object to be illuminated and its base color
-    Colors displayColor(Position posBall, Position posPlayer, Position posObject, float game_depth)
+    Colors displayColor(Position posBall, Position posPlayer, Position posObject, GLfloat gameDepth)
     {
-        // A METTRE AILLEURS
         // Position update based on game position
-        // if (myGame.balls[0].speed.y != 0)
-        // {
-            posBall.y -= game_depth*10;
-        // }
-        posObject.y -= game_depth;
+        posBall.y -= gameDepth * 10;
+        posObject.y -= gameDepth;
 
         // Print to console for debug
         // printf("\n\n\nposBall.x = %f | posPlayer.x = %f | posObject.x %f \n", posBall.x, posPlayer.x, posObject.x);
@@ -222,59 +218,6 @@ typedef struct Speed
         this->z = z;
     }
 } Speed;
-
-// Ball struct
-typedef struct Ball
-{
-    GLfloat radius;
-    Position pos;
-    Speed speed;
-    GLuint *texture; // texture from the textures array
-    bool isLaunched = false;
-
-    Ball() {}
-
-    // Currently used constructor
-    Ball(GLint rad)
-    {
-        this->radius = rad;
-        this->pos = Position(0, rad, 0);
-        // this->pos = Position(0, 12 * 10., 0);
-    }
-
-    Ball(GLfloat rad, Position pos, Speed speed, GLuint *texture)
-    {
-        this->radius = rad;
-        this->pos = pos;
-        this->speed = speed;
-        this->texture = texture;
-    }
-
-    // Move the ball with precise x, y and z values
-    void moveBall(float moveX, float moveY, float moveZ)
-    {
-        this->pos.x += moveX;
-        this->pos.y += moveY;
-        this->pos.z += moveZ;
-    }
-
-    // Updates the position of the ball relative to the user's mouse
-    void updatePosition(int positionX, int positionY, int WINDOW_WIDTH, int WINDOW_HEIGHT, float _viewSize, float aspectRatio)
-    {
-        // printf("positionY: %i\n", positionY); moveBall
-        // if()
-        this->pos.x = (_viewSize * aspectRatio) / WINDOW_WIDTH * positionX - (_viewSize * aspectRatio) / 2.0;
-        this->pos.z = -_viewSize / WINDOW_HEIGHT * positionY + _viewSize / 2.0;
-    }
-
-    // Move the ball every frame
-    void gameMove()
-    {
-        this->moveBall(0, .2, 0);
-        printf("inside gameMove, ball pos y %f\n", this->pos.y);
-    }
-
-} Ball;
 
 // Wall struct
 typedef struct Wall
@@ -334,47 +277,6 @@ typedef struct WallStep
         this->pos = pos;
         this->walls = walls;
     }
-
-    // void lightImpact(Colors colorTunnel, float game_depth, float ballTempY)
-    // {
-    //     // this->displayColor = colorTunnel;
-    //     Position posWall = Position(0, this->pos.y - game_depth, 0);
-    //     colorTunnel.updateHSL();
-
-    //     Position posPlayer = Position(0, 0, 0);
-    //     float distancePlayer = std::sqrt(pow((posWall.x - posPlayer.x), 2) + pow((posWall.y - posPlayer.y), 2) + pow((posWall.z - posPlayer.z), 2));
-
-    //     // Set the light parameters
-    //     float lightPropagationPlayer = 60.0f;
-    //     float lightIntensityPlayer = 0.6f;
-
-    //     // Calculate the brightness
-    //     float brightnessPlayer = 1.0f - (distancePlayer / lightPropagationPlayer);
-
-    //     // Clamp the brightness to [0, 1] range
-    //     brightnessPlayer = std::max(std::min(brightnessPlayer, 1.0f), 0.0f);
-
-    //     Colors colorPlayer = colorTunnel.generateAlternateColor(0, 0, -colorTunnel.l * 100 + brightnessPlayer * lightIntensityPlayer * (colorTunnel.l * 100));
-
-    //     Position posBall = Position(0, 12 * 10 - game_depth + ballTempY, 0);
-    //     float distanceBall = std::sqrt(pow((posWall.x - posBall.x), 2) + pow((posWall.y - posBall.y), 2) + pow((posWall.z - posBall.z), 2));
-
-    //     // Set the light parameters
-    //     float lightPropagationBall = 40.0f;
-    //     float lightIntensityBall = 0.4f;
-
-    //     // Calculate the brightness
-    //     float brightnessBall = 1.0f - (distanceBall / lightPropagationPlayer);
-
-    //     // Clamp the brightness to [0, 1] range
-    //     brightnessBall = std::max(std::min(brightnessBall, 1.0f), 0.0f);
-
-    //     Colors colorBall = colorTunnel.generateAlternateColor(0, 0, -colorTunnel.l * 100 + brightnessBall * lightIntensityBall * (colorTunnel.l * 100));
-
-    //     // this->displayColor = colorTunnel.generateAlternateColor(0, 0, -colorTunnel.l * 100 + ((colorPlayer.l + colorBall.l) / 1) * 100);
-    //     // this->displayColor =  colorTunnel.generateAlternateColor(0, 0, -colorTunnel.l*100 + ((colorPlayer.l)/1)*100);
-    // }
-
 } WallStep;
 
 // Corridor struct
@@ -428,7 +330,7 @@ typedef struct Corridor
         this->ceilingTexture = ceilingTexture;
     }
 
-    void generateCorridor(float building_width, float building_height)
+    void generateCorridor(float buildingWidth, float buildingHeight)
     {
         int randomTemp = 0;
 
@@ -445,8 +347,8 @@ typedef struct Corridor
                 // Moitié gauche
                 case 1:
                 {
-                    Position myPosition = Position(-building_width / 2, myWallStep.pos.y, building_height / 2);
-                    Wall myWall = Wall(building_width / 2, building_height, myPosition);
+                    Position myPosition = Position(-buildingWidth / 2, myWallStep.pos.y, buildingHeight / 2);
+                    Wall myWall = Wall(buildingWidth / 2, buildingHeight, myPosition);
                     myWallStep.walls.push_back(myWall);
                     std::cout << "Moitie gauche (" << i << ")" << std::endl;
                     break;
@@ -455,8 +357,8 @@ typedef struct Corridor
                 // Moitié droite
                 case 2:
                 {
-                    Position myPosition = Position(0, myWallStep.pos.y, building_height / 2);
-                    Wall myWall = Wall(building_width / 2, building_height, myPosition);
+                    Position myPosition = Position(0, myWallStep.pos.y, buildingHeight / 2);
+                    Wall myWall = Wall(buildingWidth / 2, buildingHeight, myPosition);
                     myWallStep.walls.push_back(myWall);
                     std::cout << "Moitie droite (" << i << ")" << std::endl;
                     break;
@@ -465,8 +367,8 @@ typedef struct Corridor
                 // Petit gauche
                 case 3:
                 {
-                    Position myPosition = Position(-building_width / 2, myWallStep.pos.y, building_height / 2);
-                    Wall myWall = Wall(building_width / 4, building_height, myPosition);
+                    Position myPosition = Position(-buildingWidth / 2, myWallStep.pos.y, buildingHeight / 2);
+                    Wall myWall = Wall(buildingWidth / 4, buildingHeight, myPosition);
                     myWallStep.walls.push_back(myWall);
                     std::cout << "Petit gauche (" << i << ")" << std::endl;
                     break;
@@ -475,8 +377,8 @@ typedef struct Corridor
                 // Petit droit
                 case 4:
                 {
-                    Position myPosition = Position(building_width / 4, myWallStep.pos.y, building_height / 2);
-                    Wall myWall = Wall(building_width / 4, building_height, myPosition);
+                    Position myPosition = Position(buildingWidth / 4, myWallStep.pos.y, buildingHeight / 2);
+                    Wall myWall = Wall(buildingWidth / 4, buildingHeight, myPosition);
                     myWallStep.walls.push_back(myWall);
                     std::cout << "Petit droit (" << i << ")" << std::endl;
                     break;
@@ -485,11 +387,11 @@ typedef struct Corridor
                 // Porte grande ouverte
                 case 5:
                 {
-                    Position myPosition = Position(building_width / 4, myWallStep.pos.y, building_height / 2);
-                    Wall myWall = Wall(building_width / 4, building_height, myPosition);
+                    Position myPosition = Position(buildingWidth / 4, myWallStep.pos.y, buildingHeight / 2);
+                    Wall myWall = Wall(buildingWidth / 4, buildingHeight, myPosition);
                     myWallStep.walls.push_back(myWall);
-                    Position mySecondPosition = Position(-building_width / 2, myWallStep.pos.y, building_height / 2);
-                    Wall mySecondWall = Wall(building_width / 4, building_height, mySecondPosition);
+                    Position mySecondPosition = Position(-buildingWidth / 2, myWallStep.pos.y, buildingHeight / 2);
+                    Wall mySecondWall = Wall(buildingWidth / 4, buildingHeight, mySecondPosition);
                     myWallStep.walls.push_back(mySecondWall);
                     std::cout << "Porte grande ouverte (" << i << ")" << std::endl;
                     break;
@@ -537,23 +439,79 @@ typedef struct Player : Wall
 
 } Player;
 
+// Ball struct
+typedef struct Ball
+{
+    GLfloat radius;
+    Position pos;
+    Speed speed;
+    GLuint *texture; // texture from the textures array
+    bool isLaunched = false;
+
+    Ball() {}
+
+    // Currently used constructor
+    Ball(GLint rad)
+    {
+        this->radius = rad;
+        this->pos = Position(0, rad, 0);
+        // this->pos = Position(0, 12 * 10., 0);
+    }
+
+    Ball(GLfloat rad, Position pos, Speed speed, GLuint *texture)
+    {
+        this->radius = rad;
+        this->pos = pos;
+        this->speed = speed;
+        this->texture = texture;
+    }
+
+    // Move the ball with precise x, y and z values
+    void moveBall(float moveX, float moveY, float moveZ)
+    {
+        this->pos.x += moveX;
+        this->pos.y += moveY;
+        this->pos.z += moveZ;
+    }
+
+    // Updates the position of the ball relative to the user's mouse
+    void updatePosition(int positionX, int positionY, int WINDOW_WIDTH, int WINDOW_HEIGHT, float _viewSize, float aspectRatio)
+    {
+        // printf("positionY: %i\n", positionY); moveBall
+        // if()
+        this->pos.x = (_viewSize * aspectRatio) / WINDOW_WIDTH * positionX - (_viewSize * aspectRatio) / 2.0;
+        this->pos.z = -_viewSize / WINDOW_HEIGHT * positionY + _viewSize / 2.0;
+    }
+
+    // Move the ball every frame
+    void gameMove()
+    {
+        this->moveBall(0, .2, 0);
+        // printf("inside gameMove, ball pos y %f\n", this->pos.y);
+    }
+
+    void resetPosition(Position playerPos)
+    {
+        this->pos = Position(playerPos.x, this->radius, playerPos.z);
+    }
+
+} Ball;
+
 typedef struct GameParameters
 {
-    float building_width;
-    float building_height;
-    float building_depth;
-    float aperture; // Ouverture de la caméra 60.0 de base
-    float game_depth;
-    float ballTempY;
+    GLfloat buildingWidth;
+    GLfloat buildingHeight;
+    GLfloat buildingDepth;
+    GLfloat aperture;
+    GLfloat gameDepth;
 
     GameParameters() {}
+
 } GameParameters;
 
 // General game struct containing all the elements needed
 typedef struct Game
 {
-    GLfloat viewWidth;
-    GLfloat viewHeight;
     Player player;
     Corridor corridor;
     std::vector<Ball> balls;
@@ -561,13 +519,21 @@ typedef struct Game
     int lives;
     int gameState;
     int renderSkinId;
+    GameParameters parameters;
 
-    Game() {}
-
-    Game(GLfloat viewWidth, GLfloat viewHeight, Player player, Corridor corridor, std::vector<Ball> balls, int lives, int gameState, int renderSkinId)
+    // Currently used constructor
+    Game()
     {
-        this->viewWidth = viewWidth;
-        this->viewHeight = viewHeight;
+        // paramètres fixes globaux du jeu
+        this->parameters.buildingWidth = 24.0f;
+        this->parameters.buildingHeight = this->parameters.buildingWidth / 2;
+        this->parameters.buildingDepth = 12.0f;
+        this->parameters.aperture = 60.0f; // Ouverture de la caméra 60.0 de base
+        this->parameters.gameDepth = 0;
+    }
+
+    Game(GLfloat viewWidth, GLfloat viewHeight, Player player, Corridor corridor, std::vector<Ball> balls, GLint lives, int gameState, int renderSkinId)
+    {
         this->player = player;
         this->corridor = corridor;
         this->balls = balls;
@@ -575,6 +541,58 @@ typedef struct Game
         this->gameState = gameState;
         this->renderSkinId = renderSkinId;
     }
+
+    void loadMenu() {}
+
+    void loadGame()
+    {
+        // Déclaration des multiples variables utiles au jeu
+        this->corridor = Corridor(this->parameters.buildingDepth, rand() % 30 + 10); // Profondeur d'une étape (buildingDepth) / Nombre d'étapes
+        this->player = Player(this->parameters.buildingWidth / 6);
+        if (this->balls.empty())
+        {
+            Ball myBall;
+            this->balls.push_back(myBall);
+        }
+        this->balls[0] = Ball(this->parameters.buildingWidth / 12);
+        this->lives = 3;
+        this->gameState = 1;
+        this->parameters.gameDepth = 0;
+
+        this->corridor.generateCorridor(this->parameters.buildingWidth, this->parameters.buildingHeight);
+
+        //  myGame.corridor = Corridor(12, rand() % 30 + 10);
+        // 	myGame.player = Player(buildingWidth/6);
+        // 	myGame.balls.push_back(Ball(buildingWidth/24));
+    }
+
+    void winGame()
+    {
+        printf("You... %s", "won :)");
+    }
+
+    void looseGame()
+    {
+        printf("You... %s", "lost :(");
+        this->loadGame();
+    }
+
+    void takeDamage()
+    {
+        this->lives--;
+        printf("Remaining lives: %i", this->lives);
+        if (this->lives == 0)
+        {
+            this->looseGame();
+        }
+        else
+        {
+            this->balls[0].resetPosition(this->player.pos);
+            this->balls[0].isLaunched = false;
+            this->gameState = 1;
+        }
+    }
+
 } Game;
 
 #endif

@@ -4,7 +4,7 @@
 /* Camera parameters and functions */
 float theta = -90.0f; // Angle between x axis and viewpoint (45.0f originally)
 float phy = 90.0f; // Angle between z axis and viewpoint (60.0f originally)
-float dist_zoom = (building_height)/(2*tan(toRad(aperture/2))); // Distance between origin and viewpoint (30.0f originally)
+float dist_zoom = (myGame.parameters.buildingHeight)/(2*tan(toRad(myGame.parameters.aperture/2))); // Distance between origin and viewpoint (30.0f originally)
 // Le 60 c'est dans window resized maintenant aperture
 // + 4 sur building height est du padding
 

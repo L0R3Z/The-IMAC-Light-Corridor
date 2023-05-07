@@ -8,22 +8,24 @@
 #include "game_objects.h"
 #include <vector>
 
-extern float building_width;
-extern float building_height;
-extern float building_depth;
-extern float aperture;
-extern float game_depth;
+extern Game myGame;
+// extern float building_width;
+// extern float building_height;
+// extern float building_depth;
+// extern float game_depth;
+// extern float aperture;
+// extern GameParameters myGameparameters;
 
 void drawFrame();
 
 void drawTunnelPart(int tunnel_depth);
 
-void drawCorridor(Game myGame, Corridor myCorridor, Position posBall, Position posPlayer);
+void drawCorridor(Corridor myCorridor, Position posBall, Position posPlayer);
 
-void drawWallStep(Game myGame, std::vector<WallStep> myWallSteps, Corridor myCorridor, Position posBall, Position posPlayer); 
+void drawWallStep(std::vector<WallStep> myWallSteps, Corridor myCorridor, Position posBall, Position posPlayer); 
 
-void drawWall(Game myGame, std::vector<Wall> myWalls, Position posBall, Position posPlayer, Colors wallColor);
-
-void drawPlayer(Player myPlayer);
+void drawWall(std::vector<Wall> myWalls, Position posBall, Position posPlayer, Colors wallColor);
 
 void drawBalls(std::vector<Ball> balls);
+
+void drawPlayer(Player myPlayer);

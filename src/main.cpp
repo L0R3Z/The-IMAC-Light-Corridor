@@ -26,15 +26,15 @@ static unsigned int WINDOW_HEIGHT = 400;
 static const char WINDOW_TITLE[] = "The IMAC Light Corridor";
 static float aspectRatio = 1.0;
 
-float building_width = 24.0f;
-float building_height = building_width/2;
-float building_depth = 12.0f;
-float aperture = 60.0; // Ouverture de la caméra 60.0 de base
-float game_depth=0;
+// GLfloat aperture = 60.0f; // Ouverture de la caméra 60.0 de base
+// float building_width = 24.0f;
+// float building_height = building_width/2;
+// float building_depth = 12.0f;
+// float game_depth=0;
 
-static const float _viewSize = building_height; // Correspond à building height à cause du cadrage sur le tunnel (peut changer)
+Game myGame = Game();
 
-Game myGame;
+static const float _viewSize = myGame.parameters.buildingHeight; // Correspond à building height à cause du cadrage sur le tunnel (peut changer)
 
 struct Vertex
 {
@@ -77,7 +77,7 @@ void onWindowResized(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(aperture,aspectRatio,Z_NEAR,Z_FAR);
+	gluPerspective(myGame.parameters.aperture,aspectRatio,Z_NEAR,Z_FAR);
 	glMatrixMode(GL_MODELVIEW);
 }
 
@@ -114,6 +114,13 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 			case GLFW_KEY_P :
 				glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
 				break;
+			case GLFW_KEY_N :
+				myGame.takeDamage();
+				break;
+			// Restart the game
+			case GLFW_KEY_R :
+				myGame.loadGame();
+				break;
 			case GLFW_KEY_KP_9 :
 				// if(dist_zoom<100.0f) dist_zoom*=1.1;
 				if(dist_zoom<100.0f) dist_zoom+=1;
@@ -141,12 +148,12 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 				std::cout << "Theta is " << theta << std::endl;
 				break;
 			// Player can move only if he launched all his balls
-			if(myGame.gameState == 2) {
+			if(myGame.parameters.gameDepth == 2) {
 				case GLFW_KEY_W :
-					game_depth+=5;
+					myGame.parameters.gameDepth+=5;
 					break;
 				case GLFW_KEY_S :
-					game_depth-=5;
+					myGame.parameters.gameDepth-=5;
 					break;
 			}
 			case GLFW_KEY_SPACE :
@@ -193,10 +200,10 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 	if (action == GLFW_REPEAT) {
 		switch(key) {
 			case GLFW_KEY_W :
-				game_depth+=1;
+				myGame.parameters.gameDepth+=1;
 				break;
 			case GLFW_KEY_S :
-				game_depth-=1;
+				myGame.parameters.gameDepth-=1;
 				break;
 			case GLFW_KEY_KP_7 :
 				myGame.balls[0].moveBall(0,1,0);
@@ -298,9 +305,9 @@ void drawTestTextures() {
 
 void draw() {	
 	glPushMatrix();
-		glTranslatef(0,-game_depth,0);	
+		glTranslatef(0,-myGame.parameters.gameDepth,0);	
 		drawBalls(myGame.balls);
-		drawCorridor(myGame, myGame.corridor, myGame.balls[0].pos, myGame.player.pos); // pk posBall et posPlayer pour dessiner le corridor ??
+		drawCorridor(myGame.corridor, myGame.balls[0].pos, myGame.player.pos); // pk posBall et posPlayer pour dessiner le corridor ??
 	glPopMatrix();
 	
 	// drawFrame();
@@ -344,27 +351,7 @@ int main() {
         return -1;
     }
 
-
-	// Déclaration des variables utiles au jeu
-	
-	Corridor myCorridor = Corridor(building_depth, rand() % 30 + 10); // Profondeur d'une étape (building_depth) / Nombre d'étapes 
-	Player myPlayer = Player(building_width/6);
-	Ball myBall = Ball(building_width/12);
-	Ball myBall2 = Ball(building_width/12);
-	Ball myBall3 = Ball(building_width/12);
-	myGame.viewHeight = WINDOW_HEIGHT;
-	myGame.viewWidth = WINDOW_WIDTH;
-	myGame.corridor = myCorridor;
-	myGame.player = myPlayer;
-	myGame.balls.push_back(myBall);
-	myGame.balls.push_back(myBall2);
-	myGame.balls.push_back(myBall3);
-	myGame.lives = 3;
-	myGame.gameState = 1;
-
-	//  myGame.corridor = Corridor(12, rand() % 30 + 10);
-	// 	myGame.player = Player(building_width/6);
-	// 	myGame.balls.push_back(Ball(building_width/24));
+	myGame.loadGame();
 
     // Make the window's context current
     glfwMakeContextCurrent(window);
@@ -392,7 +379,7 @@ int main() {
 
 	printf("corridor numberOfSteps: %i", myGame.corridor.numberOfSteps);
 
-	myGame.corridor.generateCorridor(building_width, building_height);
+	// myGame.corridor.generateCorridor(building_width, building_height);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
