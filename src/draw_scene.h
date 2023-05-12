@@ -26,6 +26,8 @@ void drawWallStep(std::vector<WallStep> myWallSteps, Corridor myCorridor, std::v
 
 void drawWall(std::vector<Wall> myWalls, std::vector<Position> posBalls, Position posPlayer, Colors wallColor);
 
-void drawBalls(std::vector<Ball> balls);
+void drawBalls(std::vector<Ball> balls, std::vector<GLuint> myTextures);
 
 void drawPlayer(Player myPlayer);
+
+void drawInterface(Game myGame, std::vector<Position> posBalls, Position posPlayer);

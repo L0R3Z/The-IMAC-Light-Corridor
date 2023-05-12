@@ -273,6 +273,7 @@ void loadTextures()
 {
 	textures.push_back(loadImage("../res/0.png"));
 	textures.push_back(loadImage("../res/1.png"));
+	textures.push_back(loadImage("../res/kirby.png"));
 }
 
 // Function that delete the textures used in game
@@ -280,13 +281,13 @@ void deleteTextures()
 {
 	glDeleteTextures(1, &textures[0]);
 	glDeleteTextures(1, &textures[1]);
+	glDeleteTextures(1, &textures[2]);
 }
 
 void drawTestTextures()
 {
 	glColor3f(1., 1., 1.);
 	glEnable(GL_TEXTURE_2D);
-
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
 	glPushMatrix();
 	glScalef(5.f, 5.f, 0.f);
@@ -338,13 +339,15 @@ void draw()
 
 	glPushMatrix();
 	glTranslatef(0, -myGame.parameters.gameDepth, 0);
-		drawBalls(myGame.balls);
+		drawBalls(myGame.balls, textures);
 		drawCorridor(myGame.corridor, posBalls, myGame.player.pos);
 	glPopMatrix();
 
 	// drawFrame();
-
 	drawPlayer(myGame.player);
+	glDisable(GL_DEPTH_TEST);
+	drawInterface(myGame, posBalls, myGame.player.pos);
+	glEnable(GL_DEPTH_TEST);
 
 	// Test drawing function
 	// drawTestTextures();

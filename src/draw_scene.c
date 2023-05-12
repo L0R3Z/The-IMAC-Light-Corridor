@@ -375,7 +375,7 @@ void drawWall(std::vector<Wall> myWalls, std::vector<Position> posBalls, Positio
 	}
 }
 
-void drawBalls(std::vector<Ball> balls)
+void drawBalls(std::vector<Ball> balls, std::vector<GLuint> myTextures)
 {
 	for (Ball ball : balls)
 	{
@@ -384,8 +384,18 @@ void drawBalls(std::vector<Ball> balls)
 		if(myGame.balls[0].isLaunched) glTranslatef(ball.pos.x, ball.pos.y, ball.pos.z);
 		else glTranslatef(ball.pos.x, ball.pos.y, ball.pos.z);
 		glScalef(ball.radius, ball.radius, ball.radius);
-		glColor4f((float)69 / 255, (float)69 / 255, (float)142 / 255, 1.);
-		drawSphere();
+		// glColor4f((float)69 / 255, (float)69 / 255, (float)142 / 255, 1.);
+		glColor3f(1., 1., 1.);
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, myTextures[2]);
+		GLUquadric* myQuadric = gluNewQuadric();
+		gluQuadricTexture(myQuadric, GL_TRUE);
+		gluSphere(myQuadric, 1.0, NB_SEG_CIRCLE, NB_SEG_CIRCLE);
+		gluDeleteQuadric(myQuadric);
+		delete myQuadric;
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glDisable(GL_TEXTURE_2D);
+		
 		glPopMatrix();
 	}
 }
@@ -409,5 +419,46 @@ void drawPlayer(Player myPlayer)
 	glLineWidth(1.0);
 	glColor4f((float)178 / 255, (float)178 / 255, (float)178 / 255, .25);
 	drawSquare();
+	glPopMatrix();
+}
+
+void drawInterface(Game myGame, std::vector<Position> posBalls, Position posPlayer) {
+	// Wall
+	glPushMatrix();
+		// Placing the wall at the bottom of the wallStep
+		glTranslatef(0, 0, 0);
+		// Placement of the wall on the x and z axis
+		glTranslatef(-myGame.parameters.buildingWidth/2, 0, myGame.parameters.buildingHeight/2);
+		// Offset to place the origin of the wall at the top left
+		glTranslatef((myGame.parameters.buildingWidth / 2), 0, -(1.5/2));
+		// Size of the wall
+		glScalef(myGame.parameters.buildingWidth, 1, 1.5);
+		glRotatef(90, 1, 0, 0);
+		glBegin(GL_TRIANGLE_FAN);
+			glColor4f(0.,0.,0.,0.5);
+			// Bottom left corner
+			// tempPos = Position(myWalls[i].pos.x, myWalls[i].pos.y, myWalls[i].pos.z - myWalls[i].height);
+			// tempColor = wallColor.displayColor(posBalls, posPlayer, tempPos, myGame.parameters.gameDepth);
+			// glColor4f(tempColor.r, tempColor.g, tempColor.b, 0.8);
+			glVertex3f(-0.5, -0.5, 0.0);
+
+			// Bottom right corner
+			// tempPos = Position(myWalls[i].pos.x + myWalls[i].width, myWalls[i].pos.y, myWalls[i].pos.z - myWalls[i].height);
+			// tempColor = wallColor.displayColor(posBalls, posPlayer, tempPos, myGame.parameters.gameDepth);
+			// glColor4f(tempColor.r, tempColor.g, tempColor.b, 0.8);
+			glVertex3f(0.5, -0.5, 0.0);
+
+			// Top right corner
+			// tempPos = Position(myWalls[i].pos.x + myWalls[i].width, myWalls[i].pos.y, myWalls[i].pos.z);
+			// tempColor = wallColor.displayColor(posBalls, posPlayer, tempPos, myGame.parameters.gameDepth);
+			// glColor4f(tempColor.r, tempColor.g, tempColor.b, 0.8);
+			glVertex3f(0.5, 0.5, 0.0);
+
+			// Top left corner
+			// tempPos = Position(myWalls[i].pos.x, myWalls[i].pos.y, myWalls[i].pos.z);
+			// tempColor = wallColor.displayColor(posBalls, posPlayer, tempPos, myGame.parameters.gameDepth);
+			// glColor4f(tempColor.r, tempColor.g, tempColor.b, 0.8);
+			glVertex3f(-0.5, 0.5, 0.0);
+		glEnd();
 	glPopMatrix();
 }
