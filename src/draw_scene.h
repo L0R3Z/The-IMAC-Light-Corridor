@@ -20,11 +20,11 @@ void drawFrame();
 
 // void drawTunnelPart(int tunnel_depth);
 
-void drawCorridor(Corridor myCorridor, Position posBall, Position posPlayer);
+void drawCorridor(Corridor myCorridor, std::vector<Position> posBalls, Position posPlayer);
 
-void drawWallStep(std::vector<WallStep> myWallSteps, Corridor myCorridor, Position posBall, Position posPlayer);
+void drawWallStep(std::vector<WallStep> myWallSteps, Corridor myCorridor, std::vector<Position> posBalls, Position posPlayer);
 
-void drawWall(std::vector<Wall> myWalls, Position posBall, Position posPlayer, Colors wallColor);
+void drawWall(std::vector<Wall> myWalls, std::vector<Position> posBalls, Position posPlayer, Colors wallColor);
 
 void drawBalls(std::vector<Ball> balls);
 

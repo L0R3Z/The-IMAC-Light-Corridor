@@ -33,6 +33,7 @@ static float aspectRatio = 1.0;
 // float game_depth=0;
 
 Game myGame = Game();
+vector<Position> posBalls;
 
 static const float _viewSize = myGame.parameters.buildingHeight; // Correspond à building height à cause du cadrage sur le tunnel (peut changer)
 
@@ -324,10 +325,21 @@ void drawTestTextures()
 
 void draw()
 {
+	
+	for (int i = 0; i < posBalls.size(); i++)
+	{
+		posBalls.erase(posBalls.begin());
+	}
+	
+	for (int i = 0; i < myGame.balls.size(); i++)
+	{
+		posBalls.push_back(myGame.balls[i].pos);
+	}
+
 	glPushMatrix();
 	glTranslatef(0, -myGame.parameters.gameDepth, 0);
-	drawBalls(myGame.balls);
-	drawCorridor(myGame.corridor, myGame.balls[0].pos, myGame.player.pos); // pk posBall et posPlayer pour dessiner le corridor ??
+		drawBalls(myGame.balls);
+		drawCorridor(myGame.corridor, posBalls, myGame.player.pos);
 	glPopMatrix();
 
 	// drawFrame();
