@@ -38,6 +38,39 @@ void drawSquareLight(float gameDepth, float opacity, std::vector<Position> posBa
 	glEnd();
 }
 
+void drawTextureLight(float gameDepth, float opacity, std::vector<Position> posBalls, Position posPlayer, GLuint texture, Position point1, Position point2, Position point3, Position point4) {
+	Colors white = Colors(1, 1, 1);
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glBegin(GL_TRIANGLE_FAN);
+		// Bottom left corner
+		tempColor = white.displayColor(posBalls, posPlayer, point1, gameDepth);
+		glColor4f(tempColor.r, tempColor.g, tempColor.b, opacity);
+		glTexCoord2f(0., 1.);
+		glVertex3f(-0.5, -0.5, 0.0);
+
+		// Bottom right corner
+		tempColor = white.displayColor(posBalls, posPlayer, point2, gameDepth);
+		glColor4f(tempColor.r, tempColor.g, tempColor.b, opacity);
+		glTexCoord2f(1., 1.);
+		glVertex3f(0.5, -0.5, 0.0);
+
+		// Top right corner
+		tempColor = white.displayColor(posBalls, posPlayer, point3, gameDepth);
+		glColor4f(tempColor.r, tempColor.g, tempColor.b, opacity);
+		glTexCoord2f(1., 0.);
+		glVertex3f(0.5, 0.5, 0.0);
+
+		// Top left corner
+		tempColor = white.displayColor(posBalls, posPlayer, point4, gameDepth);
+		glColor4f(tempColor.r, tempColor.g, tempColor.b, opacity);
+		
+		glTexCoord2f(0., 0.);
+		glVertex3f(-0.5, 0.5, 0.0);
+	glEnd();
+	glDisable(GL_TEXTURE_2D);
+}
+
 // Function that draws a grid and an origin
 void drawFrame()
 {
@@ -113,7 +146,7 @@ void drawFrame()
 	glLineWidth(1.0);
 }
 
-void drawCorridor(Corridor myCorridor, std::vector<Position> posBalls, Position posPlayer)
+void drawCorridor(Corridor myCorridor, std::vector<Position> posBalls, Position posPlayer, GLuint texture)
 {
 	// Drawing of the bottom of the corridor
 	// Definition of the y-position of the bottom
@@ -127,7 +160,8 @@ void drawCorridor(Corridor myCorridor, std::vector<Position> posBalls, Position 
 		tempPos2 = Position(myGame.parameters.buildingWidth / 2, posBottom.y, -myGame.parameters.buildingHeight / 2);
 		tempPos3 = Position(myGame.parameters.buildingWidth / 2, posBottom.y, myGame.parameters.buildingHeight / 2);
 		tempPos4 = Position(-myGame.parameters.buildingWidth / 2, posBottom.y, myGame.parameters.buildingHeight / 2);
-		drawSquareLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.colorSideWalls, tempPos1, tempPos2, tempPos3, tempPos4);
+		// drawSquareLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.colorSideWalls, tempPos1, tempPos2, tempPos3, tempPos4);
+		drawTextureLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, texture, tempPos1, tempPos2, tempPos3, tempPos4);
 	glPopMatrix();
 
 	// Drawing of the ring at the bottom of the corridor
@@ -302,7 +336,7 @@ void drawBalls(std::vector<Ball> balls, std::vector<GLuint> myTextures)
 			// glColor4f((float)69 / 255, (float)69 / 255, (float)142 / 255, 1.);
 			glColor3f(1., 1., 1.);
 			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, myTextures[2]);
+			glBindTexture(GL_TEXTURE_2D, myTextures[10]);
 			GLUquadric* myQuadric = gluNewQuadric();
 			gluQuadricTexture(myQuadric, GL_TRUE);
 			gluSphere(myQuadric, 1.0, NB_SEG_CIRCLE, NB_SEG_CIRCLE);
@@ -335,7 +369,7 @@ void drawPlayer(Player myPlayer)
 	glPopMatrix();
 }
 
-void drawInterface(Game myGame, std::vector<Position> posBalls, Position posPlayer) {
+void drawInterface(Game myGame, std::vector<GLuint> myTextures, std::vector<Position> posBalls, Position posPlayer) {
 	// Wall
 	glPushMatrix();
 		// Placing the wall at the bottom of the wallStep
@@ -343,23 +377,81 @@ void drawInterface(Game myGame, std::vector<Position> posBalls, Position posPlay
 		// Placement of the wall on the x and z axis
 		glTranslatef(-myGame.parameters.buildingWidth/2, 0, myGame.parameters.buildingHeight/2);
 		// Offset to place the origin of the wall at the top left
-		glTranslatef((myGame.parameters.buildingWidth / 2), 0, -((myGame.parameters.buildingHeight/12)/2));
+		glTranslatef((myGame.parameters.buildingWidth / 2), 0, -((myGame.parameters.buildingHeight/6)/2));
 		// Size of the wall
-		glScalef(myGame.parameters.buildingWidth, 1, (myGame.parameters.buildingHeight/12));
+		glScalef(myGame.parameters.buildingWidth, 1, (myGame.parameters.buildingHeight/6));
 		glRotatef(90, 1, 0, 0);
-
 		tempColor = Colors(0.2,0.2,0.2);
-		
 		// Bottom left corner
-		tempPos1 = Position(-myGame.parameters.buildingWidth/2, 0, 5*myGame.parameters.buildingHeight/12);
+		tempPos1 = Position(-myGame.parameters.buildingWidth/2, 0, myGame.parameters.buildingHeight/3);
 		// Bottom right corner
-		tempPos2 = Position(myGame.parameters.buildingWidth/2, 0, 5*myGame.parameters.buildingHeight/12);
+		tempPos2 = Position(myGame.parameters.buildingWidth/2, 0, myGame.parameters.buildingHeight/3);
 		// Top right corner
 		tempPos3 = Position(myGame.parameters.buildingWidth/2, 0, myGame.parameters.buildingHeight/2);
 		// Top left corner
 		tempPos4 = Position(-myGame.parameters.buildingWidth/2, 0, myGame.parameters.buildingHeight/2);
-
-		drawSquareLight(0, 0.2, posBalls, posPlayer, tempColor, tempPos1, tempPos2, tempPos3, tempPos4);
-		
+		drawSquareLight(0, 0.5, posBalls, posPlayer, tempColor, tempPos1, tempPos2, tempPos3, tempPos4);		
 	glPopMatrix();
+
+	// Lifes
+	// glEnable(GL_TEXTURE_2D);
+	// glBindTexture(GL_TEXTURE_2D, myTextures[11]);
+	// tempColor = myGame.corridor.colorSideWalls.generateComplementaryColor();
+	// glColor3f(tempColor.r,tempColor.g,tempColor.b);
+	for (int i = 0; i < myGame.lives; i++)
+	{
+		glPushMatrix();
+			// Placement of the wall on the x and z axis
+			glTranslatef(-5*myGame.parameters.buildingWidth/12+(i*myGame.parameters.buildingWidth/48), 0, 11*myGame.parameters.buildingHeight/24);
+			// Offset to place the origin of the wall at the top left
+			glTranslatef((myGame.parameters.buildingHeight/12)/2, 0, -((myGame.parameters.buildingHeight/12)/2));
+			// Size of the wall
+			glScalef(myGame.parameters.buildingHeight/12, 1, (myGame.parameters.buildingHeight/12));
+			glRotatef(90, 1, 0, 0);
+
+			// Bottom left corner
+			tempPos1 = Position(-5*myGame.parameters.buildingWidth/12+(i*myGame.parameters.buildingWidth/48), 0, 11*myGame.parameters.buildingHeight/24 - (myGame.parameters.buildingHeight/12));
+			// Bottom right corner
+			tempPos2 = Position(-5*myGame.parameters.buildingWidth/12+(i*myGame.parameters.buildingWidth/48) + myGame.parameters.buildingHeight/12, 0, 11*myGame.parameters.buildingHeight/24 - (myGame.parameters.buildingHeight/12));
+			// Top right corner
+			tempPos3 = Position(-5*myGame.parameters.buildingWidth/12+(i*myGame.parameters.buildingWidth/48) + myGame.parameters.buildingHeight/12, 0, 11*myGame.parameters.buildingHeight/24);
+			// Top left corner
+			tempPos4 = Position(-5*myGame.parameters.buildingWidth/12+(i*myGame.parameters.buildingWidth/48), 0, 11*myGame.parameters.buildingHeight/24);
+
+			drawTextureLight(0, 1, posBalls, posPlayer, myTextures[11], tempPos1, tempPos2, tempPos3, tempPos4);
+			// glBegin(GL_POLYGON);
+			// 	glTexCoord2f(0., 0.); glVertex2f(-0.5f, 0.5f);
+			// 	glTexCoord2f(1., 0.); glVertex2f(0.5f, 0.5f);
+			// 	glTexCoord2f(1., 1.); glVertex2f(0.5f, -0.5f);
+			// 	glTexCoord2f(0., 1.); glVertex2f(-0.5f, -0.5f);
+			// glEnd();
+		glPopMatrix();
+	}
+	glDisable(GL_TEXTURE_2D);
+
+	// Score
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, myTextures[0]);
+	tempColor = myGame.corridor.colorSideWalls.generateComplementaryColor();
+	glColor3f(tempColor.r,tempColor.g,tempColor.b);
+	for (int i = 0; i < 6; i++)
+	{
+		glPushMatrix();
+			// Placement of the wall on the x and z axis
+			glTranslatef(5*myGame.parameters.buildingWidth/12-(i*myGame.parameters.buildingWidth/20), 0, 11*myGame.parameters.buildingHeight/24);
+			// Offset to place the origin of the wall at the top left
+			glTranslatef((myGame.parameters.buildingHeight/12)/2, 0, -((myGame.parameters.buildingHeight/12)/2));
+			// Size of the wall
+			glScalef(myGame.parameters.buildingHeight/12, 1, (myGame.parameters.buildingHeight/12));
+			glRotatef(90, 1, 0, 0);
+
+			glBegin(GL_POLYGON);
+				glTexCoord2f(0., 0.); glVertex2f(-0.5f, 0.5f);
+				glTexCoord2f(1., 0.); glVertex2f(0.5f, 0.5f);
+				glTexCoord2f(1., 1.); glVertex2f(0.5f, -0.5f);
+				glTexCoord2f(0., 1.); glVertex2f(-0.5f, -0.5f);
+			glEnd();
+		glPopMatrix();
+	}
+	glDisable(GL_TEXTURE_2D);
 }

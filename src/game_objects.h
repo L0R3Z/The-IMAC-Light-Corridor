@@ -177,6 +177,17 @@ typedef struct Colors
         return newColor;
     }
 
+    Colors generateComplementaryColor() {
+        Colors newColor = Colors();
+        newColor.r = 1 - this->r;
+        newColor.g = 1 - this->g;
+        newColor.b = 1 - this->b;
+        newColor.updateHSL();
+        newColor.l = 75./100;
+        newColor.updateRGB();
+        return newColor;
+    }
+
     // Calculation of the color to be displayed according to the points of light, the position of the object to be illuminated and its base color
     Colors displayColor(std::vector<Position> posBalls, Position posPlayer, Position posObject, GLfloat gameDepth)
     {
