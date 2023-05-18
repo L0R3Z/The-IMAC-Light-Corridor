@@ -284,15 +284,18 @@ void loadTextures()
 	textures.push_back(loadImage("../res/kirby.png"));
 	textures.push_back(loadImage("../res/lifeIcon.png"));
 	textures.push_back(loadImage("../res/stoneWall.png"));
+	textures.push_back(loadImage("../res/title.png"));
+	textures.push_back(loadImage("../res/names.png"));
+	textures.push_back(loadImage("../res/startButton.png"));
+	textures.push_back(loadImage("../res/exitLargeButton.png"));
+	textures.push_back(loadImage("../res/restartButton.png"));
+	textures.push_back(loadImage("../res/exitSmallButton.png"));
+	textures.push_back(loadImage("../res/gameOver.png"));
 }
 
 // Function that delete the textures used in game
 void deleteTextures()
 {
-	// glDeleteTextures(1, &textures[0]);
-	// glDeleteTextures(1, &textures[1]);
-	// glDeleteTextures(1, &textures[2]);
-	// glDeleteTextures(1, &textures[3]);
 	for (int i = 0; i < textures.size(); i++)
 	{
 		glDeleteTextures(1, &textures[i]);
@@ -381,6 +384,7 @@ void draw()
 	drawPlayer(myGame.player);
 	glDisable(GL_DEPTH_TEST);
 	drawInterface(myGame, textures, posBalls, myGame.player.pos);
+	drawMenu(myGame, textures);
 	glEnable(GL_DEPTH_TEST);
 
 	// Test drawing function

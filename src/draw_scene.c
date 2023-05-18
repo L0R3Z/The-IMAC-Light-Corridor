@@ -71,6 +71,28 @@ void drawTextureLight(float gameDepth, float opacity, std::vector<Position> posB
 	glDisable(GL_TEXTURE_2D);
 }
 
+void drawSimpleTexturedSquare(float x, float z, float width, float height, GLuint texture, Colors color) {
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, texture);	
+	glColor4f(color.r,color.g,color.b,1.);
+	glPushMatrix();
+		// Placement of the square on the x and z axis
+		glTranslatef(x, 0, z);
+		// Offset to place the origin of the square at the top left
+		glTranslatef((width) / 2, 0, -(height) / 2);
+		// Size of the square
+		glScalef(width, 1, height);
+		glRotatef(90, 1, 0, 0);
+		glBegin(GL_POLYGON);
+			glTexCoord2f(0., 0.); glVertex2f(-0.5f, 0.5f);
+			glTexCoord2f(1., 0.); glVertex2f(0.5f, 0.5f);
+			glTexCoord2f(1., 1.); glVertex2f(0.5f, -0.5f);
+			glTexCoord2f(0., 1.); glVertex2f(-0.5f, -0.5f);
+		glEnd();
+	glPopMatrix();
+	glDisable(GL_TEXTURE_2D);
+}
+
 // Function that draws a grid and an origin
 void drawFrame()
 {
@@ -394,64 +416,50 @@ void drawInterface(Game myGame, std::vector<GLuint> myTextures, std::vector<Posi
 	glPopMatrix();
 
 	// Lifes
-	// glEnable(GL_TEXTURE_2D);
-	// glBindTexture(GL_TEXTURE_2D, myTextures[11]);
-	// tempColor = myGame.corridor.colorSideWalls.generateComplementaryColor();
-	// glColor3f(tempColor.r,tempColor.g,tempColor.b);
+	tempColor = myGame.corridor.colorSideWalls.generateComplementaryColor();
+	glColor3f(tempColor.r,tempColor.g,tempColor.b);
 	for (int i = 0; i < myGame.lives; i++)
 	{
-		glPushMatrix();
-			// Placement of the wall on the x and z axis
-			glTranslatef(-5*myGame.parameters.buildingWidth/12+(i*myGame.parameters.buildingWidth/48), 0, 11*myGame.parameters.buildingHeight/24);
-			// Offset to place the origin of the wall at the top left
-			glTranslatef((myGame.parameters.buildingHeight/12)/2, 0, -((myGame.parameters.buildingHeight/12)/2));
-			// Size of the wall
-			glScalef(myGame.parameters.buildingHeight/12, 1, (myGame.parameters.buildingHeight/12));
-			glRotatef(90, 1, 0, 0);
-
-			// Bottom left corner
-			tempPos1 = Position(-5*myGame.parameters.buildingWidth/12+(i*myGame.parameters.buildingWidth/48), 0, 11*myGame.parameters.buildingHeight/24 - (myGame.parameters.buildingHeight/12));
-			// Bottom right corner
-			tempPos2 = Position(-5*myGame.parameters.buildingWidth/12+(i*myGame.parameters.buildingWidth/48) + myGame.parameters.buildingHeight/12, 0, 11*myGame.parameters.buildingHeight/24 - (myGame.parameters.buildingHeight/12));
-			// Top right corner
-			tempPos3 = Position(-5*myGame.parameters.buildingWidth/12+(i*myGame.parameters.buildingWidth/48) + myGame.parameters.buildingHeight/12, 0, 11*myGame.parameters.buildingHeight/24);
-			// Top left corner
-			tempPos4 = Position(-5*myGame.parameters.buildingWidth/12+(i*myGame.parameters.buildingWidth/48), 0, 11*myGame.parameters.buildingHeight/24);
-
-			drawTextureLight(0, 1, posBalls, posPlayer, myTextures[11], tempPos1, tempPos2, tempPos3, tempPos4);
-			// glBegin(GL_POLYGON);
-			// 	glTexCoord2f(0., 0.); glVertex2f(-0.5f, 0.5f);
-			// 	glTexCoord2f(1., 0.); glVertex2f(0.5f, 0.5f);
-			// 	glTexCoord2f(1., 1.); glVertex2f(0.5f, -0.5f);
-			// 	glTexCoord2f(0., 1.); glVertex2f(-0.5f, -0.5f);
-			// glEnd();
-		glPopMatrix();
+		drawSimpleTexturedSquare(-5*myGame.parameters.buildingWidth/12+(i*myGame.parameters.buildingWidth/48),11*myGame.parameters.buildingHeight/24,myGame.parameters.buildingHeight/12,myGame.parameters.buildingHeight/12,myTextures[11], tempColor);
 	}
 	glDisable(GL_TEXTURE_2D);
 
 	// Score
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, myTextures[0]);
-	tempColor = myGame.corridor.colorSideWalls.generateComplementaryColor();
-	glColor3f(tempColor.r,tempColor.g,tempColor.b);
 	for (int i = 0; i < 6; i++)
 	{
-		glPushMatrix();
-			// Placement of the wall on the x and z axis
-			glTranslatef(5*myGame.parameters.buildingWidth/12-(i*myGame.parameters.buildingWidth/20), 0, 11*myGame.parameters.buildingHeight/24);
-			// Offset to place the origin of the wall at the top left
-			glTranslatef((myGame.parameters.buildingHeight/12)/2, 0, -((myGame.parameters.buildingHeight/12)/2));
-			// Size of the wall
-			glScalef(myGame.parameters.buildingHeight/12, 1, (myGame.parameters.buildingHeight/12));
-			glRotatef(90, 1, 0, 0);
-
-			glBegin(GL_POLYGON);
-				glTexCoord2f(0., 0.); glVertex2f(-0.5f, 0.5f);
-				glTexCoord2f(1., 0.); glVertex2f(0.5f, 0.5f);
-				glTexCoord2f(1., 1.); glVertex2f(0.5f, -0.5f);
-				glTexCoord2f(0., 1.); glVertex2f(-0.5f, -0.5f);
-			glEnd();
-		glPopMatrix();
+		drawSimpleTexturedSquare(5*myGame.parameters.buildingWidth/12-(i*myGame.parameters.buildingWidth/20),11*myGame.parameters.buildingHeight/24,myGame.parameters.buildingHeight/12,myGame.parameters.buildingHeight/12,myTextures[0], tempColor);
 	}
 	glDisable(GL_TEXTURE_2D);
+}
+
+void drawMenu(Game myGame, std::vector<GLuint> myTextures) {
+	glClearColor(0., 0., 0., 1.);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	tempColor = Colors(1,1,1);
+
+	// Title
+	drawSimpleTexturedSquare(-myGame.parameters.buildingWidth/3, 5*myGame.parameters.buildingHeight/12, 2*myGame.parameters.buildingWidth/3, myGame.parameters.buildingHeight/4, myTextures[13], tempColor);
+	// Name
+	drawSimpleTexturedSquare(-myGame.parameters.buildingWidth/2, -myGame.parameters.buildingHeight/3, myGame.parameters.buildingWidth/4, myGame.parameters.buildingHeight/6, myTextures[14], tempColor);
+	
+	// Start Button
+	drawSimpleTexturedSquare(-myGame.parameters.buildingWidth/6, myGame.parameters.buildingHeight/12, myGame.parameters.buildingWidth/3, myGame.parameters.buildingHeight/6, myTextures[15], tempColor);
+	// Exit Large Button
+	drawSimpleTexturedSquare(-myGame.parameters.buildingWidth/6, -myGame.parameters.buildingHeight/6, myGame.parameters.buildingWidth/3, myGame.parameters.buildingHeight/6, myTextures[16], tempColor);
+
+	// Game Over
+	drawSimpleTexturedSquare(-myGame.parameters.buildingWidth/4, myGame.parameters.buildingHeight/12, myGame.parameters.buildingWidth/2, myGame.parameters.buildingHeight/6, myTextures[19], tempColor);
+
+	// Restart Button
+	drawSimpleTexturedSquare(-myGame.parameters.buildingWidth/3, -myGame.parameters.buildingHeight/6, myGame.parameters.buildingWidth/4, myGame.parameters.buildingHeight/6, myTextures[17], tempColor);
+	// Exit Small Button
+	drawSimpleTexturedSquare(myGame.parameters.buildingWidth/12, -myGame.parameters.buildingHeight/6, myGame.parameters.buildingWidth/4, myGame.parameters.buildingHeight/6, myTextures[18], tempColor);
+
+	// Score
+	tempColor = Colors(57./255,181./255,74./255);
+	for (int i = 0; i < 6; i++)
+	{
+		drawSimpleTexturedSquare(myGame.parameters.buildingWidth/4-(i*myGame.parameters.buildingWidth/8.5),myGame.parameters.buildingHeight/12,myGame.parameters.buildingHeight/6,myGame.parameters.buildingHeight/6,myTextures[0], tempColor);
+	}
 }

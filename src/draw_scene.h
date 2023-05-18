@@ -33,3 +33,5 @@ void drawBalls(std::vector<Ball> balls, std::vector<GLuint> myTextures);
 void drawPlayer(Player myPlayer);
 
 void drawInterface(Game myGame, std::vector<GLuint> myTextures, std::vector<Position> posBalls, Position posPlayer);
+
+void drawMenu(Game myGame, std::vector<GLuint> myTextures);
