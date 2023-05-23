@@ -21,7 +21,7 @@ vector<GLuint> textures;
 static double xpos, ypos;
 
 /* Window properties */
-static unsigned int WINDOW_WIDTH = 640;
+static unsigned int WINDOW_WIDTH = 800;
 static unsigned int WINDOW_HEIGHT = 400;
 static const char WINDOW_TITLE[] = "The IMAC Light Corridor";
 static float aspectRatio = 1.0;
@@ -34,6 +34,7 @@ static const int scalingFactor = 4;
 // float game_depth=0;
 
 Game myGame = Game();
+vector<Position> posBalls;
 
 static const float _viewSize = myGame.parameters.buildingHeight; // Correspond à building height à cause du cadrage sur le tunnel (peut changer)
 
@@ -260,20 +261,57 @@ void loadTextures()
 {
 	textures.push_back(loadImage("../res/0.png"));
 	textures.push_back(loadImage("../res/1.png"));
+	textures.push_back(loadImage("../res/2.png"));
+	textures.push_back(loadImage("../res/3.png"));
+	textures.push_back(loadImage("../res/4.png"));
+	textures.push_back(loadImage("../res/5.png"));
+	textures.push_back(loadImage("../res/6.png"));
+	textures.push_back(loadImage("../res/7.png"));
+	textures.push_back(loadImage("../res/8.png"));
+	textures.push_back(loadImage("../res/9.png"));
+	textures.push_back(loadImage("../res/kirby.png"));
+	textures.push_back(loadImage("../res/lifeIcon.png"));
+	textures.push_back(loadImage("../res/stoneWall.png"));
+	textures.push_back(loadImage("../res/title.png"));
+	textures.push_back(loadImage("../res/names.png"));
+	textures.push_back(loadImage("../res/startButton.png"));
+	textures.push_back(loadImage("../res/exitLargeButton.png"));
+	textures.push_back(loadImage("../res/restartButton.png"));
+	textures.push_back(loadImage("../res/exitSmallButton.png"));
+	textures.push_back(loadImage("../res/gameOver.png"));
 }
 
 // Function that delete the textures used in game
 void deleteTextures()
 {
-	glDeleteTextures(1, &textures[0]);
-	glDeleteTextures(1, &textures[1]);
+	for (int i = 0; i < textures.size(); i++)
+	{
+		glDeleteTextures(1, &textures[i]);
+	}
+}
+
+GLFWimage loadIcon(const char *filename)
+{
+	int x, y, n;
+	unsigned char *loadedImage = stbi_load(filename, &x, &y, &n, 0);
+
+	if (loadedImage != nullptr)
+	{
+		std::cout << "Image [" << filename << "] loaded" << std::endl;
+	}
+
+	GLFWimage loadedIcon;
+    loadedIcon.width = 64;
+    loadedIcon.height = 64;
+    loadedIcon.pixels = loadedImage;
+	
+	return loadedIcon;
 }
 
 void drawTestTextures()
 {
 	glColor3f(1., 1., 1.);
 	glEnable(GL_TEXTURE_2D);
-
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
 	glPushMatrix();
 	glScalef(5.f, 5.f, 0.f);
@@ -291,7 +329,8 @@ void drawTestTextures()
 	glPopMatrix();
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	glBindTexture(GL_TEXTURE_2D, textures[1]);
+	glColor3f(1., 0., 0.);
+	glBindTexture(GL_TEXTURE_2D, textures[3]);
 	glPushMatrix();
 	glScalef(5.f, 5.f, 0.f);
 	glTranslatef(1, 1, 0);
@@ -312,18 +351,32 @@ void drawTestTextures()
 
 void draw()
 {
+	
+	for (int i = 0; i < posBalls.size(); i++)
+	{
+		posBalls.erase(posBalls.begin());
+	}
+	
+	for (int i = 0; i < myGame.balls.size(); i++)
+	{
+		posBalls.push_back(myGame.balls[i].pos);
+	}
+
 	glPushMatrix();
 	glTranslatef(0, -myGame.parameters.gameDepth, 0);
-	drawBalls(myGame.balls);
-	drawCorridor(myGame.corridor, myGame.balls[0].pos, myGame.player.pos); // pk posBall et posPlayer pour dessiner le corridor ??
+		drawBalls(myGame.balls, textures);
+		drawCorridor(myGame.corridor, posBalls, myGame.player.pos, textures[12]);
 	glPopMatrix();
 
 	// drawFrame();
-
 	drawPlayer(myGame.player);
+	glDisable(GL_DEPTH_TEST);
+	drawInterface(myGame, textures, posBalls, myGame.player.pos);
+	drawMenu(myGame, textures);
+	glEnable(GL_DEPTH_TEST);
 
 	// Test drawing function
-	// drawTestTextures();
+	drawTestTextures();
 	// glPointSize(25.0);
 	// glBegin(formToDraw);
 	// for (unsigned int i = 0; i < pointsToDraw.size(); i++)
@@ -388,6 +441,8 @@ int main()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	loadTextures();
+	GLFWimage icon = loadIcon("../res/lifeIcon.png");
+	glfwSetWindowIcon(window, 1, &icon);
 
 	printf("corridor numberOfSteps: %i", myGame.corridor.numberOfSteps);
 
@@ -431,6 +486,7 @@ int main()
 
 	glDisable(GL_BLEND);
 	deleteTextures();
+	stbi_image_free(&icon);
 	glfwTerminate();
 	return 0;
 }

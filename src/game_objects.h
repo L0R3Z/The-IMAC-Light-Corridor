@@ -10,6 +10,7 @@
 #include <math.h>
 
 struct Game;
+struct Ball;
 
 // Tool struct for 3D positions
 typedef struct Position
@@ -25,6 +26,21 @@ typedef struct Position
         this->z = z;
     }
 } Position;
+
+// Tool struct for 3D speed
+typedef struct Speed
+{
+    GLfloat x, y, z;
+
+    Speed() {}
+
+    Speed(GLfloat x, GLfloat y, GLfloat z)
+    {
+        this->x = x;
+        this->y = y;
+        this->z = z;
+    }
+} Speed;
 
 // Tool struct for colors
 typedef struct Colors
@@ -161,34 +177,56 @@ typedef struct Colors
         return newColor;
     }
 
-    // Calculation of the color to be displayed according to the points of light, the position of the object to be illuminated and its base color
-    Colors displayColor(Position posBall, Position posPlayer, Position posObject, GLfloat gameDepth)
-    {
-        // Position update based on game position
-        posBall.y -= gameDepth;
-        posObject.y -= gameDepth;
+    Colors generateComplementaryColor() {
+        Colors newColor = Colors();
+        newColor.r = 1 - this->r;
+        newColor.g = 1 - this->g;
+        newColor.b = 1 - this->b;
+        newColor.updateHSL();
+        newColor.l = 75./100;
+        newColor.updateRGB();
+        return newColor;
+    }
 
-        // Print to console for debug
-        // printf("\n\n\nposBall.x = %f | posPlayer.x = %f | posObject.x %f \n", posBall.x, posPlayer.x, posObject.x);
-        // printf("posBall.y = %f | posPlayer.y = %f | posObject.y %f \n", posBall.y, posPlayer.y, posObject.y);
-        // printf("posBall.z = %f | posPlayer.z = %f | posObject.z %f \n", posBall.z, posPlayer.z, posObject.z);
+    // Calculation of the color to be displayed according to the points of light, the position of the object to be illuminated and its base color
+    Colors displayColor(std::vector<Position> posBalls, Position posPlayer, Position posObject, GLfloat gameDepth)
+    {
+        std::vector<float> distanceBalls;
+        
+        // Position update based on game position
+        // for (int i = 0; i < posBalls.size(); i++)
+	    // {
+        //     posBalls[i].y -= gameDepth;
+        // }
+        // posObject.y -= gameDepth;
+
+        // Position update based on game position
+        posBalls[0].y -= gameDepth;
+        posObject.y -= gameDepth;
 
         Colors newColor = *this;
         this->updateHSL();
 
         // Calculation of the distance between the object and the points of light
         float distancePlayer = std::sqrt(pow((posObject.x - posPlayer.x), 2) + pow((posObject.y - posPlayer.y), 2) + pow((posObject.z - posPlayer.z), 2));
-        float distanceBall = std::sqrt(pow((posObject.x - posBall.x), 2) + pow((posObject.y - posBall.y), 2) + pow((posObject.z - posBall.z), 2));
+        for (int i = 0; i < posBalls.size(); i++)
+	    {
+            distanceBalls.push_back(std::sqrt(pow((posObject.x - posBalls[i].x), 2) + pow((posObject.y - posBalls[i].y), 2) + pow((posObject.z - posBalls[i].z), 2)));
+        }
 
         // Set the light parameters
         float lightPropagationPlayer = 60.0f;
         float lightIntensityPlayer = 0.6f;
         float lightPropagationBall = 40.0f;
-        float lightIntensityBall = 0.4f;
+        float lightIntensityBall = 0.4f / (posBalls.size());
 
         // Calculate the brightness
         float brightnessPlayer = 1.0f - (distancePlayer / lightPropagationPlayer);
-        float brightnessBall = 1.0f - (distanceBall / lightPropagationBall);
+        float brightnessBall = 0;
+        for (int i = 0; i < posBalls.size(); i++)
+	    {
+            brightnessBall += 1.0f - (distanceBalls[i] / lightPropagationBall);
+        }
 
         // Clamp the brightness to [0, 1] range
         brightnessPlayer = std::max(std::min(brightnessPlayer, 1.0f), 0.0f);
@@ -203,21 +241,6 @@ typedef struct Colors
         return newColor;
     }
 } Colors;
-
-// Tool struct for 3D speed
-typedef struct Speed
-{
-    GLfloat x, y, z;
-
-    Speed() {}
-
-    Speed(GLfloat x, GLfloat y, GLfloat z)
-    {
-        this->x = x;
-        this->y = y;
-        this->z = z;
-    }
-} Speed;
 
 // Wall struct
 typedef struct Wall

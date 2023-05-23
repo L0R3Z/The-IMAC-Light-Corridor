@@ -16,16 +16,22 @@ extern Game myGame;
 // extern float aperture;
 // extern GameParameters myGameparameters;
 
+void drawSquareLight(float gameDepth, float opacity, std::vector<Position> posBalls, Position posPlayer, Colors baseColor, Position point1, Position point2, Position point3, Position point4);
+
+void drawTextureLight(float gameDepth, float opacity, std::vector<Position> posBalls, Position posPlayer, GLuint texture, Position point1, Position point2, Position point3, Position point4);
+
 void drawFrame();
 
-// void drawTunnelPart(int tunnel_depth);
+void drawCorridor(Corridor myCorridor, std::vector<Position> posBalls, Position posPlayer, GLuint texture);
 
-void drawCorridor(Corridor myCorridor, Position posBall, Position posPlayer);
+void drawWallStep(std::vector<WallStep> myWallSteps, Corridor myCorridor, std::vector<Position> posBalls, Position posPlayer);
 
-void drawWallStep(std::vector<WallStep> myWallSteps, Corridor myCorridor, Position posBall, Position posPlayer);
+void drawWall(std::vector<Wall> myWalls, std::vector<Position> posBalls, Position posPlayer, Colors wallColor);
 
-void drawWall(std::vector<Wall> myWalls, Position posBall, Position posPlayer, Colors wallColor);
-
-void drawBalls(std::vector<Ball> balls);
+void drawBalls(std::vector<Ball> balls, std::vector<GLuint> myTextures);
 
 void drawPlayer(Player myPlayer);
+
+void drawInterface(Game myGame, std::vector<GLuint> myTextures, std::vector<Position> posBalls, Position posPlayer);
+
+void drawMenu(Game myGame, std::vector<GLuint> myTextures);
