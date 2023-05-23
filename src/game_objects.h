@@ -165,7 +165,7 @@ typedef struct Colors
     Colors displayColor(Position posBall, Position posPlayer, Position posObject, GLfloat gameDepth)
     {
         // Position update based on game position
-        posBall.y -= gameDepth * 10;
+        posBall.y -= gameDepth;
         posObject.y -= gameDepth;
 
         // Print to console for debug
@@ -231,7 +231,7 @@ typedef struct Wall
     Wall() {}
 
     // Currently used constructor
-    Wall(int width, int height, Position pos)
+    Wall(GLint width, GLint height, Position pos)
     {
         this->width = width;
         this->height = height;
@@ -252,8 +252,8 @@ typedef struct Wall
 // WallStep struct for obtacles groups, situated at precise steps inside the corridor
 typedef struct WallStep
 {
-    float width;
-    float height;
+    GLfloat width;
+    GLfloat height;
     // float depth; // Correspond au fond du wallStep sur l'axe Y
     Position pos;
     Colors color;
@@ -263,14 +263,14 @@ typedef struct WallStep
     WallStep() {}
 
     // Currently used constructor
-    WallStep(float y)
+    WallStep(GLfloat y)
     {
         // this->depth = depth;
         this->pos = Position(0, y, 0);
         this->color = Colors();
     }
 
-    WallStep(float width, float height, Position pos, std::vector<Wall> walls)
+    WallStep(GLfloat width, GLfloat height, Position pos, std::vector<Wall> walls)
     {
         this->width = width;
         this->height = height;
@@ -279,13 +279,25 @@ typedef struct WallStep
     }
 } WallStep;
 
+// Bonus struct
+typedef struct Bonus
+{
+    GLfloat width;
+    GLfloat height;
+    GLfloat depth;
+    Position pos;
+    std::string type;
+
+    Bonus() {}
+} Bonus;
+
 // Corridor struct
 typedef struct Corridor
 {
-    int width;
-    int height;
+    GLint width;
+    GLint height;
     GLfloat depthOfAStep;
-    int numberOfSteps;
+    GLint numberOfSteps;
     std::vector<WallStep> wallSteps;
     Colors colorSideWalls;
     Colors colorCeillingWalls;
@@ -297,12 +309,15 @@ typedef struct Corridor
     Corridor() {}
 
     // Currently used constructor
-    Corridor(float depthOfAStep, int numberOfSteps)
+    Corridor(GLfloat depthOfAStep, GLint numberOfSteps, GLfloat buildingWidth, GLfloat buildingHeight)
     {
         srand(time(NULL));
 
         this->depthOfAStep = depthOfAStep;
         this->numberOfSteps = numberOfSteps;
+
+        this->width = buildingWidth;
+        this->height = buildingHeight;
 
         // Generating corridor colors from a random color
         this->colorSideWalls = Colors();
@@ -310,17 +325,12 @@ typedef struct Corridor
         this->colorRings = colorSideWalls.generateAlternateColor(8, 52, 15);
     }
 
-    // Corridor(int width, int height) {
-    //     this->width = width;
-    //     this->height = height;
-    // }
-
     Corridor(std::vector<WallStep> wallSteps)
     {
         this->wallSteps = wallSteps;
     }
 
-    Corridor(GLfloat width, GLfloat height, GLfloat stepDepth, std::vector<WallStep> wallSteps, GLuint *sideWallsTexture, GLuint *groundTexture, GLuint *ceilingTexture)
+    Corridor(GLfloat width, GLfloat height, std::vector<WallStep> wallSteps, GLuint *sideWallsTexture, GLuint *groundTexture, GLuint *ceilingTexture)
     {
         this->width = width;
         this->height = height;
@@ -330,7 +340,7 @@ typedef struct Corridor
         this->ceilingTexture = ceilingTexture;
     }
 
-    void generateCorridor(float buildingWidth, float buildingHeight)
+    void generateCorridor()
     {
         int randomTemp = 0;
 
@@ -347,8 +357,8 @@ typedef struct Corridor
                 // Moitié gauche
                 case 1:
                 {
-                    Position myPosition = Position(-buildingWidth / 2, myWallStep.pos.y, buildingHeight / 2);
-                    Wall myWall = Wall(buildingWidth / 2, buildingHeight, myPosition);
+                    Position myPosition = Position(-this->width / 2, myWallStep.pos.y, this->height / 2);
+                    Wall myWall = Wall(this->width / 2, this->height, myPosition);
                     myWallStep.walls.push_back(myWall);
                     std::cout << "Moitie gauche (" << i << ")" << std::endl;
                     break;
@@ -357,8 +367,8 @@ typedef struct Corridor
                 // Moitié droite
                 case 2:
                 {
-                    Position myPosition = Position(0, myWallStep.pos.y, buildingHeight / 2);
-                    Wall myWall = Wall(buildingWidth / 2, buildingHeight, myPosition);
+                    Position myPosition = Position(0, myWallStep.pos.y, this->height / 2);
+                    Wall myWall = Wall(this->width / 2, this->height, myPosition);
                     myWallStep.walls.push_back(myWall);
                     std::cout << "Moitie droite (" << i << ")" << std::endl;
                     break;
@@ -367,8 +377,8 @@ typedef struct Corridor
                 // Petit gauche
                 case 3:
                 {
-                    Position myPosition = Position(-buildingWidth / 2, myWallStep.pos.y, buildingHeight / 2);
-                    Wall myWall = Wall(buildingWidth / 4, buildingHeight, myPosition);
+                    Position myPosition = Position(-this->width / 2, myWallStep.pos.y, this->height / 2);
+                    Wall myWall = Wall(this->width / 4, this->height, myPosition);
                     myWallStep.walls.push_back(myWall);
                     std::cout << "Petit gauche (" << i << ")" << std::endl;
                     break;
@@ -377,8 +387,8 @@ typedef struct Corridor
                 // Petit droit
                 case 4:
                 {
-                    Position myPosition = Position(buildingWidth / 4, myWallStep.pos.y, buildingHeight / 2);
-                    Wall myWall = Wall(buildingWidth / 4, buildingHeight, myPosition);
+                    Position myPosition = Position(this->width / 4, myWallStep.pos.y, this->height / 2);
+                    Wall myWall = Wall(this->width / 4, this->height, myPosition);
                     myWallStep.walls.push_back(myWall);
                     std::cout << "Petit droit (" << i << ")" << std::endl;
                     break;
@@ -387,11 +397,11 @@ typedef struct Corridor
                 // Porte grande ouverte
                 case 5:
                 {
-                    Position myPosition = Position(buildingWidth / 4, myWallStep.pos.y, buildingHeight / 2);
-                    Wall myWall = Wall(buildingWidth / 4, buildingHeight, myPosition);
+                    Position myPosition = Position(this->width / 4, myWallStep.pos.y, this->height / 2);
+                    Wall myWall = Wall(this->width / 4, this->height, myPosition);
                     myWallStep.walls.push_back(myWall);
-                    Position mySecondPosition = Position(-buildingWidth / 2, myWallStep.pos.y, buildingHeight / 2);
-                    Wall mySecondWall = Wall(buildingWidth / 4, buildingHeight, mySecondPosition);
+                    Position mySecondPosition = Position(-this->width / 2, myWallStep.pos.y, this->height / 2);
+                    Wall mySecondWall = Wall(this->width / 4, this->height, mySecondPosition);
                     myWallStep.walls.push_back(mySecondWall);
                     std::cout << "Porte grande ouverte (" << i << ")" << std::endl;
                     break;
@@ -431,7 +441,7 @@ typedef struct Player : Wall
     }
 
     // Updates the position of the puck relative to the user's mouse
-    void updatePosition(int positionX, int positionY, int WINDOW_WIDTH, int WINDOW_HEIGHT, float _viewSize, float aspectRatio)
+    void updatePositionMouse(GLint positionX, GLint positionY, GLint WINDOW_WIDTH, GLint WINDOW_HEIGHT, GLfloat _viewSize, GLfloat aspectRatio)
     {
         this->pos.x = (_viewSize * aspectRatio) / WINDOW_WIDTH * positionX - (_viewSize * aspectRatio) / 2.0;
         this->pos.z = -_viewSize / WINDOW_HEIGHT * positionY + _viewSize / 2.0;
@@ -457,7 +467,7 @@ typedef struct Ball
         this->radius = rad;
         this->pos = Position(0, rad + 1, 0);
         this->defaultSpeed = speed;
-        this->speed = Speed(0, speed, 0);
+        this->speed = Speed(.06, speed, .03);
         // this->pos = Position(0, 12 * 10., 0);
     }
 
@@ -478,7 +488,7 @@ typedef struct Ball
     }
 
     // Updates the position of the ball relative to the user's mouse
-    void updatePosition(int positionX, int positionY, int WINDOW_WIDTH, int WINDOW_HEIGHT, float _viewSize, float aspectRatio)
+    void updatePositionMouse(GLint positionX, GLint positionY, GLint WINDOW_WIDTH, GLint WINDOW_HEIGHT, GLfloat _viewSize, GLfloat aspectRatio)
     {
         // printf("positionY: %i\n", positionY); moveBall
         // if()
@@ -489,7 +499,7 @@ typedef struct Ball
     // Move the ball every frame
     void gameMove()
     {
-        this->moveBall(this->speed.x, this->speed.y, this->speed.x);
+        this->moveBall(this->speed.x, this->speed.y, this->speed.z);
         // printf("inside gameMove, ball pos y %f\n", this->pos.y);
     }
 
@@ -505,48 +515,53 @@ typedef struct Ball
 
     void checkWAllCollisions(Corridor corridor, Player player, GLfloat gameDepth)
     {
-        if (checkWallsCollisions(corridor.wallSteps, gameDepth))
+        int collideItemWalls = this->checkWallsCollisions(corridor.wallSteps);
+        if (collideItemWalls == 1)
         {
+            printf("Collide with %i of walls detected", collideItemWalls);
             this->speed.y = -this->speed.y;
         }
-        if (checkPlayerCollisions(player, gameDepth))
+        if (collideItemWalls == 2)
+        {
+            printf("Collide with %i of walls detected", collideItemWalls);
+            this->speed.x = -this->speed.x;
+        }
+
+        if (this->checkPlayerCollisions(player, gameDepth))
         {
             this->speed.y = -this->speed.y;
+            printf("collision with %s detected!", "player");
+        }
+
+        int collideItemCorridor = this->checkCorridorCollisions(corridor);
+        if (collideItemCorridor == 1)
+        {
+            this->pos.x = corridor.width / 2 - this->radius;
+            this->speed.x = -this->speed.x;
+        }
+        if (collideItemCorridor == 2)
+        {
+            this->pos.x = -corridor.width / 2 + this->radius;
+            this->speed.x = -this->speed.x;
+        }
+        if (collideItemCorridor == 3)
+        {
+            this->pos.z = corridor.height / 2 - this->radius;
+            this->speed.z = -this->speed.z;
+        }
+        if (collideItemCorridor == 4)
+        {
+            this->pos.z = -corridor.height / 2 + this->radius;
+            this->speed.z = -this->speed.z;
         }
     }
 
-    bool checkWallsCollisions(std::vector<WallStep> wallSteps, GLint gameDepth)
+    int checkWallsCollisions(std::vector<WallStep> wallSteps)
     {
-        // Position frontPoint = Position(this->pos.x, this->pos.y+this->radius, this->pos.z);
-        // Position backPoint = Position(this->pos.x, this->pos.y-this->radius, this->pos.z);
         for (WallStep wallStep : wallSteps)
         {
             for (Wall wall : wallStep.walls)
             {
-                // // Calculate the potential new position of the ball
-                // float nextX = this->pos.x + this->speed.x;
-                // float nextY = this->pos.y + this->speed.y;
-                // float nextZ = this->pos.z + this->speed.z;
-
-                // // Calculate the closest point on the wall to the ball's center
-                // float closestX = std::max(wall.pos.x - this->radius, std::min(nextX, wall.pos.x + wall.width + this->radius));
-                // float closestY = std::max((wall.pos.y-gameDepth) - this->radius, std::min(nextY, (wall.pos.y-gameDepth) + this->radius));
-                // float closestZ = std::max(wall.pos.z + this->radius, std::min(nextZ, wall.pos.z - wall.height - this->radius));
-
-                // // printf("closestY %f\n", closestY);
-
-                // // Calculate the distance between the ball's center and the closest point on the wall
-                // float distX = closestX - nextX;
-                // float distY = closestY - nextY;
-                // float distZ = closestZ - nextZ;
-
-                // // Check if the distance is less than or equal to the sum of the ball's radius and the wall's thickness
-                // if (distX * distX + distY * distY + distZ * distZ <= (this->radius) * (this->radius))
-                // {
-                //     // Collision detected
-                //     return true;
-                // }
-
                 // Calculate the potential new position of the ball
                 float nextX = this->pos.x + this->speed.x;
                 float nextY = this->pos.y + this->speed.y;
@@ -560,44 +575,28 @@ typedef struct Ball
                 float ballMinZ = nextZ - this->radius;
                 float ballMaxZ = nextZ + this->radius;
 
-                // Check if the potential new position collides with the wall
+                // Check for side collision
+                if (this->pos.y + this->radius >= wall.pos.y && this->pos.y - this->radius <= wall.pos.y &&
+                    ballMaxX >= wall.pos.x && ballMinX <= wall.pos.x + wall.width)
+                {
+                    return 2;
+                }
+
+                // Check for front/back collision
                 if (ballMaxX >= wall.pos.x && ballMinX <= wall.pos.x + wall.width &&
                     ballMaxY >= wall.pos.y && ballMinY <= wall.pos.y &&
                     ballMinZ >= wall.pos.z - wall.height && ballMaxZ <= wall.pos.z)
                 {
-                    // Collision detected
-                    printf("collision with %s detected!", "wall");
-                    return true;
+                    // Front/back collision detected
+                    return 1;
                 }
-
-                // Ne marche pas spécifiquement avec les murs jumeaux (gauche + droite)
-                // if(frontPoint.y >= wall.pos.y && backPoint.y <= wall.pos.y) this->speed.y = -this->speed.y;
-                // if(int(frontPoint.y) == int(wall.pos.y))
-                // printf("\n[WALL] pos x: %f ,", wall.pos.x);
-                // printf("pos y: %f ,", wall.pos.y);
-                // printf("pos z: %f", wall.pos.z);
             }
         }
-
-        // No collision
-        // printf("\n\n\n%s", "lol");
-
-        // printf("\n[BALL] pos x: %f ,", this->pos.x);
-        // printf("pos y: %f ,", this->pos.y);
-        // printf("pos z: %f", this->pos.z);
-        return false;
-    }
-
-    bool checkCorridorCollisions(Corridor corridor)
-    {
+        return 0;
     }
 
     bool checkPlayerCollisions(Player player, GLfloat gameDepth)
     {
-        // Position backPoint = Position(this->pos.x, this->pos.y - this->radius, this->pos.z);
-        // if (backPoint.y + this->speed.y <= player.pos.y + gameDepth)
-        //     return true;
-
         // Calculate the potential new position of the ball
         float nextX = this->pos.x + this->speed.x;
         float nextY = this->pos.y + this->speed.y;
@@ -612,15 +611,47 @@ typedef struct Ball
         float ballMaxZ = nextZ + this->radius;
 
         // Check if the potential new position collides with the wall
-        if (ballMaxX >= player.pos.x - player.width/2 && ballMinX <= player.pos.x + player.width/2 &&
-            ballMaxY >= player.pos.y+gameDepth && ballMinY <= player.pos.y+gameDepth &&
-            ballMaxZ >= player.pos.z - player.height/2 && ballMinZ <= player.pos.z + player.height/2)
+        if (ballMaxX >= player.pos.x - player.width / 2 && ballMinX <= player.pos.x + player.width / 2 &&
+            ballMaxY >= player.pos.y + gameDepth && ballMinY <= player.pos.y + gameDepth &&
+            ballMaxZ >= player.pos.z - player.height / 2 && ballMinZ <= player.pos.z + player.height / 2)
         {
             // Collision detected
-            printf("collision with %s detected!", "player");
             return true;
         }
         return false;
+    }
+
+    int checkCorridorCollisions(Corridor corridor)
+    {
+        // Calculate the potential new position of the ball
+        float nextX = this->pos.x + this->speed.x;
+        float nextY = this->pos.y + this->speed.y;
+        float nextZ = this->pos.z + this->speed.z;
+
+        // Calculate the bounds of the ball with the radius taken into account
+        float ballMinX = nextX - this->radius;
+        float ballMaxX = nextX + this->radius;
+        float ballMinZ = nextZ - this->radius;
+        float ballMaxZ = nextZ + this->radius;
+
+        // Check if the potential new position collides with the corridor
+        if (ballMaxX >= corridor.width / 2)
+        {
+            return 1;
+        }
+        else if (ballMinX <= -corridor.width / 2)
+        {
+            return 2;
+        }
+        if (ballMaxZ >= corridor.height / 2)
+        {
+            return 3;
+        }
+        else if (ballMinZ <= -corridor.height / 2)
+        {
+            return 4;
+        }
+        return 0;
     }
 
 } Ball;
@@ -643,10 +674,10 @@ typedef struct Game
     Player player;
     Corridor corridor;
     std::vector<Ball> balls;
-    int nbOfBallsLaunched;
-    int lives;
-    int gameState;
-    int renderSkinId;
+    GLint nbOfBallsLaunched;
+    GLint lives;
+    GLint gameState;
+    GLint renderSkinId;
     GameParameters parameters;
 
     // Currently used constructor
@@ -660,7 +691,7 @@ typedef struct Game
         this->parameters.gameDepth = 0;
     }
 
-    Game(GLfloat viewWidth, GLfloat viewHeight, Player player, Corridor corridor, std::vector<Ball> balls, GLint lives, int gameState, int renderSkinId)
+    Game(Player player, Corridor corridor, std::vector<Ball> balls, GLint lives, GLint gameState, GLint renderSkinId)
     {
         this->player = player;
         this->corridor = corridor;
@@ -675,28 +706,26 @@ typedef struct Game
     void loadGame()
     {
         // Déclaration des multiples variables utiles au jeu
-        this->corridor = Corridor(this->parameters.buildingDepth, rand() % 30 + 10); // Profondeur d'une étape (buildingDepth) / Nombre d'étapes
+        this->corridor = Corridor(this->parameters.buildingDepth, rand() % 30 + 10, this->parameters.buildingWidth, this->parameters.buildingHeight); // Profondeur d'une étape (buildingDepth) / Nombre d'étapes
         this->player = Player(this->parameters.buildingWidth / 6);
         if (this->balls.empty())
         {
             Ball myBall;
             this->balls.push_back(myBall);
         }
-        this->balls[0] = Ball(this->parameters.buildingWidth / 12, .05);
+        this->balls[0] = Ball(this->parameters.buildingWidth / 12, .1);
         this->lives = 3;
         this->gameState = 1;
         this->parameters.gameDepth = 0;
+        this->nbOfBallsLaunched = 0;
 
-        this->corridor.generateCorridor(this->parameters.buildingWidth, this->parameters.buildingHeight);
-
-        //  myGame.corridor = Corridor(12, rand() % 30 + 10);
-        // 	myGame.player = Player(buildingWidth/6);
-        // 	myGame.balls.push_back(Ball(buildingWidth/24));
+        this->corridor.generateCorridor();
     }
 
     void winGame()
     {
         printf("\nYou... %s", "won :)");
+        this->loadGame();
     }
 
     void looseGame()
@@ -725,12 +754,32 @@ typedef struct Game
 
     void moveFront(GLint distance)
     {
-        if (this->gameState == 2)
+        if ((this->balls[0].pos.y - this->parameters.gameDepth - distance - 2) > 0)
         {
             this->parameters.gameDepth += distance;
             if (!this->balls[0].isLaunched)
             {
                 this->balls[0].moveBall(0, distance, 0);
+            }
+        }
+    }
+
+    void checkWinDamage()
+    {
+        for (Ball ball : this->balls)
+        {
+            if (ball.isLaunched)
+            {
+                // Check if ball is behind player
+                if (ball.pos.y - ball.radius - this->parameters.gameDepth < this->player.pos.y)
+                {
+                    this->takeDamage();
+                }
+                // Else, check if ball reached the end of the corridor
+                else if (ball.pos.y + ball.radius > this->corridor.depthOfAStep * this->corridor.wallSteps.size())
+                {
+                    this->winGame();
+                }
             }
         }
     }

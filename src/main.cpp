@@ -25,6 +25,7 @@ static unsigned int WINDOW_WIDTH = 640;
 static unsigned int WINDOW_HEIGHT = 400;
 static const char WINDOW_TITLE[] = "The IMAC Light Corridor";
 static float aspectRatio = 1.0;
+static const int scalingFactor = 4;
 
 // GLfloat aperture = 60.0f; // Ouverture de la caméra 60.0 de base
 // float building_width = 24.0f;
@@ -62,7 +63,7 @@ vector<Vertex> pointsToDraw;
 int formToDraw = GL_POINTS;
 
 /* Minimal time wanted between two images */
-static const double FRAMERATE_IN_SECONDS = 1. / 90.;
+static const double FRAMERATE_IN_SECONDS = 1./60.;
 
 /* Error handling function */
 void onError(int error, const char *description)
@@ -76,6 +77,7 @@ void onWindowResized(GLFWwindow *window, int width, int height)
 	WINDOW_WIDTH = width;
 	WINDOW_HEIGHT = height;
 	glViewport(0, 0, width, height);
+	// glViewport(0, 0, width/scalingFactor, height/scalingFactor);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(myGame.parameters.aperture, aspectRatio, Z_NEAR, Z_FAR);
@@ -95,11 +97,17 @@ void mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
 
 void cursor_position_callback(GLFWwindow *window, double xpos, double ypos)
 {
-	myGame.player.updatePosition(xpos, ypos, WINDOW_WIDTH, WINDOW_HEIGHT, _viewSize, aspectRatio);
+	// if()
+	GLfloat convertedX = (_viewSize * aspectRatio) / WINDOW_WIDTH * xpos - (_viewSize * aspectRatio) / 2.0;
+	GLfloat convertedY = -_viewSize / WINDOW_HEIGHT * ypos + _viewSize / 2.0;
+	// printf("Converted X: %f, ", convertedX);
+	// printf("Converted Y: %f\n", convertedY);
+
+	myGame.player.updatePositionMouse(xpos, ypos, WINDOW_WIDTH, WINDOW_HEIGHT, _viewSize, aspectRatio);
 	for (Ball &ball : myGame.balls)
 	{
 		if (!ball.isLaunched)
-			ball.updatePosition(xpos, ypos, WINDOW_WIDTH, WINDOW_HEIGHT, _viewSize, aspectRatio);
+			ball.updatePositionMouse(xpos, ypos, WINDOW_WIDTH, WINDOW_HEIGHT, _viewSize, aspectRatio);
 	}
 }
 
@@ -159,53 +167,33 @@ void onKey(GLFWwindow *window, int key, int scancode, int action, int mods)
 			theta += 5;
 			std::cout << "Theta is " << theta << std::endl;
 			break;
-		case GLFW_KEY_W:
-			myGame.moveFront(5);
-			break;
-		case GLFW_KEY_S:
-			myGame.moveFront(-5);
-			break;
 		case GLFW_KEY_SPACE:
-		{
-			// Launch the first unlaunched ball in the array
-			for (Ball &ball : myGame.balls)
 			{
-				if (!ball.isLaunched)
+				if(myGame.gameState == 1)
 				{
-					printf("ffff %s", "zzz");
-					ball.isLaunched = true;
-					// If all the balls are launched, enable gameState 2
-					if (++myGame.nbOfBallsLaunched == myGame.balls.size())
+					// Launch the first unlaunched ball in the array
+					for (Ball &ball : myGame.balls)
 					{
-						myGame.gameState = 2;
+						if (!ball.isLaunched)
+						{
+							printf("ffff %s", "zzz");
+							ball.isLaunched = true;
+							// If all the balls are launched, enable gameState 2
+							if (++myGame.nbOfBallsLaunched == myGame.balls.size())
+							{
+								myGame.gameState = 2;
+							}
+							break;
+						}
 					}
 					break;
 				}
+				else if(myGame.gameState == 2)
+				{
+					myGame.moveFront(5);
+				}
 			}
 			break;
-		}
-		// bool launched = false;
-		// int nbOfLaunched = 0;
-		// for(Ball& ball : myGame.balls) {
-		// 	if(!ball.isLaunched && !launched) {
-		// 		ball.isLaunched = !ball.isLaunched;
-		// 		launched = !launched;
-		// 	}
-		// 	if(ball.isLaunched) nbOfLaunched++;
-		// }
-		// if(nbOfLaunched == myGame.balls.size()) {
-		// 	if(myGame.gameState == 1) myGame.gameState = 2;
-		// }
-		// printf("nbOfLaunched: %i", nbOfLaunched);
-		break;
-			// if (formToDraw == GL_POLYGON)
-			// {
-			// 	formToDraw = GL_POINTS;
-			// }
-			// else
-			// {
-			// 	formToDraw = GL_POLYGON;
-			// }
 		default:
 			std::cout << "Touche non gérée (" << key << ")" << std::endl;
 		}
@@ -214,11 +202,11 @@ void onKey(GLFWwindow *window, int key, int scancode, int action, int mods)
 	{
 		switch (key)
 		{
-		case GLFW_KEY_W:
-			myGame.moveFront(1);
-			break;
-		case GLFW_KEY_S:
-			myGame.moveFront(-1);
+		case GLFW_KEY_SPACE:
+			if(myGame.gameState == 2)
+			{
+				myGame.moveFront(1);
+			}
 			break;
 		case GLFW_KEY_KP_7:
 			myGame.balls[0].moveBall(0, 1, 0);
@@ -389,6 +377,9 @@ int main()
 
 	onWindowResized(window, WINDOW_WIDTH, WINDOW_HEIGHT);
 
+	// Enable vsync to cap the FPS
+    glfwSwapInterval(1);
+
 	// Activate depth so that elements can render in front of others
 	glEnable(GL_DEPTH_TEST);
 
@@ -400,22 +391,17 @@ int main()
 
 	printf("corridor numberOfSteps: %i", myGame.corridor.numberOfSteps);
 
-	// myGame.corridor.generateCorridor(building_width, building_height);
-
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
-		/* Get time (in second) at loop beginning */
-		double startTime = glfwGetTime();
-
 		/* Cleaning buffers and setting Matrix Mode */
-		// glClearColor(1.0,1.0,1.,0.0);
 		glClearColor(0.0, 0.0, 0., 0.0);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
+		// glScalef(scalingFactor, scalingFactor, 1.0f);
 		setCamera();
 
 		// GAMESTATES
@@ -430,6 +416,7 @@ int main()
 				ball.gameMove();
 			
 			ball.checkWAllCollisions(myGame.corridor, myGame.player, myGame.parameters.gameDepth);
+			myGame.checkWinDamage();
 		}
 
 		// VIEW
@@ -440,14 +427,6 @@ int main()
 
 		/* Poll for and process events */
 		glfwPollEvents();
-
-		/* Elapsed time computation from loop begining */
-		double elapsedTime = glfwGetTime() - startTime;
-		/* If to few time is spend vs our wanted FPS, we wait */
-		if (elapsedTime < FRAMERATE_IN_SECONDS)
-		{
-			glfwWaitEventsTimeout(FRAMERATE_IN_SECONDS - elapsedTime);
-		}
 	}
 
 	glDisable(GL_BLEND);

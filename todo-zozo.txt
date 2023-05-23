@@ -1,0 +1,30 @@
+[CHECK] je fasse une fonction qui gère la création du jeu (génération du corridor, des balles, etc., pour par tout avoir dans le main)
+[CHECK] je fasse une fonction qui reset la position de la balle
+[CHECK] je fasse une fonction pour gérer le moment où le joueur prend des dégâts
+[CHECK] je mette les paramètres depth etc. dans myGame
+[CHECK] j'implémente la vitesse de la balle
+[CHECK] je gère les vies
+[CHECK] je gère les collisions simples avec les murs
+
+Collisions
+    [CHECK] gèrer les collisions avec les murs du corridor
+    [CHECK], gèrer les collisions sur le côté des murs
+    - je gère les collisions un peu compliquées avec la raquette
+
+Raquette
+    - je bloque la raquette sur les bords du Corridor
+
+Déplacements
+    [CHECK] un seul bouton -> espace pour avancer
+    [CHECK] j'empêche d'avancer si ça fait prendre des dégats au joueur (au delà de la balle)
+    [CHECK] j'empêche d'avancer si ça dépasse le fond du couloir
+
+Bonus
+    - faire la structure des bonus
+
+Miscellaneous
+    - casser les murs
+    - bloquer aspect ratio de la fenête quand on redimensionne ???
+    - objet "carré" dont héritent le joueur, les murs, l'interface
+    [CHECK] cap les fps
+    - effet basse résolution avec de l'aliasing
