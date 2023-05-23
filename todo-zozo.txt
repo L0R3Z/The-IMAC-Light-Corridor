@@ -19,6 +19,7 @@ Déplacements
 Collisions
     [CHECK] gèrer les collisions avec les murs du corridor
     [CHECK] gèrer les collisions sur le côté des murs
+    [CHECK] bug collisions corridor coins
     - je gère les collisions un peu compliquées avec la raquette
 
 Raquette

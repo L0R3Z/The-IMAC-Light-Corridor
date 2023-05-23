@@ -512,12 +512,15 @@ typedef struct Ball
     }
 
     // Updates the position of the ball relative to the user's mouse
-    void updatePositionMouse(GLint positionX, GLint positionY, GLint WINDOW_WIDTH, GLint WINDOW_HEIGHT, GLfloat _viewSize, GLfloat aspectRatio)
+    void updatePositionMouse(GLint positionX, GLint positionY, GLint WINDOW_WIDTH, GLint WINDOW_HEIGHT, GLfloat _viewSize, GLfloat aspectRatio, GLfloat xLimit, GLfloat zLimit)
     {
         // printf("positionY: %i\n", positionY); moveBall
         // if()
-        this->pos.x = (_viewSize * aspectRatio) / WINDOW_WIDTH * positionX - (_viewSize * aspectRatio) / 2.0;
-        this->pos.z = -_viewSize / WINDOW_HEIGHT * positionY + _viewSize / 2.0;
+        // this->pos.x = (_viewSize * aspectRatio) / WINDOW_WIDTH * positionX - (_viewSize * aspectRatio) / 2.0;
+        // this->pos.z = -_viewSize / WINDOW_HEIGHT * positionY + _viewSize / 2.0;
+
+        this->pos.x = std::max((GLfloat)-xLimit/2, std::min((GLfloat)xLimit/2, (GLfloat)((_viewSize * aspectRatio) / WINDOW_WIDTH * positionX - (_viewSize * aspectRatio) / 2.0)));
+        this->pos.z = std::max((GLfloat)-zLimit/2, std::min((GLfloat)zLimit/2, (GLfloat)(-_viewSize / WINDOW_HEIGHT * positionY + _viewSize / 2.0)));
     }
 
     // Move the ball every frame

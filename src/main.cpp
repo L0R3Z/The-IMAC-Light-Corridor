@@ -108,7 +108,7 @@ void cursor_position_callback(GLFWwindow *window, double xpos, double ypos)
 	for (Ball &ball : myGame.balls)
 	{
 		if (!ball.isLaunched)
-			ball.updatePositionMouse(xpos, ypos, WINDOW_WIDTH, WINDOW_HEIGHT, _viewSize, aspectRatio);
+			ball.updatePositionMouse(xpos, ypos, WINDOW_WIDTH, WINDOW_HEIGHT, _viewSize, aspectRatio, myGame.parameters.buildingWidth-myGame.player.width, myGame.parameters.buildingHeight-myGame.player.height);
 	}
 }
 
