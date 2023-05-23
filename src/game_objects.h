@@ -757,7 +757,7 @@ typedef struct Game
             this->balls.push_back(myBall);
         }
         this->balls[0] = Ball(this->parameters.buildingWidth / 12, .1);
-        this->lives = 3;
+        this->lives = 5;
         this->gameState = 1;
         this->parameters.gameDepth = 0;
         this->nbOfBallsLaunched = 0;

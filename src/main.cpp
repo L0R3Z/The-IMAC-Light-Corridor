@@ -90,9 +90,26 @@ void mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
 {
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
-		glfwGetCursorPos(window, &xpos, &ypos);
-		printf("%f %f \n", xpos, ypos);
-		pointsToDraw.push_back(Vertex(xpos, ypos));
+		// bibux
+		// glfwGetCursorPos(window, &xpos, &ypos);
+		// printf("%f %f \n", xpos, ypos);
+		// pointsToDraw.push_back(Vertex(xpos, ypos));
+		if (myGame.gameState == 1)
+		{
+			// Launch the first unlaunched ball in the array
+			for (Ball &ball : myGame.balls)
+			{
+				if (!ball.isLaunched)
+				{
+					ball.isLaunched = true;
+					// If all the balls are launched, enable gameState 2
+					if (++myGame.nbOfBallsLaunched == myGame.balls.size())
+					{
+						myGame.gameState = 2;
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -191,25 +208,7 @@ void onKey(GLFWwindow *window, int key, int scancode, int action, int mods)
 
 				case GLFW_KEY_SPACE:
 					{
-						if (myGame.gameState == 1)
-						{
-							// Launch the first unlaunched ball in the array
-							for (Ball &ball : myGame.balls)
-							{
-								if (!ball.isLaunched)
-								{
-									ball.isLaunched = true;
-									// If all the balls are launched, enable gameState 2
-									if (++myGame.nbOfBallsLaunched == myGame.balls.size())
-									{
-										myGame.gameState = 2;
-									}
-									break;
-								}
-							}
-							break;
-						}
-						else if(myGame.gameState == 2)
+						if(myGame.gameState == 2)
 						{
 							myGame.moveFront(5);
 						}

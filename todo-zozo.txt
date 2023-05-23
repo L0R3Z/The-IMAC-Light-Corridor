@@ -6,27 +6,34 @@
 [CHECK] je gère les vies
 [CHECK] je gère les collisions simples avec les murs
 
-Menu
-    [CHECK] gérer les états du jeu pour afficher correctement les menus
-    [CHECK] ajouter les interractions au clavier en fonction du menu affiché
-    [CHECK] bug touches persistantes
+Contrôles
+    - Envoyer la balle au clic droit et pas lorsqu'on appuie sur la barre d'espace
 
 Déplacements
     [CHECK] un seul bouton -> espace pour avancer
     [CHECK] j'empêche d'avancer si ça fait prendre des dégats au joueur (au delà de la balle)
     [CHECK] j'empêche d'avancer si ça dépasse le fond du couloir
-
-Raquette
-    [CHECK] je bloque la raquette sur les bords du Corridor
+    - Bloquer les déplacements si la raquette est situé en face d'un mur et qu'elle peut rentrer en collision si on se déplace
 
 Bonus
     [CHECK] faire la structure des bonus
+    - bonus qui fait gagner une vie
+    - bonus qui fait coller la balle à la raquette
+    - OPTIONNEL : bonus qui aggrandi la raquette
+
+Menu
+    [CHECK] gérer les états du jeu pour afficher correctement les menus
+    [CHECK] ajouter les interractions au clavier en fonction du menu affiché
+    [CHECK] bug touches persistantes
+
+Raquette
+    [CHECK] je bloque la raquette sur les bords du Corridor
 
 Collisions
     [CHECK] gèrer les collisions avec les murs du corridor
     [CHECK] gèrer les collisions sur le côté des murs
     [CHECK] bug collisions corridor coins
-    - je gère les collisions un peu compliquées avec la raquette
+    [CHECK] je gère les collisions un peu compliquées avec la raquette
 
 Miscellaneous
     - casser les murs
