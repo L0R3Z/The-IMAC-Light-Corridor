@@ -34,4 +34,6 @@ void drawPlayer(Player myPlayer);
 
 void drawInterface(Game myGame, std::vector<GLuint> myTextures, std::vector<Position> posBalls, Position posPlayer);
 
-void drawMenu(Game myGame, std::vector<GLuint> myTextures);
+void drawStartingMenu(Game myGame, std::vector<GLuint> myTextures);
+void drawGameoverMenu(Game myGame, std::vector<GLuint> myTextures);
+void drawVictoryMenu(Game myGame, std::vector<GLuint> myTextures);

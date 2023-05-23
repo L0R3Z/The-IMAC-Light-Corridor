@@ -118,117 +118,163 @@ void onKey(GLFWwindow *window, int key, int scancode, int action, int mods)
 	{
 		switch (key)
 		{
-		case GLFW_KEY_A:
-		case GLFW_KEY_ESCAPE:
-			glfwSetWindowShouldClose(window, GLFW_TRUE);
-			break;
-		case GLFW_KEY_L:
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			break;
-		case GLFW_KEY_P:
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			break;
-		case GLFW_KEY_N:
-			myGame.takeDamage();
-			break;
-		// Restart the game
-		case GLFW_KEY_R:
-			myGame.loadGame();
-			break;
-		case GLFW_KEY_C:
-			myGame.balls[0].checkWAllCollisions(myGame.corridor, myGame.player, myGame.parameters.gameDepth);
-			break;
-		case GLFW_KEY_KP_9:
-			// if(dist_zoom<100.0f) dist_zoom*=1.1;
-			if (dist_zoom < 100.0f)
-				dist_zoom += 1;
-			std::cout << "Zoom is " << dist_zoom << std::endl;
-			break;
-		case GLFW_KEY_KP_3:
-			// if(dist_zoom>1.0f) dist_zoom*=0.9;
-			if (dist_zoom > 1.0f)
-				dist_zoom -= 1;
-			std::cout << "Zoom is " << dist_zoom << std::endl;
-			break;
-		case GLFW_KEY_UP:
-			if (phy > 2)
-				phy -= 2;
-			std::cout << "Phy is " << phy << std::endl;
-			break;
-		case GLFW_KEY_DOWN:
-			if (phy <= 88.)
-				phy += 2;
-			std::cout << "Phy is " << phy << std::endl;
-			break;
-		case GLFW_KEY_LEFT:
-			theta -= 5;
-			std::cout << "Theta is " << theta << std::endl;
-			break;
-		case GLFW_KEY_RIGHT:
-			theta += 5;
-			std::cout << "Theta is " << theta << std::endl;
-			break;
-		case GLFW_KEY_SPACE:
+			// case GLFW_KEY_A:
+			case GLFW_KEY_ESCAPE:
+				glfwSetWindowShouldClose(window, GLFW_TRUE);
+				break;
+
+			// case GLFW_KEY_L:
+			// 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			// 	break;
+
+			// case GLFW_KEY_P:
+			// 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			// 	break;
+
+			default:
+				std::cout << "Touche non gérée (" << key << ")" << std::endl;
+		}
+
+		// If game is being played
+		if (myGame.gameState == 1 || myGame.gameState == 2)
+		{
+			switch (key)
 			{
-				if(myGame.gameState == 1)
-				{
-					// Launch the first unlaunched ball in the array
-					for (Ball &ball : myGame.balls)
+				case GLFW_KEY_N:
+					myGame.takeDamage();
+					break;
+
+				// Restart the game
+				case GLFW_KEY_R:
+					myGame.loadGame();
+					break;
+
+				case GLFW_KEY_C:
+					myGame.balls[0].checkWAllCollisions(myGame.corridor, myGame.player, myGame.parameters.gameDepth);
+					break;
+
+				case GLFW_KEY_KP_9:
+					// if(dist_zoom<100.0f) dist_zoom*=1.1;
+					if (dist_zoom < 100.0f)
+						dist_zoom += 1;
+					std::cout << "Zoom is " << dist_zoom << std::endl;
+					break;
+
+				case GLFW_KEY_KP_3:
+					// if(dist_zoom>1.0f) dist_zoom*=0.9;
+					if (dist_zoom > 1.0f)
+						dist_zoom -= 1;
+					std::cout << "Zoom is " << dist_zoom << std::endl;
+					break;
+
+				case GLFW_KEY_UP:
+					if (phy > 2)
+						phy -= 2;
+					std::cout << "Phy is " << phy << std::endl;
+					break;
+
+				case GLFW_KEY_DOWN:
+					if (phy <= 88.)
+						phy += 2;
+					std::cout << "Phy is " << phy << std::endl;
+					break;
+
+				case GLFW_KEY_LEFT:
+					theta -= 5;
+					std::cout << "Theta is " << theta << std::endl;
+					break;
+
+				case GLFW_KEY_RIGHT:
+					theta += 5;
+					std::cout << "Theta is " << theta << std::endl;
+					break;
+
+				case GLFW_KEY_SPACE:
 					{
-						if (!ball.isLaunched)
+						if (myGame.gameState == 1)
 						{
-							printf("ffff %s", "zzz");
-							ball.isLaunched = true;
-							// If all the balls are launched, enable gameState 2
-							if (++myGame.nbOfBallsLaunched == myGame.balls.size())
+							// Launch the first unlaunched ball in the array
+							for (Ball &ball : myGame.balls)
 							{
-								myGame.gameState = 2;
+								if (!ball.isLaunched)
+								{
+									ball.isLaunched = true;
+									// If all the balls are launched, enable gameState 2
+									if (++myGame.nbOfBallsLaunched == myGame.balls.size())
+									{
+										myGame.gameState = 2;
+									}
+									break;
+								}
 							}
 							break;
 						}
+						else if(myGame.gameState == 2)
+						{
+							myGame.moveFront(5);
+						}
 					}
 					break;
-				}
-				else if(myGame.gameState == 2)
-				{
-					myGame.moveFront(5);
-				}
 			}
-			break;
-		default:
-			std::cout << "Touche non gérée (" << key << ")" << std::endl;
-		}
-	}
-	if (action == GLFW_REPEAT)
-	{
-		switch (key)
-		{
-		case GLFW_KEY_SPACE:
-			if(myGame.gameState == 2)
+
+			// If holding key
+			if (action == GLFW_REPEAT)
 			{
-				myGame.moveFront(1);
+				switch (key)
+				{
+					case GLFW_KEY_SPACE:
+						if(myGame.gameState == 2)
+						{
+							myGame.moveFront(1);
+						}
+						break;
+
+					case GLFW_KEY_KP_7:
+						myGame.balls[0].moveBall(0, 1, 0);
+						break;
+
+					case GLFW_KEY_KP_1:
+						myGame.balls[0].moveBall(0, -1, 0);
+						break;
+
+					case GLFW_KEY_KP_4:
+						myGame.balls[0].moveBall(-1, 0, 0);
+						break;
+
+					case GLFW_KEY_KP_5:
+						myGame.balls[0].moveBall(1, 0, 0);
+						break;
+
+					case GLFW_KEY_KP_8:
+						myGame.balls[0].moveBall(0, 0, 1);
+						break;
+
+					case GLFW_KEY_KP_2:
+						myGame.balls[0].moveBall(0, 0, -1);
+						break;
+
+					default:
+						std::cout << "Touche non gérée (" << key << ")" << std::endl;
+				}
 			}
-			break;
-		case GLFW_KEY_KP_7:
-			myGame.balls[0].moveBall(0, 1, 0);
-			break;
-		case GLFW_KEY_KP_1:
-			myGame.balls[0].moveBall(0, -1, 0);
-			break;
-		case GLFW_KEY_KP_4:
-			myGame.balls[0].moveBall(-1, 0, 0);
-			break;
-		case GLFW_KEY_KP_5:
-			myGame.balls[0].moveBall(1, 0, 0);
-			break;
-		case GLFW_KEY_KP_8:
-			myGame.balls[0].moveBall(0, 0, 1);
-			break;
-		case GLFW_KEY_KP_2:
-			myGame.balls[0].moveBall(0, 0, -1);
-			break;
-		default:
-			std::cout << "Touche non gérée (" << key << ")" << std::endl;
+		}
+		else
+		{
+			printf("%i", myGame.gameState);
+			switch (key)
+			{
+				case GLFW_KEY_J:
+					if (myGame.gameState == 10) myGame.loadGame();
+					break;
+				
+				case GLFW_KEY_A:
+					glfwSetWindowShouldClose(window, GLFW_TRUE);
+					break;
+				
+				case GLFW_KEY_R:
+					if (myGame.gameState == 11 || myGame.gameState == 12) myGame.loadGame();
+					break;
+			}
 		}
 	}
 }
@@ -351,29 +397,55 @@ void drawTestTextures()
 
 void draw()
 {
-	
-	for (int i = 0; i < posBalls.size(); i++)
-	{
-		posBalls.erase(posBalls.begin());
-	}
-	
-	for (int i = 0; i < myGame.balls.size(); i++)
-	{
-		posBalls.push_back(myGame.balls[i].pos);
-	}
-
-	glPushMatrix();
-	glTranslatef(0, -myGame.parameters.gameDepth, 0);
-		drawBalls(myGame.balls, textures);
-		drawCorridor(myGame.corridor, posBalls, myGame.player.pos, textures[12]);
-	glPopMatrix();
-
 	// drawFrame();
-	drawPlayer(myGame.player);
-	glDisable(GL_DEPTH_TEST);
-	drawInterface(myGame, textures, posBalls, myGame.player.pos);
-	drawMenu(myGame, textures);
-	glEnable(GL_DEPTH_TEST);
+	switch (myGame.gameState)
+	{
+		// If the game is being played
+		case 1:
+		case 2:
+			for (int i = 0; i < posBalls.size(); i++)
+			{
+				posBalls.erase(posBalls.begin());
+			}
+
+			for (int i = 0; i < myGame.balls.size(); i++)
+			{
+				posBalls.push_back(myGame.balls[i].pos);
+			}
+
+			glPushMatrix();
+			glTranslatef(0, -myGame.parameters.gameDepth, 0);
+				drawBalls(myGame.balls, textures);
+				drawCorridor(myGame.corridor, posBalls, myGame.player.pos, textures[12]);
+			glPopMatrix();
+
+			drawPlayer(myGame.player);
+			glDisable(GL_DEPTH_TEST);
+			drawInterface(myGame, textures, posBalls, myGame.player.pos);
+			glEnable(GL_DEPTH_TEST);
+			break;
+		
+		// Starting menu
+		case 10:
+			drawStartingMenu(myGame, textures);
+			break;
+		
+		// Game over menu
+		case 11:
+			drawGameoverMenu(myGame, textures);
+			break;
+		
+		// Victory menu
+		case 12:
+			drawVictoryMenu(myGame, textures);
+			break;
+	}
+
+	
+	// glDisable(GL_DEPTH_TEST);
+	// drawInterface(myGame, textures, posBalls, myGame.player.pos);
+	// // drawMenu(myGame, textures);
+	// glEnable(GL_DEPTH_TEST);
 
 	// Test drawing function
 	drawTestTextures();
@@ -414,7 +486,7 @@ int main()
 		return -1;
 	}
 
-	myGame.loadGame();
+	// myGame.loadGame();
 
 	// Make the window's context current
 	glfwMakeContextCurrent(window);
@@ -460,20 +532,24 @@ int main()
 		setCamera();
 
 		// GAMESTATES
-		// 0: menu
 		// 1: game when no ball moving
 		// 2: game when all the balls are launched
+		// 10: start menu
+		// 11: game ove 
+		// 12: victory
 
 		// MODEL
-		for (Ball &ball : myGame.balls)
-		{
-			if (ball.isLaunched)
-				ball.gameMove();
-			
-			ball.checkWAllCollisions(myGame.corridor, myGame.player, myGame.parameters.gameDepth);
-			myGame.checkWinDamage();
+		if(myGame.gameState == 1 || myGame.gameState == 2) {
+			for (Ball &ball : myGame.balls)
+			{
+				if (ball.isLaunched)
+					ball.gameMove();
+				
+				ball.checkWAllCollisions(myGame.corridor, myGame.player, myGame.parameters.gameDepth);
+				myGame.checkWinDamage();
+			}
 		}
-
+		
 		// VIEW
 		draw();
 

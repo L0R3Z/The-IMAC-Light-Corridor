@@ -432,7 +432,24 @@ void drawInterface(Game myGame, std::vector<GLuint> myTextures, std::vector<Posi
 	glDisable(GL_TEXTURE_2D);
 }
 
-void drawMenu(Game myGame, std::vector<GLuint> myTextures) {
+void drawStartingMenu(Game myGame, std::vector<GLuint> myTextures) {
+	glClearColor(0., 0., 0., 1.);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	tempColor = Colors(1,1,1);
+
+	// Title
+	drawSimpleTexturedSquare(-myGame.parameters.buildingWidth/3, 5*myGame.parameters.buildingHeight/12, 2*myGame.parameters.buildingWidth/3, myGame.parameters.buildingHeight/4, myTextures[13], tempColor);
+	// Name
+	drawSimpleTexturedSquare(-myGame.parameters.buildingWidth/2, -myGame.parameters.buildingHeight/3, myGame.parameters.buildingWidth/4, myGame.parameters.buildingHeight/6, myTextures[14], tempColor);
+	
+	// Start Button
+	drawSimpleTexturedSquare(-myGame.parameters.buildingWidth/6, myGame.parameters.buildingHeight/12, myGame.parameters.buildingWidth/3, myGame.parameters.buildingHeight/6, myTextures[15], tempColor);
+	// Exit Large Button
+	drawSimpleTexturedSquare(-myGame.parameters.buildingWidth/6, -myGame.parameters.buildingHeight/6, myGame.parameters.buildingWidth/3, myGame.parameters.buildingHeight/6, myTextures[16], tempColor);
+}
+
+void drawGameoverMenu(Game myGame, std::vector<GLuint> myTextures) {
 	glClearColor(0., 0., 0., 1.);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -444,14 +461,28 @@ void drawMenu(Game myGame, std::vector<GLuint> myTextures) {
 	drawSimpleTexturedSquare(-myGame.parameters.buildingWidth/3, 5*myGame.parameters.buildingHeight/12, 2*myGame.parameters.buildingWidth/3, myGame.parameters.buildingHeight/4, myTextures[13], tempColor);
 	// Name
 	drawSimpleTexturedSquare(-myGame.parameters.buildingWidth/2, -myGame.parameters.buildingHeight/3, myGame.parameters.buildingWidth/4, myGame.parameters.buildingHeight/6, myTextures[14], tempColor);
-	
-	// Start Button
-	drawSimpleTexturedSquare(-myGame.parameters.buildingWidth/6, myGame.parameters.buildingHeight/12, myGame.parameters.buildingWidth/3, myGame.parameters.buildingHeight/6, myTextures[15], tempColor);
-	// Exit Large Button
-	drawSimpleTexturedSquare(-myGame.parameters.buildingWidth/6, -myGame.parameters.buildingHeight/6, myGame.parameters.buildingWidth/3, myGame.parameters.buildingHeight/6, myTextures[16], tempColor);
 
 	// Game Over
 	drawSimpleTexturedSquare(-myGame.parameters.buildingWidth/4, myGame.parameters.buildingHeight/12, myGame.parameters.buildingWidth/2, myGame.parameters.buildingHeight/6, myTextures[19], tempColor);
+
+	// Restart Button
+	drawSimpleTexturedSquare(-myGame.parameters.buildingWidth/3, -myGame.parameters.buildingHeight/6, myGame.parameters.buildingWidth/4, myGame.parameters.buildingHeight/6, myTextures[17], tempColor);
+	// Exit Small Button
+	drawSimpleTexturedSquare(myGame.parameters.buildingWidth/12, -myGame.parameters.buildingHeight/6, myGame.parameters.buildingWidth/4, myGame.parameters.buildingHeight/6, myTextures[18], tempColor);
+}
+
+void drawVictoryMenu(Game myGame, std::vector<GLuint> myTextures) {
+	glClearColor(0., 0., 0., 1.);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	tempColor = Colors(1,1,1);
+
+	// General things
+
+	// Title
+	drawSimpleTexturedSquare(-myGame.parameters.buildingWidth/3, 5*myGame.parameters.buildingHeight/12, 2*myGame.parameters.buildingWidth/3, myGame.parameters.buildingHeight/4, myTextures[13], tempColor);
+	// Name
+	drawSimpleTexturedSquare(-myGame.parameters.buildingWidth/2, -myGame.parameters.buildingHeight/3, myGame.parameters.buildingWidth/4, myGame.parameters.buildingHeight/6, myTextures[14], tempColor);
 
 	// Restart Button
 	drawSimpleTexturedSquare(-myGame.parameters.buildingWidth/3, -myGame.parameters.buildingHeight/6, myGame.parameters.buildingWidth/4, myGame.parameters.buildingHeight/6, myTextures[17], tempColor);

@@ -712,6 +712,7 @@ typedef struct Game
         this->parameters.buildingDepth = 12.0f;
         this->parameters.aperture = 60.0f; // Ouverture de la caméra 60.0 de base
         this->parameters.gameDepth = 0;
+        this->gameState = 10;
     }
 
     Game(Player player, Corridor corridor, std::vector<Ball> balls, GLint lives, GLint gameState, GLint renderSkinId)
@@ -748,13 +749,15 @@ typedef struct Game
     void winGame()
     {
         printf("\nYou... %s", "won :)");
-        this->loadGame();
+        this->gameState = 12;
+        // this->loadGame();
     }
 
     void looseGame()
     {
         printf("\nYou... %s", "lost :(");
-        this->loadGame();
+        this->gameState = 11;
+        // this->loadGame();
     }
 
     void takeDamage()
