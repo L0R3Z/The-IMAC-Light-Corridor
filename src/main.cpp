@@ -216,47 +216,6 @@ void onKey(GLFWwindow *window, int key, int scancode, int action, int mods)
 					}
 					break;
 			}
-
-			// If holding key
-			if (action == GLFW_REPEAT)
-			{
-				switch (key)
-				{
-					case GLFW_KEY_SPACE:
-						if(myGame.gameState == 2)
-						{
-							myGame.moveFront(1);
-						}
-						break;
-
-					case GLFW_KEY_KP_7:
-						myGame.balls[0].moveBall(0, 1, 0);
-						break;
-
-					case GLFW_KEY_KP_1:
-						myGame.balls[0].moveBall(0, -1, 0);
-						break;
-
-					case GLFW_KEY_KP_4:
-						myGame.balls[0].moveBall(-1, 0, 0);
-						break;
-
-					case GLFW_KEY_KP_5:
-						myGame.balls[0].moveBall(1, 0, 0);
-						break;
-
-					case GLFW_KEY_KP_8:
-						myGame.balls[0].moveBall(0, 0, 1);
-						break;
-
-					case GLFW_KEY_KP_2:
-						myGame.balls[0].moveBall(0, 0, -1);
-						break;
-
-					default:
-						std::cout << "Touche non gérée (" << key << ")" << std::endl;
-				}
-			}
 		}
 		else
 		{
@@ -275,6 +234,47 @@ void onKey(GLFWwindow *window, int key, int scancode, int action, int mods)
 					if (myGame.gameState == 11 || myGame.gameState == 12) myGame.loadGame();
 					break;
 			}
+		}
+	}
+
+	// If holding key
+	if (action == GLFW_REPEAT && (myGame.gameState == 1 || myGame.gameState == 2))
+	{
+		switch (key)
+		{
+			case GLFW_KEY_SPACE:
+				if(myGame.gameState == 2)
+				{
+					myGame.moveFront(1);
+				}
+				break;
+
+			case GLFW_KEY_KP_7:
+				myGame.balls[0].moveBall(0, 1, 0);
+				break;
+
+			case GLFW_KEY_KP_1:
+				myGame.balls[0].moveBall(0, -1, 0);
+				break;
+
+			case GLFW_KEY_KP_4:
+				myGame.balls[0].moveBall(-1, 0, 0);
+				break;
+
+			case GLFW_KEY_KP_5:
+				myGame.balls[0].moveBall(1, 0, 0);
+				break;
+
+			case GLFW_KEY_KP_8:
+				myGame.balls[0].moveBall(0, 0, 1);
+				break;
+
+			case GLFW_KEY_KP_2:
+				myGame.balls[0].moveBall(0, 0, -1);
+				break;
+
+			default:
+				std::cout << "Touche non gérée (" << key << ")" << std::endl;
 		}
 	}
 }

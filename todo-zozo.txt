@@ -8,12 +8,13 @@
 
 Collisions
     [CHECK] gèrer les collisions avec les murs du corridor
-    [CHECK], gèrer les collisions sur le côté des murs
+    [CHECK] gèrer les collisions sur le côté des murs
     - je gère les collisions un peu compliquées avec la raquette
 
 Menu
-    - gérer les états du jeu pour afficher correctement les menus
-    - ajouter les interractions au clavier en fonction du menu affiché
+    [CHECK] gérer les états du jeu pour afficher correctement les menus
+    [CHECK] ajouter les interractions au clavier en fonction du menu affiché
+    [CHECK] bug touches persistantes
 
 Raquette
     - je bloque la raquette sur les bords du Corridor
