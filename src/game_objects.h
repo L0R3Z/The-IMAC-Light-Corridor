@@ -312,7 +312,19 @@ typedef struct Bonus
     std::string type;
 
     Bonus() {}
+
+    virtual void effect() {}
 } Bonus;
+
+// Exemple bonus from the Bonus struct
+struct ExempleBonus : public Bonus
+{
+    void effect() override
+    {
+        std::cout << "Exemple bonus is used!" << std::endl;
+        // Add specific implementation for the bonus
+    }
+};
 
 // Corridor struct
 typedef struct Corridor
@@ -466,7 +478,6 @@ typedef struct Player : Wall
     // Updates the position of the puck relative to the user's mouse
     void updatePositionMouse(GLint positionX, GLint positionY, GLint WINDOW_WIDTH, GLint WINDOW_HEIGHT, GLfloat _viewSize, GLfloat aspectRatio, GLfloat xLimit, GLfloat zLimit)
     {
-        printf("%f\n", xLimit);
         this->pos.x = std::max((GLfloat)-xLimit/2, std::min((GLfloat)xLimit/2, (GLfloat)((_viewSize * aspectRatio) / WINDOW_WIDTH * positionX - (_viewSize * aspectRatio) / 2.0)));
         this->pos.z = std::max((GLfloat)-zLimit/2, std::min((GLfloat)zLimit/2, (GLfloat)(-_viewSize / WINDOW_HEIGHT * positionY + _viewSize / 2.0)));
     }
@@ -491,7 +502,7 @@ typedef struct Ball
         this->radius = rad;
         this->pos = Position(0, rad + 1, 0);
         this->defaultSpeed = speed;
-        this->speed = Speed(.06, speed, .03);
+        this->speed = Speed(0, speed, 0);
         // this->pos = Position(0, 12 * 10., 0);
     }
 
@@ -514,11 +525,6 @@ typedef struct Ball
     // Updates the position of the ball relative to the user's mouse
     void updatePositionMouse(GLint positionX, GLint positionY, GLint WINDOW_WIDTH, GLint WINDOW_HEIGHT, GLfloat _viewSize, GLfloat aspectRatio, GLfloat xLimit, GLfloat zLimit)
     {
-        // printf("positionY: %i\n", positionY); moveBall
-        // if()
-        // this->pos.x = (_viewSize * aspectRatio) / WINDOW_WIDTH * positionX - (_viewSize * aspectRatio) / 2.0;
-        // this->pos.z = -_viewSize / WINDOW_HEIGHT * positionY + _viewSize / 2.0;
-
         this->pos.x = std::max((GLfloat)-xLimit/2, std::min((GLfloat)xLimit/2, (GLfloat)((_viewSize * aspectRatio) / WINDOW_WIDTH * positionX - (_viewSize * aspectRatio) / 2.0)));
         this->pos.z = std::max((GLfloat)-zLimit/2, std::min((GLfloat)zLimit/2, (GLfloat)(-_viewSize / WINDOW_HEIGHT * positionY + _viewSize / 2.0)));
     }
@@ -527,7 +533,6 @@ typedef struct Ball
     void gameMove()
     {
         this->moveBall(this->speed.x, this->speed.y, this->speed.z);
-        // printf("inside gameMove, ball pos y %f\n", this->pos.y);
     }
 
     void resetPosition(Position playerPos, GLfloat gameDepth)
@@ -545,19 +550,29 @@ typedef struct Ball
         int collideItemWalls = this->checkWallsCollisions(corridor.wallSteps);
         if (collideItemWalls == 1)
         {
-            printf("Collide with %i of walls detected", collideItemWalls);
             this->speed.y = -this->speed.y;
         }
         if (collideItemWalls == 2)
         {
-            printf("Collide with %i of walls detected", collideItemWalls);
             this->speed.x = -this->speed.x;
         }
 
         if (this->checkPlayerCollisions(player, gameDepth))
         {
-            this->speed.y = -this->speed.y;
-            printf("collision with %s detected!", "player");
+            const GLfloat MAX_SPEED = std::abs(this->speed.y);
+
+            // Calculer la distance du point d'impact par rapport au centre de la raquette
+            float distanceFromCenterX = this->pos.x - player.pos.x;
+            float distanceFromCenterZ = this->pos.z - player.pos.z;
+
+            // Calculer la direction du rebondissement en fonction de la distance du point d'impact
+            float reboundDirectionX = distanceFromCenterX / (player.width / 2);
+            float reboundDirectionZ = distanceFromCenterZ / (player.height / 2);
+
+            // Mettre à jour les composantes de vitesse en fonction de la direction du rebondissement
+            this->speed.x = reboundDirectionX * MAX_SPEED; // Aucun mouvement horizontal
+            this->speed.y = -this->speed.y; // Inverser la direction verticale
+            this->speed.z = reboundDirectionZ * MAX_SPEED; // Utiliser la direction du rebondissement pour la vitesse en Z
         }
 
         int collideItemCorridor = this->checkCorridorCollisions(corridor);

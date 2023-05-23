@@ -16,17 +16,17 @@ Déplacements
     [CHECK] j'empêche d'avancer si ça fait prendre des dégats au joueur (au delà de la balle)
     [CHECK] j'empêche d'avancer si ça dépasse le fond du couloir
 
+Raquette
+    [CHECK] je bloque la raquette sur les bords du Corridor
+
+Bonus
+    [CHECK] faire la structure des bonus
+
 Collisions
     [CHECK] gèrer les collisions avec les murs du corridor
     [CHECK] gèrer les collisions sur le côté des murs
     [CHECK] bug collisions corridor coins
     - je gère les collisions un peu compliquées avec la raquette
-
-Raquette
-    [CHECK] je bloque la raquette sur les bords du Corridor
-
-Bonus
-    - faire la structure des bonus
 
 Miscellaneous
     - casser les murs
