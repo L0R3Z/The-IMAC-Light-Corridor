@@ -25,6 +25,12 @@ typedef struct Position
         this->y = y;
         this->z = z;
     }
+
+    void updatePosition(GLfloat x, GLfloat y, GLfloat z) {
+        this->x = x;
+        this->y = y;
+        this->z = z;
+    }
 } Position;
 
 // Tool struct for 3D speed
@@ -56,6 +62,12 @@ typedef struct Colors
 
     Colors(float r, float g, float b)
     {
+        this->r = r;
+        this->g = g;
+        this->b = b;
+    }
+
+    void updateColors(float r, float g, float b) {
         this->r = r;
         this->g = g;
         this->b = b;
@@ -248,8 +260,6 @@ typedef struct Wall
     GLfloat width;
     GLfloat height;
     Position pos;
-    GLuint *texture;
-    // Colors color;
 
     Wall() {}
 
@@ -263,13 +273,6 @@ typedef struct Wall
         // this->depthOfAStep = 12.0f;
     }
 
-    Wall(GLfloat width, GLfloat height, Position pos, GLuint *texture)
-    {
-        this->width = width;
-        this->height = height;
-        this->pos = pos;
-        this->texture = texture;
-    }
 } Wall;
 
 // WallStep struct for obtacles groups, situated at precise steps inside the corridor
@@ -277,10 +280,8 @@ typedef struct WallStep
 {
     GLfloat width;
     GLfloat height;
-    // float depth; // Correspond au fond du wallStep sur l'axe Y
     Position pos;
     Colors color;
-    // Colors displayColor;
     std::vector<Wall> walls;
 
     WallStep() {}
@@ -293,13 +294,6 @@ typedef struct WallStep
         this->color = Colors();
     }
 
-    WallStep(GLfloat width, GLfloat height, Position pos, std::vector<Wall> walls)
-    {
-        this->width = width;
-        this->height = height;
-        this->pos = pos;
-        this->walls = walls;
-    }
 } WallStep;
 
 // Bonus struct
@@ -337,9 +331,14 @@ typedef struct Corridor
     Colors colorSideWalls;
     Colors colorCeillingWalls;
     Colors colorRings;
-    GLuint *sideWallsTexture;
-    GLuint *groundTexture;
-    GLuint *ceilingTexture;
+    GLuint leftWallTexture;
+    GLuint rightWallTexture;
+    GLuint groundTexture;
+    GLuint ceilingTexture;
+    GLuint wallsTexture;
+    GLuint ballTexture;
+    GLuint bottomTexture;
+    GLuint bonusBoxTexture;
 
     Corridor() {}
 
@@ -365,15 +364,6 @@ typedef struct Corridor
         this->wallSteps = wallSteps;
     }
 
-    Corridor(GLfloat width, GLfloat height, std::vector<WallStep> wallSteps, GLuint *sideWallsTexture, GLuint *groundTexture, GLuint *ceilingTexture)
-    {
-        this->width = width;
-        this->height = height;
-        this->wallSteps = wallSteps;
-        this->sideWallsTexture = sideWallsTexture;
-        this->groundTexture = groundTexture;
-        this->ceilingTexture = ceilingTexture;
-    }
 
     void generateCorridor()
     {
@@ -458,7 +448,6 @@ typedef struct Corridor
 // Player struct for the racket that the player controls
 typedef struct Player : Wall
 {
-    // Light light;
 
     Player()
     {
@@ -491,7 +480,6 @@ typedef struct Ball
     Position pos;
     Speed speed;
     GLfloat defaultSpeed;
-    GLuint *texture; // texture from the textures array
     bool isLaunched = false;
 
     Ball() {}
@@ -504,14 +492,6 @@ typedef struct Ball
         this->defaultSpeed = speed;
         this->speed = Speed(0, speed, 0);
         // this->pos = Position(0, 12 * 10., 0);
-    }
-
-    Ball(GLfloat rad, Position pos, Speed speed, GLuint *texture)
-    {
-        this->radius = rad;
-        this->pos = pos;
-        this->speed = speed;
-        this->texture = texture;
     }
 
     // Move the ball with precise x, y and z values
@@ -763,6 +743,19 @@ typedef struct Game
         this->nbOfBallsLaunched = 0;
 
         this->corridor.generateCorridor();
+    }
+
+    void loadTextures(std::vector<GLuint> myTextures) {
+        this->corridor.bottomTexture = myTextures[25];
+        this->corridor.ballTexture = myTextures[10];
+        this->corridor.wallsTexture = myTextures[24];
+        this->corridor.groundTexture = myTextures[23];
+        this->corridor.leftWallTexture = myTextures[21];
+        this->corridor.rightWallTexture = myTextures[22];
+        this->corridor.ceilingTexture = myTextures[20];
+        this->corridor.bonusBoxTexture = myTextures[26];
+        this->corridor.colorRings = Colors(140./255, 0, 116./255);
+        printf("Textures loaded\n");
     }
 
     void winGame()

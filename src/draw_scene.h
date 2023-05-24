@@ -22,13 +22,15 @@ void drawTextureLight(float gameDepth, float opacity, std::vector<Position> posB
 
 void drawFrame();
 
-void drawCorridor(Corridor myCorridor, std::vector<Position> posBalls, Position posPlayer, GLuint texture);
+void drawCorridor(Corridor myCorridor, std::vector<Position> posBalls, Position posPlayer);
 
 void drawWallStep(std::vector<WallStep> myWallSteps, Corridor myCorridor, std::vector<Position> posBalls, Position posPlayer);
 
-void drawWall(std::vector<Wall> myWalls, std::vector<Position> posBalls, Position posPlayer, Colors wallColor);
+void drawWall(std::vector<Wall> myWalls, std::vector<Position> posBalls, Position posPlayer, Colors wallColor, GLuint wallsTexture);
 
-void drawBalls(std::vector<Ball> balls, std::vector<GLuint> myTextures);
+void drawBalls(std::vector<Ball> balls, GLuint ballsTexture);
+
+void drawBonusBoxes(float x, float y, float z, float width, Game myGame, std::vector<Position> posBalls, Position posPlayer);
 
 void drawPlayer(Player myPlayer);
 

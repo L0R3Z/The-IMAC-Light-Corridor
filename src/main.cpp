@@ -27,12 +27,6 @@ static const char WINDOW_TITLE[] = "The IMAC Light Corridor";
 static float aspectRatio = 1.0;
 static const int scalingFactor = 4;
 
-// GLfloat aperture = 60.0f; // Ouverture de la caméra 60.0 de base
-// float building_width = 24.0f;
-// float building_height = building_width/2;
-// float building_depth = 12.0f;
-// float game_depth=0;
-
 Game myGame = Game();
 vector<Position> posBalls;
 
@@ -164,6 +158,7 @@ void onKey(GLFWwindow *window, int key, int scancode, int action, int mods)
 				// Restart the game
 				case GLFW_KEY_R:
 					myGame.loadGame();
+					myGame.loadTextures(textures);
 					break;
 
 				case GLFW_KEY_C:
@@ -222,7 +217,10 @@ void onKey(GLFWwindow *window, int key, int scancode, int action, int mods)
 			switch (key)
 			{
 				case GLFW_KEY_J:
-					if (myGame.gameState == 10) myGame.loadGame();
+					if (myGame.gameState == 10) {
+						myGame.loadGame();
+						myGame.loadTextures(textures);
+					}
 					break;
 				
 				case GLFW_KEY_A:
@@ -230,7 +228,10 @@ void onKey(GLFWwindow *window, int key, int scancode, int action, int mods)
 					break;
 				
 				case GLFW_KEY_R:
-					if (myGame.gameState == 11 || myGame.gameState == 12) myGame.loadGame();
+					if (myGame.gameState == 11 || myGame.gameState == 12) {
+						myGame.loadGame();
+						myGame.loadTextures(textures);
+					}
 					break;
 			}
 		}
@@ -324,6 +325,13 @@ void loadTextures()
 	textures.push_back(loadImage("../res/restartButton.png"));
 	textures.push_back(loadImage("../res/exitSmallButton.png"));
 	textures.push_back(loadImage("../res/gameOver.png"));
+	textures.push_back(loadImage("../res/sky.png"));
+	textures.push_back(loadImage("../res/leftWall.png"));
+	textures.push_back(loadImage("../res/rightWall.png"));
+	textures.push_back(loadImage("../res/floorTile.png"));
+	textures.push_back(loadImage("../res/wallTile.png"));
+	textures.push_back(loadImage("../res/bottomWall.png"));
+	textures.push_back(loadImage("../res/itemBox.png"));
 }
 
 // Function that delete the textures used in game
@@ -414,8 +422,10 @@ void draw()
 
 			glPushMatrix();
 			glTranslatef(0, -myGame.parameters.gameDepth, 0);
-				drawBalls(myGame.balls, textures);
-				drawCorridor(myGame.corridor, posBalls, myGame.player.pos, textures[12]);
+				drawBalls(myGame.balls, myGame.corridor.ballTexture);
+				drawCorridor(myGame.corridor, posBalls, myGame.player.pos);
+				drawBonusBoxes(0,12.,0,1., myGame, posBalls, myGame.player.pos);
+				// drawFrame();
 			glPopMatrix();
 
 			drawPlayer(myGame.player);
@@ -440,14 +450,8 @@ void draw()
 			break;
 	}
 
-	
-	// glDisable(GL_DEPTH_TEST);
-	// drawInterface(myGame, textures, posBalls, myGame.player.pos);
-	// // drawMenu(myGame, textures);
-	// glEnable(GL_DEPTH_TEST);
-
 	// Test drawing function
-	drawTestTextures();
+	// drawTestTextures();
 	// glPointSize(25.0);
 	// glBegin(formToDraw);
 	// for (unsigned int i = 0; i < pointsToDraw.size(); i++)
@@ -512,6 +516,8 @@ int main()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	loadTextures();
+	
+	
 	GLFWimage icon = loadIcon("../res/lifeIcon.png");
 	glfwSetWindowIcon(window, 1, &icon);
 

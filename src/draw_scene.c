@@ -42,6 +42,10 @@ void drawTextureLight(float gameDepth, float opacity, std::vector<Position> posB
 	Colors white = Colors(1, 1, 1);
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, texture);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
 	glBegin(GL_TRIANGLE_FAN);
 		// Bottom left corner
 		tempColor = white.displayColor(posBalls, posPlayer, point1, gameDepth);
@@ -71,9 +75,52 @@ void drawTextureLight(float gameDepth, float opacity, std::vector<Position> posB
 	glDisable(GL_TEXTURE_2D);
 }
 
+void drawTilesetLight(float gameDepth, float opacity, std::vector<Position> posBalls, Position posPlayer, GLuint texture, float scaleX, float scaleY, Position point1, Position point2, Position point3, Position point4) {
+    Colors white = Colors(1, 1, 1);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glBegin(GL_TRIANGLE_FAN);
+		// Bottom left corner
+		tempColor = white.displayColor(posBalls, posPlayer, point1, gameDepth);
+		glColor4f(tempColor.r, tempColor.g, tempColor.b, opacity);
+		glTexCoord2f(0., scaleY);
+		glVertex3f(-0.5, -0.5, 0.0);
+
+		// Bottom right corner
+		tempColor = white.displayColor(posBalls, posPlayer, point2, gameDepth);
+		glColor4f(tempColor.r, tempColor.g, tempColor.b, opacity);
+		glTexCoord2f(scaleX, scaleY);
+		glVertex3f(0.5, -0.5, 0.0);
+
+		// Top right corner
+		tempColor = white.displayColor(posBalls, posPlayer, point3, gameDepth);
+		glColor4f(tempColor.r, tempColor.g, tempColor.b, opacity);
+		glTexCoord2f(scaleX, 0.);
+		glVertex3f(0.5, 0.5, 0.0);
+
+		// Top left corner
+		tempColor = white.displayColor(posBalls, posPlayer, point4, gameDepth);
+		glColor4f(tempColor.r, tempColor.g, tempColor.b, opacity);
+		glTexCoord2f(0., 0.);
+		glVertex3f(-0.5, 0.5, 0.0);
+	glEnd();
+    glDisable(GL_TEXTURE_2D);
+}
+
 void drawSimpleTexturedSquare(float x, float z, float width, float height, GLuint texture, Colors color) {
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texture);	
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
 	glColor4f(color.r,color.g,color.b,1.);
 	glPushMatrix();
 		// Placement of the square on the x and z axis
@@ -91,6 +138,37 @@ void drawSimpleTexturedSquare(float x, float z, float width, float height, GLuin
 		glEnd();
 	glPopMatrix();
 	glDisable(GL_TEXTURE_2D);
+}
+
+void checkTexture(GLuint texture)
+{
+    // Vérifier si l'ID de texture est valide
+    if (texture != 0)
+    {
+        GLint width, height;
+        glBindTexture(GL_TEXTURE_2D, texture);
+
+        // Obtenir la largeur et la hauteur de la texture
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        // Vérifier si la texture est vide
+        if (width > 0 && height > 0)
+        {
+            printf("Texture is loaded successfully.\n");
+            printf("Texture width: %d, height: %d\n", width, height);
+        }
+        else
+        {
+            printf("Texture is empty or not loaded.\n");
+        }
+    }
+    else
+    {
+        printf("Invalid texture.\n");
+    }
 }
 
 // Function that draws a grid and an origin
@@ -168,7 +246,7 @@ void drawFrame()
 	glLineWidth(1.0);
 }
 
-void drawCorridor(Corridor myCorridor, std::vector<Position> posBalls, Position posPlayer, GLuint texture)
+void drawCorridor(Corridor myCorridor, std::vector<Position> posBalls, Position posPlayer)
 {
 	// Drawing of the bottom of the corridor
 	// Definition of the y-position of the bottom
@@ -178,12 +256,12 @@ void drawCorridor(Corridor myCorridor, std::vector<Position> posBalls, Position 
 		glScalef(myGame.parameters.buildingWidth, 1, myGame.parameters.buildingHeight);
 		glRotatef(90, 1, 0, 0);
 		// Definition of the point to be illuminated
-		tempPos1 = Position(-myGame.parameters.buildingWidth / 2, posBottom.y, -myGame.parameters.buildingHeight / 2);
-		tempPos2 = Position(myGame.parameters.buildingWidth / 2, posBottom.y, -myGame.parameters.buildingHeight / 2);
-		tempPos3 = Position(myGame.parameters.buildingWidth / 2, posBottom.y, myGame.parameters.buildingHeight / 2);
-		tempPos4 = Position(-myGame.parameters.buildingWidth / 2, posBottom.y, myGame.parameters.buildingHeight / 2);
+		tempPos1.updatePosition(-myGame.parameters.buildingWidth / 2, posBottom.y, -myGame.parameters.buildingHeight / 2);
+		tempPos2.updatePosition(myGame.parameters.buildingWidth / 2, posBottom.y, -myGame.parameters.buildingHeight / 2);
+		tempPos3.updatePosition(myGame.parameters.buildingWidth / 2, posBottom.y, myGame.parameters.buildingHeight / 2);
+		tempPos4.updatePosition(-myGame.parameters.buildingWidth / 2, posBottom.y, myGame.parameters.buildingHeight / 2);
 		// drawSquareLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.colorSideWalls, tempPos1, tempPos2, tempPos3, tempPos4);
-		drawTextureLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, texture, tempPos1, tempPos2, tempPos3, tempPos4);
+		drawTextureLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.bottomTexture, tempPos1, tempPos2, tempPos3, tempPos4);
 	glPopMatrix();
 
 	// Drawing of the ring at the bottom of the corridor
@@ -195,22 +273,22 @@ void drawCorridor(Corridor myCorridor, std::vector<Position> posBalls, Position 
 	// Definition of ring thickness
 	glLineWidth(3.0);
 	glBegin(GL_LINE_LOOP);
-	tempPos = Position(-myGame.parameters.buildingWidth / 2, posBottom.y, myGame.parameters.buildingHeight / 2);
+	tempPos.updatePosition(-myGame.parameters.buildingWidth / 2, posBottom.y, myGame.parameters.buildingHeight / 2);
 	tempColor = myCorridor.colorRings.displayColor(posBalls, posPlayer, tempPos, myGame.parameters.gameDepth);
 	glColor4f(tempColor.r, tempColor.g, tempColor.b, 0.8);
 	glVertex2f(-0.5f, 0.5f);
 
-	tempPos = Position(myGame.parameters.buildingWidth / 2, posBottom.y, myGame.parameters.buildingHeight / 2);
+	tempPos.updatePosition(myGame.parameters.buildingWidth / 2, posBottom.y, myGame.parameters.buildingHeight / 2);
 	tempColor = myCorridor.colorRings.displayColor(posBalls, posPlayer, tempPos, myGame.parameters.gameDepth);
 	glColor4f(tempColor.r, tempColor.g, tempColor.b, 0.8);
 	glVertex2f(0.5f, 0.5f);
 
-	tempPos = Position(myGame.parameters.buildingWidth / 2, posBottom.y, -myGame.parameters.buildingHeight / 2);
+	tempPos.updatePosition(myGame.parameters.buildingWidth / 2, posBottom.y, -myGame.parameters.buildingHeight / 2);
 	tempColor = myCorridor.colorRings.displayColor(posBalls, posPlayer, tempPos, myGame.parameters.gameDepth);
 	glColor4f(tempColor.r, tempColor.g, tempColor.b, 0.8);
 	glVertex2f(0.5f, -0.5f);
 
-	tempPos = Position(-myGame.parameters.buildingWidth / 2, posBottom.y, -myGame.parameters.buildingHeight / 2);
+	tempPos.updatePosition(-myGame.parameters.buildingWidth / 2, posBottom.y, -myGame.parameters.buildingHeight / 2);
 	tempColor = myCorridor.colorRings.displayColor(posBalls, posPlayer, tempPos, myGame.parameters.gameDepth);
 	glColor4f(tempColor.r, tempColor.g, tempColor.b, 0.8);
 	glVertex2f(-0.5f, -0.5f);
@@ -230,22 +308,24 @@ void drawWallStep(std::vector<WallStep> myWallSteps, Corridor myCorridor, std::v
 		glPushMatrix();
 			glTranslatef(0, myWallSteps[i].pos.y - myGame.parameters.buildingDepth / 2, myGame.parameters.buildingHeight / 2);
 			glScalef(myGame.parameters.buildingWidth, myGame.parameters.buildingDepth, myGame.parameters.buildingHeight);
-			tempPos1 = Position(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y - myGame.parameters.buildingDepth, myGame.parameters.buildingHeight / 2); // Left outside corner
-			tempPos2 = Position(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y - myGame.parameters.buildingDepth, myGame.parameters.buildingHeight / 2); // Right outside corner
-			tempPos3 = Position(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, myGame.parameters.buildingHeight / 2); // Right inside corner
-			tempPos4 = Position(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, myGame.parameters.buildingHeight / 2); // Left inside corner
-			drawSquareLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.colorCeillingWalls, tempPos1, tempPos2, tempPos3, tempPos4);
+			tempPos1.updatePosition(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y - myGame.parameters.buildingDepth, myGame.parameters.buildingHeight / 2); // Left outside corner
+			tempPos2.updatePosition(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y - myGame.parameters.buildingDepth, myGame.parameters.buildingHeight / 2); // Right outside corner
+			tempPos3.updatePosition(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, myGame.parameters.buildingHeight / 2); // Right inside corner
+			tempPos4.updatePosition(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, myGame.parameters.buildingHeight / 2); // Left inside corner
+			// drawSquareLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.colorCeillingWalls, tempPos1, tempPos2, tempPos3, tempPos4);
+			drawTextureLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.ceilingTexture, tempPos1, tempPos2, tempPos3, tempPos4);
 		glPopMatrix();
 
 		// Bottom wall
 		glPushMatrix();
 			glTranslatef(0, myWallSteps[i].pos.y - myGame.parameters.buildingDepth / 2, -myGame.parameters.buildingHeight / 2);
 			glScalef(myGame.parameters.buildingWidth, myGame.parameters.buildingDepth, myGame.parameters.buildingHeight);
-			tempPos1 = Position(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y - myGame.parameters.buildingDepth, -myGame.parameters.buildingHeight / 2); // Left outside corner
-			tempPos2 = Position(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y - myGame.parameters.buildingDepth, -myGame.parameters.buildingHeight / 2); // Right outside corner
-			tempPos3 = Position(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, -myGame.parameters.buildingHeight / 2); // Right inside corner
-			tempPos4 = Position(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, -myGame.parameters.buildingHeight / 2); // Left inside corner
-			drawSquareLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.colorCeillingWalls, tempPos1, tempPos2, tempPos3, tempPos4);
+			tempPos1.updatePosition(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y - myGame.parameters.buildingDepth, -myGame.parameters.buildingHeight / 2); // Left outside corner
+			tempPos2.updatePosition(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y - myGame.parameters.buildingDepth, -myGame.parameters.buildingHeight / 2); // Right outside corner
+			tempPos3.updatePosition(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, -myGame.parameters.buildingHeight / 2); // Right inside corner
+			tempPos4.updatePosition(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, -myGame.parameters.buildingHeight / 2); // Left inside corner
+			// drawSquareLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.colorCeillingWalls, tempPos1, tempPos2, tempPos3, tempPos4);
+			drawTilesetLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.groundTexture, myGame.parameters.buildingWidth, myGame.parameters.buildingDepth, tempPos1, tempPos2, tempPos3, tempPos4);
 		glPopMatrix();
 
 		// Left wall
@@ -253,11 +333,12 @@ void drawWallStep(std::vector<WallStep> myWallSteps, Corridor myCorridor, std::v
 			glTranslatef(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y - myGame.parameters.buildingDepth / 2, 0);
 			glRotatef(90, 0, 1, 0);
 			glScalef(myGame.parameters.buildingHeight, myGame.parameters.buildingDepth, myGame.parameters.buildingHeight);
-			tempPos1 = Position(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y - myGame.parameters.buildingDepth, myGame.parameters.buildingHeight / 2); // Top outside corner
-			tempPos2 = Position(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y - myGame.parameters.buildingDepth, -myGame.parameters.buildingHeight / 2); // Bottom outside corner
-			tempPos3 = Position(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, -myGame.parameters.buildingHeight / 2); // Bottom inside corner
-			tempPos4 = Position(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, myGame.parameters.buildingHeight / 2); // Top inside corner
-			drawSquareLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.colorSideWalls, tempPos1, tempPos2, tempPos3, tempPos4);
+			tempPos1.updatePosition(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y - myGame.parameters.buildingDepth, myGame.parameters.buildingHeight / 2); // Top outside corner
+			tempPos2.updatePosition(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y - myGame.parameters.buildingDepth, -myGame.parameters.buildingHeight / 2); // Bottom outside corner
+			tempPos3.updatePosition(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, -myGame.parameters.buildingHeight / 2); // Bottom inside corner
+			tempPos4.updatePosition(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, myGame.parameters.buildingHeight / 2); // Top inside corner
+			// drawSquareLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.colorSideWalls, tempPos1, tempPos2, tempPos3, tempPos4);
+			drawTextureLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.leftWallTexture, tempPos1, tempPos2, tempPos3, tempPos4);
 		glPopMatrix();
 
 		// Right wall
@@ -265,11 +346,12 @@ void drawWallStep(std::vector<WallStep> myWallSteps, Corridor myCorridor, std::v
 			glTranslatef(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y - myGame.parameters.buildingDepth / 2, 0);
 			glRotatef(90, 0, 1, 0);
 			glScalef(myGame.parameters.buildingHeight, myGame.parameters.buildingDepth, myGame.parameters.buildingHeight);
-			tempPos1 = Position(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y - myGame.parameters.buildingDepth, myGame.parameters.buildingHeight / 2); // Top outside corner
-			tempPos2 = Position(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y - myGame.parameters.buildingDepth, -myGame.parameters.buildingHeight / 2); // Bottom outside corner
-			tempPos3 = Position(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, -myGame.parameters.buildingHeight / 2); // Bottom inside corner
-			tempPos4 = Position(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, myGame.parameters.buildingHeight / 2); // Top inside corner
-			drawSquareLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.colorSideWalls, tempPos1, tempPos2, tempPos3, tempPos4);
+			tempPos1.updatePosition(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y - myGame.parameters.buildingDepth, myGame.parameters.buildingHeight / 2); // Top outside corner
+			tempPos2.updatePosition(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y - myGame.parameters.buildingDepth, -myGame.parameters.buildingHeight / 2); // Bottom outside corner
+			tempPos3.updatePosition(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, -myGame.parameters.buildingHeight / 2); // Bottom inside corner
+			tempPos4.updatePosition(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, myGame.parameters.buildingHeight / 2); // Top inside corner
+			// drawSquareLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.colorSideWalls, tempPos1, tempPos2, tempPos3, tempPos4);
+			drawTextureLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.rightWallTexture, tempPos1, tempPos2, tempPos3, tempPos4);
 		glPopMatrix();
 
 		// The last ring of the corridor is covered above
@@ -283,25 +365,25 @@ void drawWallStep(std::vector<WallStep> myWallSteps, Corridor myCorridor, std::v
 			glLineWidth(3.0);
 			glBegin(GL_LINE_LOOP);
 			// Top left corner
-			tempPos = Position(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, myGame.parameters.buildingHeight / 2);
+			tempPos.updatePosition(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, myGame.parameters.buildingHeight / 2);
 			tempColor = myCorridor.colorRings.displayColor(posBalls, posPlayer, tempPos, myGame.parameters.gameDepth);
 			glColor4f(tempColor.r, tempColor.g, tempColor.b, 0.8);
 			glVertex2f(-0.5f, 0.5f);
 
 			// Top right corner
-			tempPos = Position(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, myGame.parameters.buildingHeight / 2);
+			tempPos.updatePosition(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, myGame.parameters.buildingHeight / 2);
 			tempColor = myCorridor.colorRings.displayColor(posBalls, posPlayer, tempPos, myGame.parameters.gameDepth);
 			glColor4f(tempColor.r, tempColor.g, tempColor.b, 0.8);
 			glVertex2f(0.5f, 0.5f);
 
 			// Bottom right corner
-			tempPos = Position(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, -myGame.parameters.buildingHeight / 2);
+			tempPos.updatePosition(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, -myGame.parameters.buildingHeight / 2);
 			tempColor = myCorridor.colorRings.displayColor(posBalls, posPlayer, tempPos, myGame.parameters.gameDepth);
 			glColor4f(tempColor.r, tempColor.g, tempColor.b, 0.8);
 			glVertex2f(0.5f, -0.5f);
 
 			// Bottom left corner
-			tempPos = Position(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, -myGame.parameters.buildingHeight / 2);
+			tempPos.updatePosition(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, -myGame.parameters.buildingHeight / 2);
 			tempColor = myCorridor.colorRings.displayColor(posBalls, posPlayer, tempPos, myGame.parameters.gameDepth);
 			glColor4f(tempColor.r, tempColor.g, tempColor.b, 0.8);
 			glVertex2f(-0.5f, -0.5f);
@@ -311,11 +393,11 @@ void drawWallStep(std::vector<WallStep> myWallSteps, Corridor myCorridor, std::v
 		}
 
 		// Call of the function to draw the Walls of the wallStep
-		drawWall(myWallSteps[i].walls, posBalls, posPlayer, myWallSteps[i].color);
+		drawWall(myWallSteps[i].walls, posBalls, posPlayer, myWallSteps[i].color, myCorridor.wallsTexture);
 	}
 }
 
-void drawWall(std::vector<Wall> myWalls, std::vector<Position> posBalls, Position posPlayer, Colors wallColor)
+void drawWall(std::vector<Wall> myWalls, std::vector<Position> posBalls, Position posPlayer, Colors wallColor, GLuint wallsTexture)
 {
 	for (int i = 0; i < (int)myWalls.size(); i++)
 	{
@@ -333,20 +415,21 @@ void drawWall(std::vector<Wall> myWalls, std::vector<Position> posBalls, Positio
 				glScalef(myWalls[i].width, 1, myWalls[i].height);
 				glRotatef(90, 1, 0, 0);
 				// Bottom left corner
-				tempPos1 = Position(myWalls[i].pos.x, myWalls[i].pos.y, myWalls[i].pos.z - myWalls[i].height);
+				tempPos1.updatePosition(myWalls[i].pos.x, myWalls[i].pos.y, myWalls[i].pos.z - myWalls[i].height);
 				// Bottom right corner
-				tempPos2 = Position(myWalls[i].pos.x + myWalls[i].width, myWalls[i].pos.y, myWalls[i].pos.z - myWalls[i].height);
+				tempPos2.updatePosition(myWalls[i].pos.x + myWalls[i].width, myWalls[i].pos.y, myWalls[i].pos.z - myWalls[i].height);
 				// Top right corner
-				tempPos3 = Position(myWalls[i].pos.x + myWalls[i].width, myWalls[i].pos.y, myWalls[i].pos.z);
+				tempPos3.updatePosition(myWalls[i].pos.x + myWalls[i].width, myWalls[i].pos.y, myWalls[i].pos.z);
 				// Top left corner
-				tempPos4 = Position(myWalls[i].pos.x, myWalls[i].pos.y, myWalls[i].pos.z);
-				drawSquareLight(myGame.parameters.gameDepth, 0.8, posBalls, posPlayer, wallColor, tempPos1, tempPos2, tempPos3, tempPos4);	
+				tempPos4.updatePosition(myWalls[i].pos.x, myWalls[i].pos.y, myWalls[i].pos.z);
+				// drawSquareLight(myGame.parameters.gameDepth, 0.8, posBalls, posPlayer, wallColor, tempPos1, tempPos2, tempPos3, tempPos4);	
+				drawTilesetLight(myGame.parameters.gameDepth, 0.8, posBalls, posPlayer, wallsTexture, myWalls[i].width/4, myWalls[i].height/4,  tempPos1, tempPos2, tempPos3, tempPos4);		
 			glPopMatrix();
 		}
 	}
 }
 
-void drawBalls(std::vector<Ball> balls, std::vector<GLuint> myTextures)
+void drawBalls(std::vector<Ball> balls, GLuint ballsTexture)
 {
 	for (Ball ball : balls)
 	{
@@ -358,7 +441,7 @@ void drawBalls(std::vector<Ball> balls, std::vector<GLuint> myTextures)
 			// glColor4f((float)69 / 255, (float)69 / 255, (float)142 / 255, 1.);
 			glColor3f(1., 1., 1.);
 			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, myTextures[10]);
+			glBindTexture(GL_TEXTURE_2D, ballsTexture);
 			GLUquadric* myQuadric = gluNewQuadric();
 			gluQuadricTexture(myQuadric, GL_TRUE);
 			gluSphere(myQuadric, 1.0, NB_SEG_CIRCLE, NB_SEG_CIRCLE);
@@ -391,6 +474,103 @@ void drawPlayer(Player myPlayer)
 	glPopMatrix();
 }
 
+void drawBonusBoxes(float x, float y, float z, float width, Game myGame, std::vector<Position> posBalls, Position posPlayer)
+{
+    if (y - myGame.parameters.gameDepth >= 0) {
+
+		// Calcul des coordonnées des coins de la boîte
+		GLfloat leftX = x - (width / 2.);
+		GLfloat rightX = x + (width / 2.);
+		GLfloat bottomZ = z - (width / 2.);
+		GLfloat topZ = z + (width / 2.);
+		GLfloat frontY = y - (width / 2.);
+		GLfloat backY = y + (width / 2.);
+
+		// Face avant
+		tempColor.updateColors(1., 1., 1.);
+		glPushMatrix();
+			glTranslatef(x, frontY, z);
+			glScalef(width, width, width);
+			glRotatef(90, 1, 0, 0);
+			tempPos1.updatePosition(leftX, frontY, bottomZ);
+			tempPos2.updatePosition(rightX, frontY, bottomZ);
+			tempPos3.updatePosition(rightX, frontY, topZ);
+			tempPos4.updatePosition(leftX, frontY, topZ);
+			// drawSquareLight(myGame.parameters.gameDepth, 1., posBalls, posPlayer, tempColor, tempPos1, tempPos2, tempPos3, tempPos4);
+			drawTextureLight(myGame.parameters.gameDepth, 1., posBalls, posPlayer, myGame.corridor.bonusBoxTexture, tempPos1, tempPos2, tempPos3, tempPos4);
+		glPopMatrix();
+
+		// Face arrière
+		tempColor.updateColors(1., 1., 1.);
+		glPushMatrix();
+			glTranslatef(x, backY, z);
+			glScalef(width, width, width);
+			glRotatef(90, 1, 0, 0);
+			tempPos1.updatePosition(leftX, backY, bottomZ);
+			tempPos2.updatePosition(rightX, backY, bottomZ);
+			tempPos3.updatePosition(rightX, backY, topZ);
+			tempPos4.updatePosition(leftX, backY, topZ);
+			// drawSquareLight(myGame.parameters.gameDepth, 1.0, posBalls, posPlayer, tempColor, tempPos1, tempPos2, tempPos3, tempPos4);
+			drawTextureLight(myGame.parameters.gameDepth, 1., posBalls, posPlayer, myGame.corridor.bonusBoxTexture, tempPos1, tempPos2, tempPos3, tempPos4);
+		glPopMatrix();
+
+		// Face supérieure
+		tempColor.updateColors(1., 1., 1.);
+		glPushMatrix();
+			glTranslatef(x, y, topZ);
+			glScalef(width, width, width);
+			tempPos1.updatePosition(leftX, frontY, topZ); // Rouge
+			tempPos2.updatePosition(rightX, frontY, topZ); // Vert
+			tempPos3.updatePosition(rightX, backY, topZ); // Bleu
+			tempPos4.updatePosition(leftX, backY, topZ); // Jaune
+			// drawSquareLight(myGame.parameters.gameDepth, 1., posBalls, posPlayer, tempColor, tempPos1, tempPos2, tempPos3, tempPos4);
+			drawTextureLight(myGame.parameters.gameDepth, 1., posBalls, posPlayer, myGame.corridor.bonusBoxTexture, tempPos1, tempPos2, tempPos3, tempPos4);
+		glPopMatrix();
+
+		// Face inférieure
+		tempColor.updateColors(1., 1., 1.);
+		glPushMatrix();
+			glTranslatef(x, y, bottomZ);
+			glScalef(width, width, width);
+			tempPos1.updatePosition(leftX, frontY, bottomZ); // Rouge
+			tempPos2.updatePosition(rightX, frontY, bottomZ); // Vert
+			tempPos3.updatePosition(rightX, backY, bottomZ); // Bleu
+			tempPos4.updatePosition(leftX, backY, bottomZ); // Jaune
+			// drawSquareLight(myGame.parameters.gameDepth, 1., posBalls, posPlayer, tempColor, tempPos1, tempPos2, tempPos3, tempPos4);
+			drawTextureLight(myGame.parameters.gameDepth, 1., posBalls, posPlayer, myGame.corridor.bonusBoxTexture, tempPos1, tempPos2, tempPos3, tempPos4);
+		glPopMatrix();
+
+		// Face gauche
+		tempColor.updateColors(1., 1., 1.);
+		glPushMatrix();
+			glTranslatef(leftX, y, z);
+			glScalef(width, width, width);
+			glRotatef(90, 0, 1, 0);
+			tempPos1.updatePosition(leftX, frontY, topZ); // Rouge
+			tempPos2.updatePosition(leftX, frontY, bottomZ); // Vert
+			tempPos3.updatePosition(leftX, backY, bottomZ); // Bleu
+			tempPos4.updatePosition(leftX, backY, topZ); // Jaune
+			// drawSquareLight(myGame.parameters.gameDepth, 1., posBalls, posPlayer, tempColor, tempPos1, tempPos2, tempPos3, tempPos4);
+			drawTextureLight(myGame.parameters.gameDepth, 1., posBalls, posPlayer, myGame.corridor.bonusBoxTexture, tempPos1, tempPos2, tempPos3, tempPos4);
+		glPopMatrix();
+
+		// Face droite
+		tempColor.updateColors(1., 1., 1.);
+		glPushMatrix();
+			glTranslatef(rightX, y, z);
+			glScalef(width, width, width);
+			glRotatef(90, 0, 1, 0);
+			tempPos1.updatePosition(rightX, frontY, topZ); // Rouge
+			tempPos2.updatePosition(rightX, frontY, bottomZ); // Vert
+			tempPos3.updatePosition(rightX, backY, bottomZ); // Bleu
+			tempPos4.updatePosition(rightX, backY, topZ); // Jaune
+			// drawSquareLight(myGame.parameters.gameDepth, 1., posBalls, posPlayer, tempColor, tempPos1, tempPos2, tempPos3, tempPos4);
+			drawTextureLight(myGame.parameters.gameDepth, 1., posBalls, posPlayer, myGame.corridor.bonusBoxTexture, tempPos1, tempPos2, tempPos3, tempPos4);
+		glPopMatrix();
+
+	}
+}
+
 void drawInterface(Game myGame, std::vector<GLuint> myTextures, std::vector<Position> posBalls, Position posPlayer) {
 	// Wall
 	glPushMatrix();
@@ -403,20 +583,20 @@ void drawInterface(Game myGame, std::vector<GLuint> myTextures, std::vector<Posi
 		// Size of the wall
 		glScalef(myGame.parameters.buildingWidth, 1, (myGame.parameters.buildingHeight/6));
 		glRotatef(90, 1, 0, 0);
-		tempColor = Colors(0.2,0.2,0.2);
+		tempColor.updateColors(0.2,0.2,0.2);
 		// Bottom left corner
-		tempPos1 = Position(-myGame.parameters.buildingWidth/2, 0, myGame.parameters.buildingHeight/3);
+		tempPos1.updatePosition(-myGame.parameters.buildingWidth/2, 0, myGame.parameters.buildingHeight/3);
 		// Bottom right corner
-		tempPos2 = Position(myGame.parameters.buildingWidth/2, 0, myGame.parameters.buildingHeight/3);
+		tempPos2.updatePosition(myGame.parameters.buildingWidth/2, 0, myGame.parameters.buildingHeight/3);
 		// Top right corner
-		tempPos3 = Position(myGame.parameters.buildingWidth/2, 0, myGame.parameters.buildingHeight/2);
+		tempPos3.updatePosition(myGame.parameters.buildingWidth/2, 0, myGame.parameters.buildingHeight/2);
 		// Top left corner
-		tempPos4 = Position(-myGame.parameters.buildingWidth/2, 0, myGame.parameters.buildingHeight/2);
+		tempPos4.updatePosition(-myGame.parameters.buildingWidth/2, 0, myGame.parameters.buildingHeight/2);
 		drawSquareLight(0, 0.5, posBalls, posPlayer, tempColor, tempPos1, tempPos2, tempPos3, tempPos4);		
 	glPopMatrix();
 
 	// Lifes
-	tempColor = myGame.corridor.colorSideWalls.generateComplementaryColor();
+	tempColor = myGame.corridor.colorRings.generateComplementaryColor();
 	glColor3f(tempColor.r,tempColor.g,tempColor.b);
 	for (int i = 0; i < myGame.lives; i++)
 	{
@@ -436,7 +616,7 @@ void drawStartingMenu(Game myGame, std::vector<GLuint> myTextures) {
 	glClearColor(0., 0., 0., 1.);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	tempColor = Colors(1,1,1);
+	tempColor.updateColors(1,1,1);
 
 	// Title
 	drawSimpleTexturedSquare(-myGame.parameters.buildingWidth/3, 5*myGame.parameters.buildingHeight/12, 2*myGame.parameters.buildingWidth/3, myGame.parameters.buildingHeight/4, myTextures[13], tempColor);
@@ -453,7 +633,7 @@ void drawGameoverMenu(Game myGame, std::vector<GLuint> myTextures) {
 	glClearColor(0., 0., 0., 1.);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	tempColor = Colors(1,1,1);
+	tempColor.updateColors(1,1,1);
 
 	// General things
 
@@ -475,7 +655,7 @@ void drawVictoryMenu(Game myGame, std::vector<GLuint> myTextures) {
 	glClearColor(0., 0., 0., 1.);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	tempColor = Colors(1,1,1);
+	tempColor.updateColors(1,1,1);
 
 	// General things
 
@@ -490,7 +670,7 @@ void drawVictoryMenu(Game myGame, std::vector<GLuint> myTextures) {
 	drawSimpleTexturedSquare(myGame.parameters.buildingWidth/12, -myGame.parameters.buildingHeight/6, myGame.parameters.buildingWidth/4, myGame.parameters.buildingHeight/6, myTextures[18], tempColor);
 
 	// Score
-	tempColor = Colors(57./255,181./255,74./255);
+	tempColor.updateColors(57./255,181./255,74./255);
 	for (int i = 0; i < 6; i++)
 	{
 		drawSimpleTexturedSquare(myGame.parameters.buildingWidth/4-(i*myGame.parameters.buildingWidth/8.5),myGame.parameters.buildingHeight/12,myGame.parameters.buildingHeight/6,myGame.parameters.buildingHeight/6,myTextures[0], tempColor);
