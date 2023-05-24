@@ -12,7 +12,18 @@ Position tempPos2 = Position(0, 0, 0);
 Position tempPos3 = Position(0, 0, 0);
 Position tempPos4 = Position(0, 0, 0);
 
-Position posBottom = Position(0, 0, 0);
+/*
+   DRAWING PRIMITIVES
+*/
+
+void drawLine(float x1, float y1, float z1, float x2, float y2, float z2, float r, float g, float b, float alpha)
+{
+    glColor4f(r, g, b, alpha);
+    glBegin(GL_LINES);
+    	glVertex3f(x1, y1, z1);
+    	glVertex3f(x2, y2, z2);
+    glEnd();
+}
 
 void drawSquareLight(float gameDepth, float opacity, std::vector<Position> posBalls, Position posPlayer, Colors baseColor, Position point1, Position point2, Position point3, Position point4) {
 	glBegin(GL_TRIANGLE_FAN);
@@ -114,6 +125,22 @@ void drawTilesetLight(float gameDepth, float opacity, std::vector<Position> posB
     glDisable(GL_TEXTURE_2D);
 }
 
+void drawWall(float offsetX, float offsetY, float offsetZ, float rotationX, float rotationY, float scaleX, float scaleY, float scaleZ, Position tempPos1, Position tempPos2, Position tempPos3, Position tempPos4, Game game, Colors color, GLuint texture, std::vector<Position> posBalls)
+{
+    glPushMatrix();
+		glTranslatef(offsetX, offsetY, offsetZ);
+		glScalef(scaleX, scaleY, scaleZ);
+		glRotatef(rotationX, 1, 0, 0);
+		glRotatef(rotationY, 0, 1, 0);
+		
+		if (game.renderSkinId == 0) {
+			drawSquareLight(game.parameters.gameDepth, 1, posBalls, game.player.pos, color, tempPos1, tempPos2, tempPos3, tempPos4);
+		} else {
+			drawTextureLight(game.parameters.gameDepth, 1, posBalls, game.player.pos, texture, tempPos1, tempPos2, tempPos3, tempPos4);
+		}
+    glPopMatrix();
+}
+
 void drawSimpleTexturedSquare(float x, float z, float width, float height, GLuint texture, Colors color) {
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, texture);
@@ -139,6 +166,10 @@ void drawSimpleTexturedSquare(float x, float z, float width, float height, GLuin
 	glPopMatrix();
 	glDisable(GL_TEXTURE_2D);
 }
+
+/*
+   DEBUG TOOLS
+*/
 
 void checkTexture(GLuint texture)
 {
@@ -171,101 +202,54 @@ void checkTexture(GLuint texture)
     }
 }
 
-// Function that draws a grid and an origin
+/*
+   DRAWING FUNCTIONS
+*/
+
 void drawFrame()
 {
-	// WIDTH GRID
-	for (int i = -myGame.parameters.buildingWidth / 2; i < myGame.parameters.buildingWidth / 2 + 1; i++)
-	{
-		// Y AXIS
-		glColor4f(0, 1, 0, 0.2);
-		glBegin(GL_LINES);
-		glVertex3f((GLfloat)i, 0, myGame.parameters.buildingHeight / 2);
-		glVertex3f((GLfloat)i, 0, -myGame.parameters.buildingHeight / 2);
-		glEnd();
+    const int halfWidth = myGame.parameters.buildingWidth / 2;
+    const int halfHeight = myGame.parameters.buildingHeight / 2;
+    const int halfDepth = myGame.parameters.buildingDepth / 2;
 
-		// Z AXIS
-		glColor4f(0, 0, 1, 0.2);
-		glBegin(GL_LINES);
-		glVertex2f((GLfloat)i, myGame.parameters.buildingDepth / 2);
-		glVertex2f((GLfloat)i, -myGame.parameters.buildingDepth / 2);
-		glEnd();
-	}
-	// HEIGHT GRID
-	for (int i = -myGame.parameters.buildingHeight / 2; i < myGame.parameters.buildingHeight / 2 + 1; i++)
-	{
-		// Y AXIS
-		glColor4f(0, 1, 0, 0.2);
-		glBegin(GL_LINES);
-		glVertex3f(myGame.parameters.buildingWidth / 2, 0, (GLfloat)i);
-		glVertex3f(-myGame.parameters.buildingWidth / 2, 0, (GLfloat)i);
-		glEnd();
+    // Draw width grid
+    for (int i = -halfWidth; i <= halfWidth; i++)
+    {
+        drawLine(i, -halfHeight, i, halfHeight, 0, halfDepth, 0, 1, 0, 0.2);
+        drawLine(i, -halfHeight, i, halfHeight, 0, -halfDepth, 0, 1, 0, 0.2);
+    }
 
-		// X AXIS
-		glColor4f(1, 0, 0, 0.2);
-		glBegin(GL_LINES);
-		glVertex3f(0.0, myGame.parameters.buildingDepth / 2, (GLfloat)i);
-		glVertex3f(0.0, -myGame.parameters.buildingDepth / 2, (GLfloat)i);
-		glEnd();
-	}
+    // Draw height grid
+    for (int i = -halfHeight; i <= halfHeight; i++)
+    {
+        drawLine(halfWidth, i, -halfDepth, halfWidth, i, halfDepth, 1, 0, 0, 0.2);
+        drawLine(-halfWidth, i, -halfDepth, -halfWidth, i, halfDepth, 1, 0, 0, 0.2);
+    }
 
-	// DEPTH GRID
-	for (int i = -myGame.parameters.buildingDepth / 2; i < myGame.parameters.buildingDepth / 2 + 1; i++)
-	{
-		// X AXIS
-		glColor4f(1, 0, 0, 0.2);
-		glBegin(GL_LINES);
-		glVertex3f(0.0, (GLfloat)i, myGame.parameters.buildingHeight / 2);
-		glVertex3f(0.0, (GLfloat)i, -myGame.parameters.buildingHeight / 2);
-		glEnd();
+    // Draw depth grid
+    for (int i = -halfDepth; i <= halfDepth; i++)
+    {
+        drawLine(0, -halfHeight, i, 0, halfHeight, i, 0, 0, 1, 0.2);
+        drawLine(-halfWidth, i, -halfHeight, halfWidth, i, -halfHeight, 0, 0, 1, 0.2);
+    }
 
-		// Z AXIS
-		glColor4f(0, 0, 1, 0.2);
-		glBegin(GL_LINES);
-		glVertex2f(-myGame.parameters.buildingWidth / 2, (GLfloat)i);
-		glVertex2f(myGame.parameters.buildingWidth / 2, (GLfloat)i);
-		glEnd();
-	}
-
-	// ORIGIN
-	glLineWidth(6.0);
-	glBegin(GL_LINES);
-	// X
-	glColor3f(1, 0, 0);
-	glVertex3f(6.0, 0.0, 0.0);
-	glVertex3f(-6.0, 0.0, 0.0);
-	// Y
-	glColor3f(0, 1, 0);
-	glVertex3f(0.0, 6.0, 0.0);
-	glVertex3f(0.0, -6.0, 0.0);
-	// Z
-	glColor3f(0, 0, 1);
-	glVertex3f(0.0, 0.0, 6.0);
-	glVertex3f(0.0, 0.0, -6.0);
-	glEnd();
-	glLineWidth(1.0);
+    // Draw origin
+    glLineWidth(6.0);
+    drawLine(6.0, 0, 0, -6.0, 0, 0, 1, 0, 0, 1);
+    drawLine(0, 6.0, 0, 0, -6.0, 0, 0, 1, 0, 1);
+    drawLine(0, 0, 6.0, 0, 0, -6.0, 0, 0, 1, 1);
+    glLineWidth(1.0);
 }
 
 void drawCorridor(Corridor myCorridor, std::vector<Position> posBalls, Position posPlayer)
 {
 	// Drawing of the bottom of the corridor
-	// Definition of the y-position of the bottom
-	posBottom.y = myGame.parameters.buildingDepth + myGame.parameters.buildingDepth * (myCorridor.numberOfSteps - 1);
-	glPushMatrix();
-		glTranslatef(0, myGame.parameters.buildingDepth + myGame.parameters.buildingDepth * (myCorridor.numberOfSteps - 1), 0);
-		glScalef(myGame.parameters.buildingWidth, 1, myGame.parameters.buildingHeight);
-		glRotatef(90, 1, 0, 0);
-		// Definition of the point to be illuminated
-		tempPos1.updatePosition(-myGame.parameters.buildingWidth / 2, posBottom.y, -myGame.parameters.buildingHeight / 2);
-		tempPos2.updatePosition(myGame.parameters.buildingWidth / 2, posBottom.y, -myGame.parameters.buildingHeight / 2);
-		tempPos3.updatePosition(myGame.parameters.buildingWidth / 2, posBottom.y, myGame.parameters.buildingHeight / 2);
-		tempPos4.updatePosition(-myGame.parameters.buildingWidth / 2, posBottom.y, myGame.parameters.buildingHeight / 2);
-		if (myGame.renderSkinId == 0) {
-			drawSquareLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.colorSideWalls, tempPos1, tempPos2, tempPos3, tempPos4);
-		} else {
-			drawTextureLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.bottomTexture, tempPos1, tempPos2, tempPos3, tempPos4);
-		}
-	glPopMatrix();
+	float posY = myGame.parameters.buildingDepth + myGame.parameters.buildingDepth * (myCorridor.numberOfSteps - 1); // Y of the bottom
+	tempPos1.updatePosition(-myGame.parameters.buildingWidth / 2, posY, -myGame.parameters.buildingHeight / 2);
+	tempPos2.updatePosition(myGame.parameters.buildingWidth / 2, posY, -myGame.parameters.buildingHeight / 2);
+	tempPos3.updatePosition(myGame.parameters.buildingWidth / 2, posY, myGame.parameters.buildingHeight / 2);
+	tempPos4.updatePosition(-myGame.parameters.buildingWidth / 2, posY, myGame.parameters.buildingHeight / 2);
+	drawWall(0, posY, 0, 90, 0, myGame.parameters.buildingWidth, 1, myGame.parameters.buildingHeight, tempPos1, tempPos2, tempPos3, tempPos4, myGame, myCorridor.colorSideWalls, myCorridor.bottomTexture, posBalls);
 
 	// Drawing of the ring at the bottom of the corridor
 	glPushMatrix();
@@ -276,22 +260,22 @@ void drawCorridor(Corridor myCorridor, std::vector<Position> posBalls, Position 
 	// Definition of ring thickness
 	glLineWidth(3.0);
 	glBegin(GL_LINE_LOOP);
-	tempPos.updatePosition(-myGame.parameters.buildingWidth / 2, posBottom.y, myGame.parameters.buildingHeight / 2);
+	tempPos.updatePosition(-myGame.parameters.buildingWidth / 2, posY, myGame.parameters.buildingHeight / 2);
 	tempColor = myCorridor.colorRings.displayColor(posBalls, posPlayer, tempPos, myGame.parameters.gameDepth);
 	glColor4f(tempColor.r, tempColor.g, tempColor.b, 0.8);
 	glVertex2f(-0.5f, 0.5f);
 
-	tempPos.updatePosition(myGame.parameters.buildingWidth / 2, posBottom.y, myGame.parameters.buildingHeight / 2);
+	tempPos.updatePosition(myGame.parameters.buildingWidth / 2, posY, myGame.parameters.buildingHeight / 2);
 	tempColor = myCorridor.colorRings.displayColor(posBalls, posPlayer, tempPos, myGame.parameters.gameDepth);
 	glColor4f(tempColor.r, tempColor.g, tempColor.b, 0.8);
 	glVertex2f(0.5f, 0.5f);
 
-	tempPos.updatePosition(myGame.parameters.buildingWidth / 2, posBottom.y, -myGame.parameters.buildingHeight / 2);
+	tempPos.updatePosition(myGame.parameters.buildingWidth / 2, posY, -myGame.parameters.buildingHeight / 2);
 	tempColor = myCorridor.colorRings.displayColor(posBalls, posPlayer, tempPos, myGame.parameters.gameDepth);
 	glColor4f(tempColor.r, tempColor.g, tempColor.b, 0.8);
 	glVertex2f(0.5f, -0.5f);
 
-	tempPos.updatePosition(-myGame.parameters.buildingWidth / 2, posBottom.y, -myGame.parameters.buildingHeight / 2);
+	tempPos.updatePosition(-myGame.parameters.buildingWidth / 2, posY, -myGame.parameters.buildingHeight / 2);
 	tempColor = myCorridor.colorRings.displayColor(posBalls, posPlayer, tempPos, myGame.parameters.gameDepth);
 	glColor4f(tempColor.r, tempColor.g, tempColor.b, 0.8);
 	glVertex2f(-0.5f, -0.5f);
@@ -307,67 +291,52 @@ void drawWallStep(std::vector<WallStep> myWallSteps, Corridor myCorridor, std::v
 {
 	for (int i = myWallSteps.size() - 1; i > -1; i--)
 	{
+		float buildingDepth = myGame.parameters.buildingDepth;
+		float buildingHeight = myGame.parameters.buildingHeight;
+		float buildingWidth = myGame.parameters.buildingWidth;
+
 		// Top wall
-		glPushMatrix();
-			glTranslatef(0, myWallSteps[i].pos.y - myGame.parameters.buildingDepth / 2, myGame.parameters.buildingHeight / 2);
-			glScalef(myGame.parameters.buildingWidth, myGame.parameters.buildingDepth, myGame.parameters.buildingHeight);
-			tempPos1.updatePosition(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y - myGame.parameters.buildingDepth, myGame.parameters.buildingHeight / 2); // Left outside corner
-			tempPos2.updatePosition(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y - myGame.parameters.buildingDepth, myGame.parameters.buildingHeight / 2); // Right outside corner
-			tempPos3.updatePosition(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, myGame.parameters.buildingHeight / 2); // Right inside corner
-			tempPos4.updatePosition(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, myGame.parameters.buildingHeight / 2); // Left inside corner
-			if (myGame.renderSkinId == 0) {
-				drawSquareLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.colorCeillingWalls, tempPos1, tempPos2, tempPos3, tempPos4);
-			} else {
-				drawTextureLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.ceilingTexture, tempPos1, tempPos2, tempPos3, tempPos4);
-			}
-		glPopMatrix();
+		float posX = 0; // Corridor x center
+		float posY = myWallSteps[i].pos.y - buildingDepth / 2; // WallStep y center
+		float posZ1 = buildingHeight / 2; // Position of the ceiling
+		float posZ2 = -buildingHeight / 2; // Position of the ground
+		tempPos1.updatePosition(-buildingWidth / 2, posY - buildingDepth, posZ1);
+		tempPos2.updatePosition(buildingWidth / 2, posY - buildingDepth, posZ1);
+		tempPos3.updatePosition(buildingWidth / 2, posY, posZ1);
+		tempPos4.updatePosition(-buildingWidth / 2, posY, posZ1);
+		drawWall(posX, posY, posZ1, 0, 0, buildingWidth, buildingDepth, buildingHeight, tempPos1, tempPos2, tempPos3, tempPos4, myGame, myCorridor.colorCeillingWalls, myCorridor.ceilingTexture, posBalls);
 
 		// Bottom wall
+		tempPos1.updatePosition(-buildingWidth / 2, posY - buildingDepth, posZ2);
+		tempPos2.updatePosition(buildingWidth / 2, posY - buildingDepth, posZ2);
+		tempPos3.updatePosition(buildingWidth / 2, posY, posZ2);
+		tempPos4.updatePosition(-buildingWidth / 2, posY, posZ2);
 		glPushMatrix();
-			glTranslatef(0, myWallSteps[i].pos.y - myGame.parameters.buildingDepth / 2, -myGame.parameters.buildingHeight / 2);
-			glScalef(myGame.parameters.buildingWidth, myGame.parameters.buildingDepth, myGame.parameters.buildingHeight);
-			tempPos1.updatePosition(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y - myGame.parameters.buildingDepth, -myGame.parameters.buildingHeight / 2); // Left outside corner
-			tempPos2.updatePosition(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y - myGame.parameters.buildingDepth, -myGame.parameters.buildingHeight / 2); // Right outside corner
-			tempPos3.updatePosition(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, -myGame.parameters.buildingHeight / 2); // Right inside corner
-			tempPos4.updatePosition(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, -myGame.parameters.buildingHeight / 2); // Left inside corner
+			glTranslatef(posX, posY, posZ2);
+			glScalef(buildingWidth, buildingDepth, buildingHeight);
 			if (myGame.renderSkinId == 0) {
 				drawSquareLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.colorCeillingWalls, tempPos1, tempPos2, tempPos3, tempPos4);
 			} else {
-				drawTilesetLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.groundTexture, myGame.parameters.buildingWidth, myGame.parameters.buildingDepth, tempPos1, tempPos2, tempPos3, tempPos4);
+				drawTilesetLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.groundTexture, buildingWidth / 2, buildingDepth / 2, tempPos1, tempPos2, tempPos3, tempPos4);
 			}
 		glPopMatrix();
 
 		// Left wall
-		glPushMatrix();
-			glTranslatef(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y - myGame.parameters.buildingDepth / 2, 0);
-			glRotatef(90, 0, 1, 0);
-			glScalef(myGame.parameters.buildingHeight, myGame.parameters.buildingDepth, myGame.parameters.buildingHeight);
-			tempPos1.updatePosition(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y - myGame.parameters.buildingDepth, myGame.parameters.buildingHeight / 2); // Top outside corner
-			tempPos2.updatePosition(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y - myGame.parameters.buildingDepth, -myGame.parameters.buildingHeight / 2); // Bottom outside corner
-			tempPos3.updatePosition(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, -myGame.parameters.buildingHeight / 2); // Bottom inside corner
-			tempPos4.updatePosition(-myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, myGame.parameters.buildingHeight / 2); // Top inside corner
-			if (myGame.renderSkinId == 0) {
-				drawSquareLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.colorSideWalls, tempPos1, tempPos2, tempPos3, tempPos4);
-			} else {
-				drawTextureLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.leftWallTexture, tempPos1, tempPos2, tempPos3, tempPos4);
-			}
-		glPopMatrix();
+		posX = -buildingWidth / 2; // Position of the left wall
+		posZ1 = 0;
+		tempPos1.updatePosition(posX, posY - buildingDepth, buildingHeight / 2);
+		tempPos2.updatePosition(posX, posY - buildingDepth, -buildingHeight / 2);
+		tempPos3.updatePosition(posX, posY, -buildingHeight / 2);
+		tempPos4.updatePosition(posX, posY, buildingHeight / 2);
+		drawWall(posX, posY, posZ1, 0, 90, buildingWidth, buildingDepth, buildingHeight, tempPos1, tempPos2, tempPos3, tempPos4, myGame, myCorridor.colorSideWalls, myCorridor.leftWallTexture, posBalls);
 
 		// Right wall
-		glPushMatrix();
-			glTranslatef(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y - myGame.parameters.buildingDepth / 2, 0);
-			glRotatef(90, 0, 1, 0);
-			glScalef(myGame.parameters.buildingHeight, myGame.parameters.buildingDepth, myGame.parameters.buildingHeight);
-			tempPos1.updatePosition(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y - myGame.parameters.buildingDepth, myGame.parameters.buildingHeight / 2); // Top outside corner
-			tempPos2.updatePosition(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y - myGame.parameters.buildingDepth, -myGame.parameters.buildingHeight / 2); // Bottom outside corner
-			tempPos3.updatePosition(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, -myGame.parameters.buildingHeight / 2); // Bottom inside corner
-			tempPos4.updatePosition(myGame.parameters.buildingWidth / 2, myWallSteps[i].pos.y, myGame.parameters.buildingHeight / 2); // Top inside corner
-			if (myGame.renderSkinId == 0) {
-				drawSquareLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.colorSideWalls, tempPos1, tempPos2, tempPos3, tempPos4);
-			} else {
-				drawTextureLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.rightWallTexture, tempPos1, tempPos2, tempPos3, tempPos4);
-			}
-		glPopMatrix();
+		posX = buildingWidth / 2; // Position of the right wall
+		tempPos1.updatePosition(posX, posY - buildingDepth, buildingHeight / 2);
+		tempPos2.updatePosition(posX, posY - buildingDepth, -buildingHeight / 2);
+		tempPos3.updatePosition(posX, posY, -buildingHeight / 2);
+		tempPos4.updatePosition(posX, posY, buildingHeight / 2);
+		drawWall(posX, posY, posZ1, 0, 90, buildingWidth, buildingDepth, buildingHeight, tempPos1, tempPos2, tempPos3, tempPos4, myGame, myCorridor.colorSideWalls, myCorridor.rightWallTexture, posBalls);
 
 		// The last ring of the corridor is covered above
 		if (i != myWallSteps.size() - 1)
