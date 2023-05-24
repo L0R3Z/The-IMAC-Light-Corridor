@@ -158,7 +158,7 @@ void onKey(GLFWwindow *window, int key, int scancode, int action, int mods)
 				// Restart the game
 				case GLFW_KEY_R:
 					myGame.loadGame();
-					myGame.loadTextures(textures);
+					myGame.loadSkin(textures);
 					break;
 
 				case GLFW_KEY_C:
@@ -219,7 +219,7 @@ void onKey(GLFWwindow *window, int key, int scancode, int action, int mods)
 				case GLFW_KEY_J:
 					if (myGame.gameState == 10) {
 						myGame.loadGame();
-						myGame.loadTextures(textures);
+						myGame.loadSkin(textures);
 					}
 					break;
 				
@@ -230,7 +230,7 @@ void onKey(GLFWwindow *window, int key, int scancode, int action, int mods)
 				case GLFW_KEY_R:
 					if (myGame.gameState == 11 || myGame.gameState == 12) {
 						myGame.loadGame();
-						myGame.loadTextures(textures);
+						myGame.loadSkin(textures);
 					}
 					break;
 			}
@@ -332,6 +332,7 @@ void loadTextures()
 	textures.push_back(loadImage("../res/wallTile.png"));
 	textures.push_back(loadImage("../res/bottomWall.png"));
 	textures.push_back(loadImage("../res/itemBox.png"));
+	textures.push_back(loadImage("../res/steelBallTexture.png"));
 }
 
 // Function that delete the textures used in game

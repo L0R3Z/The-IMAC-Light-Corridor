@@ -745,17 +745,33 @@ typedef struct Game
         this->corridor.generateCorridor();
     }
 
-    void loadTextures(std::vector<GLuint> myTextures) {
-        this->corridor.bottomTexture = myTextures[25];
-        this->corridor.ballTexture = myTextures[10];
-        this->corridor.wallsTexture = myTextures[24];
-        this->corridor.groundTexture = myTextures[23];
-        this->corridor.leftWallTexture = myTextures[21];
-        this->corridor.rightWallTexture = myTextures[22];
-        this->corridor.ceilingTexture = myTextures[20];
-        this->corridor.bonusBoxTexture = myTextures[26];
-        this->corridor.colorRings = Colors(140./255, 0, 116./255);
-        printf("Textures loaded\n");
+    void loadSkin(std::vector<GLuint> myTextures) {
+        this->renderSkinId = rand() % 3;
+        switch (this->renderSkinId)
+        {
+            case 1:
+                this->corridor.colorRings = Colors(140./255, 0, 116./255);
+                this->corridor.ballTexture = myTextures[10];
+                this->corridor.bonusBoxTexture = myTextures[26];
+                this->corridor.wallsTexture = myTextures[24];
+                this->corridor.leftWallTexture = myTextures[21];
+                this->corridor.rightWallTexture = myTextures[22];
+                this->corridor.bottomTexture = myTextures[25];
+                this->corridor.groundTexture = myTextures[23];
+                this->corridor.ceilingTexture = myTextures[20];
+                printf("Rainbow Resort loaded\n");
+                break;
+            default:
+                this->corridor.ballTexture = myTextures[27];
+                this->renderSkinId = 0;
+                break;
+        }
+        
+        
+        
+
+        
+    
     }
 
     void winGame()
