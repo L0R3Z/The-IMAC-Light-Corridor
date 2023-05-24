@@ -162,7 +162,7 @@ void onKey(GLFWwindow *window, int key, int scancode, int action, int mods)
 					break;
 
 				case GLFW_KEY_C:
-					myGame.balls[0].checkWAllCollisions(myGame.corridor, myGame.player, myGame.parameters.gameDepth);
+					myGame.balls[0].checkWAllCollisions(myGame.corridor, myGame.player, myGame.parameters.gameDepth, myGame.currentBonus, myGame.gameState);
 					break;
 
 				case GLFW_KEY_KP_9:
@@ -527,6 +527,7 @@ int main()
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
+		// printf("%i\n", myGame.score);
 		/* Cleaning buffers and setting Matrix Mode */
 		glClearColor(0.0, 0.0, 0., 0.0);
 
@@ -548,10 +549,12 @@ int main()
 		if(myGame.gameState == 1 || myGame.gameState == 2) {
 			for (Ball &ball : myGame.balls)
 			{
-				if (ball.isLaunched)
+				if (ball.isLaunched) {
 					ball.gameMove();
-				
-				ball.checkWAllCollisions(myGame.corridor, myGame.player, myGame.parameters.gameDepth);
+					// myGame.score++;
+				}
+
+				ball.checkWAllCollisions(myGame.corridor, myGame.player, myGame.parameters.gameDepth, myGame.currentBonus, myGame.gameState);
 				myGame.checkWinDamage();
 			}
 		}

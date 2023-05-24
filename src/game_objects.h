@@ -275,6 +275,44 @@ typedef struct Wall
 
 } Wall;
 
+// Bonus struct
+typedef struct Bonus
+{
+    GLfloat width;
+    GLfloat height;
+    GLfloat depth;
+    Position pos;
+    std::string type;
+    bool alive;
+    void (*effect)();
+
+    Bonus() {
+        this->alive = true;
+        int typeId = rand() % 2;
+        if (typeId == 1)
+        {
+            this->type = "life";
+        }
+        else if (typeId == 2)
+        {
+            this->type = "sticky";
+        }
+    }
+
+    // void lifeEffect()
+    // {
+    //     printf("%s", "you won a life!");
+    //     // myGame.lives++;
+    // }
+
+    // void stickyEffect()
+    // {
+    //     printf("%s", "sticky effect activated!")
+    //     // myGame.gameState = 1;
+    //     // myGame.bonusState = 'sticky'
+    // }
+} Bonus;
+
 // WallStep struct for obtacles groups, situated at precise steps inside the corridor
 typedef struct WallStep
 {
@@ -283,6 +321,7 @@ typedef struct WallStep
     Position pos;
     Colors color;
     std::vector<Wall> walls;
+    Bonus bonus;
 
     WallStep() {}
 
@@ -295,30 +334,6 @@ typedef struct WallStep
     }
 
 } WallStep;
-
-// Bonus struct
-typedef struct Bonus
-{
-    GLfloat width;
-    GLfloat height;
-    GLfloat depth;
-    Position pos;
-    std::string type;
-
-    Bonus() {}
-
-    virtual void effect() {}
-} Bonus;
-
-// Exemple bonus from the Bonus struct
-struct ExempleBonus : public Bonus
-{
-    void effect() override
-    {
-        std::cout << "Exemple bonus is used!" << std::endl;
-        // Add specific implementation for the bonus
-    }
-};
 
 // Corridor struct
 typedef struct Corridor
@@ -525,8 +540,12 @@ typedef struct Ball
         this->speed = Speed(0, this->defaultSpeed, 0);
     }
 
-    void checkWAllCollisions(Corridor corridor, Player player, GLfloat gameDepth)
+    void checkWAllCollisions(Corridor corridor, Player player, GLfloat gameDepth, Bonus& currentBonus, int& gameState)
     {
+        // IF collide with a bonus
+        // ADD the bonus to currentBonus
+        // INCREASE score by 1000
+
         int collideItemWalls = this->checkWallsCollisions(corridor.wallSteps);
         if (collideItemWalls == 1)
         {
@@ -539,20 +558,28 @@ typedef struct Ball
 
         if (this->checkPlayerCollisions(player, gameDepth))
         {
-            const GLfloat MAX_SPEED = std::abs(this->speed.y);
+            // if (currentBonus && currentBonus.type == "sticky")
+            // {
+            //     gameState = 1;
+            //     currentBonus = NULL;
+            // }
+            // else
+            // {
+                const GLfloat MAX_SPEED = std::abs(this->speed.y);
 
-            // Calculer la distance du point d'impact par rapport au centre de la raquette
-            float distanceFromCenterX = this->pos.x - player.pos.x;
-            float distanceFromCenterZ = this->pos.z - player.pos.z;
+                // Calculer la distance du point d'impact par rapport au centre de la raquette
+                float distanceFromCenterX = this->pos.x - player.pos.x;
+                float distanceFromCenterZ = this->pos.z - player.pos.z;
 
-            // Calculer la direction du rebondissement en fonction de la distance du point d'impact
-            float reboundDirectionX = distanceFromCenterX / (player.width / 2);
-            float reboundDirectionZ = distanceFromCenterZ / (player.height / 2);
+                // Calculer la direction du rebondissement en fonction de la distance du point d'impact
+                float reboundDirectionX = distanceFromCenterX / (player.width / 2);
+                float reboundDirectionZ = distanceFromCenterZ / (player.height / 2);
 
-            // Mettre à jour les composantes de vitesse en fonction de la direction du rebondissement
-            this->speed.x = reboundDirectionX * MAX_SPEED; // Aucun mouvement horizontal
-            this->speed.y = -this->speed.y; // Inverser la direction verticale
-            this->speed.z = reboundDirectionZ * MAX_SPEED; // Utiliser la direction du rebondissement pour la vitesse en Z
+                // Mettre à jour les composantes de vitesse en fonction de la direction du rebondissement
+                this->speed.x = reboundDirectionX * MAX_SPEED; // Aucun mouvement horizontal
+                this->speed.y = -this->speed.y; // Inverser la direction verticale
+                this->speed.z = reboundDirectionZ * MAX_SPEED; // Utiliser la direction du rebondissement pour la vitesse en Z
+            // }
         }
 
         int collideItemCorridor = this->checkCorridorCollisions(corridor);
@@ -694,11 +721,13 @@ typedef struct GameParameters
 typedef struct Game
 {
     Player player;
+    GLint score;
     Corridor corridor;
     std::vector<Ball> balls;
     GLint nbOfBallsLaunched;
     GLint lives;
     GLint gameState;
+    Bonus currentBonus;
     GLint renderSkinId;
     GameParameters parameters;
 
@@ -766,12 +795,6 @@ typedef struct Game
                 this->renderSkinId = 0;
                 break;
         }
-        
-        
-        
-
-        
-    
     }
 
     void winGame()
@@ -815,6 +838,8 @@ typedef struct Game
             {
                 this->balls[0].moveBall(0, distance, 0);
             }
+            this->score += distance * 50;
+            printf("%i\n", this->score);
         }
     }
 
@@ -837,17 +862,6 @@ typedef struct Game
             }
         }
     }
-
-    // void checkAllCollisions()
-    // {
-
-    // }
-
-    // void moveBack(GLint distance)
-    // {
-    //     this->parameters.gameDepth -= distance;
-    // }
-
 } Game;
 
 #endif
