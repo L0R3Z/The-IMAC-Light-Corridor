@@ -283,7 +283,7 @@ typedef struct Bonus
     GLfloat depth;
     Position pos;
     std::string type;
-    bool alive;
+    bool alive = false;
     void (*effect)();
 
     Bonus() {
@@ -297,6 +297,28 @@ typedef struct Bonus
         {
             this->type = "sticky";
         }
+    }
+
+    Bonus(float width, float depth, float height, float wallStepY) {
+        this->alive = true;
+
+        int typeId = rand() % 2;
+        if (typeId == 1)
+        {
+            this->type = "life";
+        }
+        else if (typeId == 2)
+        {
+            this->type = "sticky";
+        }
+
+        int xLeftLimit = - width / 3; int xRightLimit = width / 3;
+        int zBottomLimit = - height / 3; int zTopLimit = height / 3;
+
+        this->pos.x =  xLeftLimit + rand() % (xRightLimit - xLeftLimit + 1);
+        this->pos.y = wallStepY - depth / 2;
+        this->pos.z = zBottomLimit + rand() % (zTopLimit - zBottomLimit + 1);
+        this->width = 2;
     }
 
     // void lifeEffect()
@@ -388,6 +410,7 @@ typedef struct Corridor
         {
             WallStep myWallStep = WallStep(this->depthOfAStep + this->depthOfAStep * i);
 
+            // Random generation of obstacle walls
             randomTemp = rand() % 100 + 1;
             if (randomTemp < 80 && i != this->numberOfSteps - 1)
             {
@@ -452,6 +475,13 @@ typedef struct Corridor
                     std::cout << "No wall for the random value (" << randomTemp << ")" << std::endl;
                 }
                 }
+            }
+
+            // Random generation of item boxes
+            randomTemp = rand() % 100 + 1;
+            if (randomTemp < 20 && i != this->numberOfSteps - 1)
+            {
+                myWallStep.bonus = Bonus(this->width, this->depthOfAStep, this->height, myWallStep.pos.y);
             }
 
             this->wallSteps.push_back(myWallStep);

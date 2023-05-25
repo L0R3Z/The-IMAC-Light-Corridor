@@ -378,6 +378,10 @@ void drawWallStep(std::vector<WallStep> myWallSteps, Corridor myCorridor, std::v
 
 		// Call of the function to draw the Walls of the wallStep
 		drawWall(myWallSteps[i].walls, posBalls, posPlayer, myWallSteps[i].color, myCorridor.wallsTexture);
+		if (myWallSteps[i].bonus.alive == true)
+		{
+			drawBonusBox(myWallSteps[i].bonus, myGame, posBalls, posPlayer);
+		}
 	}
 }
 
@@ -461,40 +465,24 @@ void drawPlayer(Player myPlayer)
 	glPopMatrix();
 }
 
-void drawBonusBoxes(float x, float y, float z, float width, Game myGame, std::vector<Position> posBalls, Position posPlayer)
+void drawBonusBox(Bonus myBonus, Game myGame, std::vector<Position> posBalls, Position posPlayer)
 {
-    if (y - myGame.parameters.gameDepth >= 0) {
+    if (myBonus.pos.y - myGame.parameters.gameDepth >= 0) {
 
 		// Calcul des coordonnées des coins de la boîte
-		GLfloat leftX = x - (width / 2.);
-		GLfloat rightX = x + (width / 2.);
-		GLfloat bottomZ = z - (width / 2.);
-		GLfloat topZ = z + (width / 2.);
-		GLfloat frontY = y - (width / 2.);
-		GLfloat backY = y + (width / 2.);
+		GLfloat leftX = myBonus.pos.x - (myBonus.width / 2.);
+		GLfloat rightX = myBonus.pos.x + (myBonus.width / 2.);
+		GLfloat bottomZ = myBonus.pos.z - (myBonus.width / 2.);
+		GLfloat topZ = myBonus.pos.z + (myBonus.width / 2.);
+		GLfloat frontY = myBonus.pos.y - (myBonus.width / 2.);
+		GLfloat backY = myBonus.pos.y + (myBonus.width / 2.);
 
-		// Face avant
-		glPushMatrix();
-			glTranslatef(x, frontY, z);
-			glScalef(width, width, width);
-			glRotatef(90, 1, 0, 0);
-			tempPos1.updatePosition(leftX, frontY, bottomZ);
-			tempPos2.updatePosition(rightX, frontY, bottomZ);
-			tempPos3.updatePosition(rightX, frontY, topZ);
-			tempPos4.updatePosition(leftX, frontY, topZ);
-			if (myGame.renderSkinId == 0) {
-				tempColor = myGame.corridor.colorRings.generateComplementaryColor();
-                drawSquareLight(myGame.parameters.gameDepth, 1., posBalls, posPlayer, tempColor, tempPos1, tempPos2, tempPos3, tempPos4);
-            } else {
-				tempColor.updateColors(1., 1., 1.);
-                drawTextureLight(myGame.parameters.gameDepth, 1., posBalls, posPlayer, myGame.corridor.bonusBoxTexture, tempPos1, tempPos2, tempPos3, tempPos4);
-            }
-		glPopMatrix();
+		glDepthMask(GL_FALSE);
 
 		// Face arrière
 		glPushMatrix();
-			glTranslatef(x, backY, z);
-			glScalef(width, width, width);
+			glTranslatef(myBonus.pos.x, backY, myBonus.pos.z);
+			glScalef(myBonus.width, myBonus.width, myBonus.width);
 			glRotatef(90, 1, 0, 0);
 			tempPos1.updatePosition(leftX, backY, bottomZ);
 			tempPos2.updatePosition(rightX, backY, bottomZ);
@@ -502,87 +490,124 @@ void drawBonusBoxes(float x, float y, float z, float width, Game myGame, std::ve
 			tempPos4.updatePosition(leftX, backY, topZ);
 			if (myGame.renderSkinId == 0) {
 				tempColor = myGame.corridor.colorRings.generateComplementaryColor();
-                drawSquareLight(myGame.parameters.gameDepth, 1., posBalls, posPlayer, tempColor, tempPos1, tempPos2, tempPos3, tempPos4);
+                drawSquareLight(myGame.parameters.gameDepth, .5, posBalls, posPlayer, tempColor, tempPos1, tempPos2, tempPos3, tempPos4);
             } else {
 				tempColor.updateColors(1., 1., 1.);
                 drawTextureLight(myGame.parameters.gameDepth, 1., posBalls, posPlayer, myGame.corridor.bonusBoxTexture, tempPos1, tempPos2, tempPos3, tempPos4);
             }
 		glPopMatrix();
 
-		// Face supérieure
-		tempColor.updateColors(1., 1., 1.);
-		glPushMatrix();
-			glTranslatef(x, y, topZ);
-			glScalef(width, width, width);
-			tempPos1.updatePosition(leftX, frontY, topZ);
-			tempPos2.updatePosition(rightX, frontY, topZ);
-			tempPos3.updatePosition(rightX, backY, topZ);
-			tempPos4.updatePosition(leftX, backY, topZ);
-			if (myGame.renderSkinId == 0) {
-				tempColor = myGame.corridor.colorRings.generateComplementaryColor();
-                drawSquareLight(myGame.parameters.gameDepth, 1., posBalls, posPlayer, tempColor, tempPos1, tempPos2, tempPos3, tempPos4);
-            } else {
-				tempColor.updateColors(1., 1., 1.);
-                drawTextureLight(myGame.parameters.gameDepth, 1., posBalls, posPlayer, myGame.corridor.bonusBoxTexture, tempPos1, tempPos2, tempPos3, tempPos4);
-            }
-		glPopMatrix();
+		bool isLeft = false;
+		if (myBonus.pos.x < 0) {
+			isLeft = true;
+		}
+		bool isTop = false;
+		if (myBonus.pos.z > 0) {
+			isTop = true;
+		}
 
-		// Face inférieure
-		tempColor.updateColors(1., 1., 1.);
+		for (int i = 0; i < 2; i++)
+		{
+			if ((isTop && i == 0) || (!isTop && i == 1) )
+			{
+				// Face supérieure
+				tempColor.updateColors(1., 1., 1.);
+				glPushMatrix();
+					glTranslatef(myBonus.pos.x, myBonus.pos.y, topZ);
+					glScalef(myBonus.width, myBonus.width, myBonus.width);
+					tempPos1.updatePosition(leftX, frontY, topZ);
+					tempPos2.updatePosition(rightX, frontY, topZ);
+					tempPos3.updatePosition(rightX, backY, topZ);
+					tempPos4.updatePosition(leftX, backY, topZ);
+					if (myGame.renderSkinId == 0) {
+						tempColor = myGame.corridor.colorSideWalls;
+						drawSquareLight(myGame.parameters.gameDepth, .5, posBalls, posPlayer, tempColor, tempPos1, tempPos2, tempPos3, tempPos4);
+					} else {
+						tempColor.updateColors(1., 1., 1.);
+						drawTextureLight(myGame.parameters.gameDepth, 1., posBalls, posPlayer, myGame.corridor.bonusBoxTexture, tempPos1, tempPos2, tempPos3, tempPos4);
+					}
+				glPopMatrix();
+			} else {
+				// Face inférieure
+				tempColor.updateColors(1., 1., 1.);
+				glPushMatrix();
+					glTranslatef(myBonus.pos.x, myBonus.pos.y, bottomZ);
+					glScalef(myBonus.width, myBonus.width, myBonus.width);
+					tempPos1.updatePosition(leftX, frontY, bottomZ);
+					tempPos2.updatePosition(rightX, frontY, bottomZ);
+					tempPos3.updatePosition(rightX, backY, bottomZ);
+					tempPos4.updatePosition(leftX, backY, bottomZ);
+					if (myGame.renderSkinId == 0) {
+						tempColor = myGame.corridor.colorRings;
+						drawSquareLight(myGame.parameters.gameDepth, .5, posBalls, posPlayer, tempColor, tempPos1, tempPos2, tempPos3, tempPos4);
+					} else {
+						tempColor.updateColors(1., 1., 1.);
+						tempColor = myGame.corridor.colorSideWalls;
+						drawTextureLight(myGame.parameters.gameDepth, 1., posBalls, posPlayer, myGame.corridor.bonusBoxTexture, tempPos1, tempPos2, tempPos3, tempPos4);
+					}
+				glPopMatrix();
+			}
+			if ((isLeft && i == 0) || (!isLeft && i == 1) )
+			{
+				// Face gauche
+				tempColor.updateColors(1., 1., 1.);
+				glPushMatrix();
+					glTranslatef(leftX, myBonus.pos.y, myBonus.pos.z);
+					glScalef(myBonus.width, myBonus.width, myBonus.width);
+					glRotatef(90, 0, 1, 0);
+					tempPos1.updatePosition(leftX, frontY, topZ);
+					tempPos2.updatePosition(leftX, frontY, bottomZ);
+					tempPos3.updatePosition(leftX, backY, bottomZ);
+					tempPos4.updatePosition(leftX, backY, topZ);
+					if (myGame.renderSkinId == 0) {
+						tempColor = myGame.corridor.colorCeillingWalls;
+						drawSquareLight(myGame.parameters.gameDepth, .5, posBalls, posPlayer, tempColor, tempPos1, tempPos2, tempPos3, tempPos4);
+					} else {
+						tempColor.updateColors(1., 1., 1.);
+						drawTextureLight(myGame.parameters.gameDepth, 1., posBalls, posPlayer, myGame.corridor.bonusBoxTexture, tempPos1, tempPos2, tempPos3, tempPos4);
+					}
+				glPopMatrix();
+			} else {
+				// Face droite
+				tempColor.updateColors(1., 1., 1.);
+				glPushMatrix();
+					glTranslatef(rightX, myBonus.pos.y, myBonus.pos.z);
+					glScalef(myBonus.width, myBonus.width, myBonus.width);
+					glRotatef(90, 0, 1, 0);
+					tempPos1.updatePosition(rightX, frontY, topZ); // Rouge
+					tempPos2.updatePosition(rightX, frontY, bottomZ); // Vert
+					tempPos3.updatePosition(rightX, backY, bottomZ); // Bleu
+					tempPos4.updatePosition(rightX, backY, topZ); // Jaune
+					if (myGame.renderSkinId == 0) {
+						tempColor = myGame.corridor.colorCeillingWalls;
+						drawSquareLight(myGame.parameters.gameDepth, .5, posBalls, posPlayer, tempColor, tempPos1, tempPos2, tempPos3, tempPos4);
+					} else {
+						tempColor.updateColors(1., 1., 1.);
+						drawTextureLight(myGame.parameters.gameDepth, 1., posBalls, posPlayer, myGame.corridor.bonusBoxTexture, tempPos1, tempPos2, tempPos3, tempPos4);
+					}
+				glPopMatrix();
+			}
+		}
+
+		// Face avant
 		glPushMatrix();
-			glTranslatef(x, y, bottomZ);
-			glScalef(width, width, width);
+			glTranslatef(myBonus.pos.x, frontY, myBonus.pos.z);
+			glScalef(myBonus.width, myBonus.width, myBonus.width);
+			glRotatef(90, 1, 0, 0);
 			tempPos1.updatePosition(leftX, frontY, bottomZ);
 			tempPos2.updatePosition(rightX, frontY, bottomZ);
-			tempPos3.updatePosition(rightX, backY, bottomZ);
-			tempPos4.updatePosition(leftX, backY, bottomZ);
+			tempPos3.updatePosition(rightX, frontY, topZ);
+			tempPos4.updatePosition(leftX, frontY, topZ);
 			if (myGame.renderSkinId == 0) {
 				tempColor = myGame.corridor.colorRings.generateComplementaryColor();
-                drawSquareLight(myGame.parameters.gameDepth, 1., posBalls, posPlayer, tempColor, tempPos1, tempPos2, tempPos3, tempPos4);
+                drawSquareLight(myGame.parameters.gameDepth, .5, posBalls, posPlayer, tempColor, tempPos1, tempPos2, tempPos3, tempPos4);
             } else {
 				tempColor.updateColors(1., 1., 1.);
                 drawTextureLight(myGame.parameters.gameDepth, 1., posBalls, posPlayer, myGame.corridor.bonusBoxTexture, tempPos1, tempPos2, tempPos3, tempPos4);
             }
 		glPopMatrix();
 
-		// Face gauche
-		tempColor.updateColors(1., 1., 1.);
-		glPushMatrix();
-			glTranslatef(leftX, y, z);
-			glScalef(width, width, width);
-			glRotatef(90, 0, 1, 0);
-			tempPos1.updatePosition(leftX, frontY, topZ);
-			tempPos2.updatePosition(leftX, frontY, bottomZ);
-			tempPos3.updatePosition(leftX, backY, bottomZ);
-			tempPos4.updatePosition(leftX, backY, topZ);
-			if (myGame.renderSkinId == 0) {
-				tempColor = myGame.corridor.colorRings.generateComplementaryColor();
-                drawSquareLight(myGame.parameters.gameDepth, 1., posBalls, posPlayer, tempColor, tempPos1, tempPos2, tempPos3, tempPos4);
-            } else {
-				tempColor.updateColors(1., 1., 1.);
-                drawTextureLight(myGame.parameters.gameDepth, 1., posBalls, posPlayer, myGame.corridor.bonusBoxTexture, tempPos1, tempPos2, tempPos3, tempPos4);
-            }
-		glPopMatrix();
-
-		// Face droite
-		tempColor.updateColors(1., 1., 1.);
-		glPushMatrix();
-			glTranslatef(rightX, y, z);
-			glScalef(width, width, width);
-			glRotatef(90, 0, 1, 0);
-			tempPos1.updatePosition(rightX, frontY, topZ); // Rouge
-			tempPos2.updatePosition(rightX, frontY, bottomZ); // Vert
-			tempPos3.updatePosition(rightX, backY, bottomZ); // Bleu
-			tempPos4.updatePosition(rightX, backY, topZ); // Jaune
-			if (myGame.renderSkinId == 0) {
-				tempColor = myGame.corridor.colorRings.generateComplementaryColor();
-                drawSquareLight(myGame.parameters.gameDepth, 1., posBalls, posPlayer, tempColor, tempPos1, tempPos2, tempPos3, tempPos4);
-            } else {
-				tempColor.updateColors(1., 1., 1.);
-                drawTextureLight(myGame.parameters.gameDepth, 1., posBalls, posPlayer, myGame.corridor.bonusBoxTexture, tempPos1, tempPos2, tempPos3, tempPos4);
-            }
-		glPopMatrix();
-
+		glDepthMask(GL_TRUE);
 	}
 }
 

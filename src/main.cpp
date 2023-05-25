@@ -425,7 +425,6 @@ void draw()
 			glTranslatef(0, -myGame.parameters.gameDepth, 0);
 				drawBalls(myGame.balls, myGame.corridor.ballTexture);
 				drawCorridor(myGame.corridor, posBalls, myGame.player.pos);
-				drawBonusBoxes(0,12.,0,1., myGame, posBalls, myGame.player.pos);
 				// drawFrame();
 			glPopMatrix();
 
