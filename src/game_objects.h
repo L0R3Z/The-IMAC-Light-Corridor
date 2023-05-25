@@ -486,6 +486,33 @@ typedef struct Player : Wall
         this->pos.z = std::max((GLfloat)-zLimit/2, std::min((GLfloat)zLimit/2, (GLfloat)(-_viewSize / WINDOW_HEIGHT * positionY + _viewSize / 2.0)));
     }
 
+    bool checkPotentialCollisionWithWalls(GLint distance, GLint gameDepth, std::vector<WallStep> wallSteps)
+    {
+        for (WallStep wallStep : wallSteps)
+        {
+            for (Wall wall : wallStep.walls)
+            {
+                // Calculate the potential new position of the player
+                float nextY = this->pos.y + distance;
+
+                // Calculate the bounds of the player with the radius taken into account
+                float playerMinX = this->pos.x - this->width/2;
+                float playerMaxX = this->pos.x + this->width/2;
+                float playerMinZ = this->pos.z - this->height/2;
+                float playerMaxZ = this->pos.z + this->height/2;
+
+                if (playerMaxX >= wall.pos.x && playerMinX <= wall.pos.x + wall.width &&
+                    nextY + gameDepth >= wall.pos.y && this->pos.y + gameDepth <= wall.pos.y &&
+                    playerMinZ >= wall.pos.z - wall.height && playerMaxZ <= wall.pos.z)
+                {
+                    // Front/back collision detected
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 } Player;
 
 // Ball struct
@@ -831,15 +858,18 @@ typedef struct Game
 
     void moveFront(GLint distance)
     {
-        if ((this->balls[0].pos.y - this->parameters.gameDepth - distance - 2) > 0)
+        if (!this->player.checkPotentialCollisionWithWalls(distance, this->parameters.gameDepth, this->corridor.wallSteps))
         {
-            this->parameters.gameDepth += distance;
-            if (!this->balls[0].isLaunched)
+            if ((this->balls[0].pos.y - this->parameters.gameDepth - distance - 2) > 0)
             {
-                this->balls[0].moveBall(0, distance, 0);
+                this->parameters.gameDepth += distance;
+                if (!this->balls[0].isLaunched)
+                {
+                    this->balls[0].moveBall(0, distance, 0);
+                }
+                this->score += distance * 50;
+                printf("%i\n", this->score);
             }
-            this->score += distance * 50;
-            printf("%i\n", this->score);
         }
     }
 
