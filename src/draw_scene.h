@@ -30,7 +30,7 @@ void drawWall(std::vector<Wall> myWalls, std::vector<Position> posBalls, Positio
 
 void drawBalls(std::vector<Ball> balls, GLuint ballsTexture);
 
-void drawBonusBoxes(float x, float y, float z, float width, Game myGame, std::vector<Position> posBalls, Position posPlayer);
+void drawBonusBox(Bonus myBonus, Game myGame, std::vector<Position> posBalls, Position posPlayer);
 
 void drawPlayer(Player myPlayer);
 
