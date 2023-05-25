@@ -13,17 +13,18 @@ Déplacements
     [CHECK] un seul bouton -> espace pour avancer
     [CHECK] j'empêche d'avancer si ça fait prendre des dégats au joueur (au delà de la balle)
     [CHECK] j'empêche d'avancer si ça dépasse le fond du couloir
-    - Bloquer les déplacements si la raquette est situé en face d'un mur et qu'elle peut rentrer en collision si on se déplace
+    [CHECK] Bloquer les déplacements si la raquette est situé en face d'un mur et qu'elle peut rentrer en collision si on se déplace
 
 Collisions
     [CHECK] gèrer les collisions avec les murs du corridor
     [CHECK] gèrer les collisions sur le côté des murs
     [CHECK] bug collisions corridor coins
     [CHECK] je gère les collisions un peu compliquées avec la raquette
-    - collisions avec les bonus
+    [CHECK] collisions avec les bonus
 
 Bonus
     [CHECK] faire la structure des bonus
+    - fonctionnement général des bonus
     - bonus qui fait gagner une vie
     - bonus qui fait coller la balle à la raquette
     - OPTIONNEL : bonus qui aggrandi la raquette

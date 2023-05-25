@@ -162,7 +162,7 @@ void onKey(GLFWwindow *window, int key, int scancode, int action, int mods)
 					break;
 
 				case GLFW_KEY_C:
-					myGame.balls[0].checkWAllCollisions(myGame.corridor, myGame.player, myGame.parameters.gameDepth, myGame.currentBonus, myGame.gameState);
+					myGame.balls[0].checkAllCollisions(myGame.corridor, myGame.player, myGame.parameters.gameDepth, &myGame.currentBonus, &myGame.lives);
 					break;
 
 				case GLFW_KEY_KP_9:
@@ -570,7 +570,8 @@ int main()
 					// myGame.score++;
 				}
 
-				ball.checkWAllCollisions(myGame.corridor, myGame.player, myGame.parameters.gameDepth, myGame.currentBonus, myGame.gameState);
+				ball.checkAllCollisions(myGame.corridor, myGame.player, myGame.parameters.gameDepth, &myGame.currentBonus, &myGame.lives);
+				myGame.checkBonuses();
 				myGame.checkWinDamage();
 			}
 		}

@@ -286,28 +286,25 @@ typedef struct Bonus
     bool alive = false;
     void (*effect)();
 
-    Bonus() {
-        this->alive = true;
-        int typeId = rand() % 2;
-        if (typeId == 1)
-        {
-            this->type = "life";
-        }
-        else if (typeId == 2)
-        {
-            this->type = "sticky";
-        }
+    // Currently used constructor
+    Bonus() {}
+
+    // For empty bonuses
+    Bonus(std::string nullable)
+    {
+        this->type = "";
     }
 
-    Bonus(float width, float depth, float height, float wallStepY) {
+    Bonus(float width, float depth, float height, float wallStepY)
+    {
         this->alive = true;
 
         int typeId = rand() % 2;
-        if (typeId == 1)
+        if (typeId == 0)
         {
             this->type = "life";
         }
-        else if (typeId == 2)
+        else if (typeId == 1)
         {
             this->type = "sticky";
         }
@@ -320,19 +317,6 @@ typedef struct Bonus
         this->pos.z = zBottomLimit + rand() % (zTopLimit - zBottomLimit + 1);
         this->width = 2;
     }
-
-    // void lifeEffect()
-    // {
-    //     printf("%s", "you won a life!");
-    //     // myGame.lives++;
-    // }
-
-    // void stickyEffect()
-    // {
-    //     printf("%s", "sticky effect activated!")
-    //     // myGame.gameState = 1;
-    //     // myGame.bonusState = 'sticky'
-    // }
 } Bonus;
 
 // WallStep struct for obtacles groups, situated at precise steps inside the corridor
@@ -597,12 +581,8 @@ typedef struct Ball
         this->speed = Speed(0, this->defaultSpeed, 0);
     }
 
-    void checkWAllCollisions(Corridor corridor, Player player, GLfloat gameDepth, Bonus& currentBonus, int& gameState)
+    void checkAllCollisions(Corridor corridor, Player player, GLfloat gameDepth, Bonus* currentBonus, int* lives)
     {
-        // IF collide with a bonus
-        // ADD the bonus to currentBonus
-        // INCREASE score by 1000
-
         int collideItemWalls = this->checkWallsCollisions(corridor.wallSteps);
         if (collideItemWalls == 1)
         {
@@ -615,13 +595,13 @@ typedef struct Ball
 
         if (this->checkPlayerCollisions(player, gameDepth))
         {
-            // if (currentBonus && currentBonus.type == "sticky")
-            // {
-            //     gameState = 1;
-            //     currentBonus = NULL;
-            // }
-            // else
-            // {
+            if (currentBonus->type == "sticky")
+            {
+                *lives += 1;
+                currentBonus->type = "";
+            }
+            else
+            {
                 const GLfloat MAX_SPEED = std::abs(this->speed.y);
 
                 // Calculer la distance du point d'impact par rapport au centre de la raquette
@@ -636,7 +616,7 @@ typedef struct Ball
                 this->speed.x = reboundDirectionX * MAX_SPEED; // Aucun mouvement horizontal
                 this->speed.y = -this->speed.y; // Inverser la direction verticale
                 this->speed.z = reboundDirectionZ * MAX_SPEED; // Utiliser la direction du rebondissement pour la vitesse en Z
-            // }
+            }
         }
 
         int collideItemCorridor = this->checkCorridorCollisions(corridor);
@@ -660,6 +640,44 @@ typedef struct Ball
             this->pos.z = -corridor.height / 2 + this->radius;
             this->speed.z = -this->speed.z;
         }
+    }
+
+    Bonus checkBonusCollisions(std::vector<WallStep>& wallSteps)
+    {
+        for (WallStep& wallStep : wallSteps)
+        {
+            Bonus bonus = wallStep.bonus;
+
+            // Calculate the potential new position of the ball
+            float nextX = this->pos.x + this->speed.x;
+            float nextY = this->pos.y + this->speed.y;
+            float nextZ = this->pos.z + this->speed.z;
+
+            // Calculate the bounds of the ball with the radius taken into account
+            float ballMinX = nextX - this->radius;
+            float ballMaxX = nextX + this->radius;
+            float ballMinY = nextY - this->radius;
+            float ballMaxY = nextY + this->radius;
+            float ballMinZ = nextZ - this->radius;
+            float ballMaxZ = nextZ + this->radius;
+
+            // printf("bonus width: %f\n ", bonus.width);
+            // printf("bonus height: %f, ", bonus.height);
+            // printf("bonus depth: %f\n, ", bonus.depth);
+
+            // Check if the potential new position collides with the wall
+            if (ballMaxX >= bonus.pos.x - bonus.width / 2 && ballMinX <= bonus.pos.x + bonus.width / 2 &&
+                ballMaxY >= bonus.pos.y + bonus.width / 2 && ballMinY <= bonus.pos.y + bonus.width / 2 &&
+                ballMaxZ >= bonus.pos.z - bonus.width / 2 && ballMinZ <= bonus.pos.z + bonus.width / 2 &&
+                wallStep.bonus.alive)
+            {
+                // Collision detected
+                wallStep.bonus.alive = false;
+                wallStep.bonus.pos.x = 1000;
+                return wallStep.bonus;
+            }
+        }
+        return Bonus("");
     }
 
     int checkWallsCollisions(std::vector<WallStep> wallSteps)
@@ -827,6 +845,7 @@ typedef struct Game
         this->gameState = 1;
         this->parameters.gameDepth = 0;
         this->nbOfBallsLaunched = 0;
+        this->currentBonus = Bonus("");
 
         this->corridor.generateCorridor();
     }
@@ -931,6 +950,26 @@ typedef struct Game
                 {
                     this->winGame();
                 }
+            }
+        }
+    }
+
+    void checkBonuses()
+    {
+        Bonus tempBonus = this->balls[0].checkBonusCollisions(this->corridor.wallSteps);
+        if (tempBonus.type != "")
+        {
+            printf("%s bonus obtained!\n", tempBonus.type.c_str());
+            this->score += 1000;
+            // LIFE EFFECT
+            if (tempBonus.type == "life")
+            {
+                this->lives++;
+            }
+            // STICKY EFFECT
+            else if (tempBonus.type == "sticky")
+            {
+                this->currentBonus.type = "sticky";
             }
         }
     }
