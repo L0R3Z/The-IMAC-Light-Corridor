@@ -991,6 +991,7 @@ typedef struct Game
         if (this->currentBonus.type == "sticky" && this->balls[0].checkPlayerCollisions(this->player, this->parameters.gameDepth))
         {
             this->resetBallState();
+            this->currentBonus.type = "";
         }
     }
 } Game;
