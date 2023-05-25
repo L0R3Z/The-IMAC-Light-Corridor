@@ -24,9 +24,10 @@ Collisions
 
 Bonus
     [CHECK] faire la structure des bonus
-    - fonctionnement général des bonus
-    - bonus qui fait gagner une vie
-    - bonus qui fait coller la balle à la raquette
+    [CHECK] fonctionnement général des bonus
+    [CHECK]- bonus qui fait gagner une vie
+    [CHECK] bonus qui fait coller la balle à la raquette
+    - améliorer le sticky bonus
     - OPTIONNEL : bonus qui aggrandi la raquette
 
 Menu

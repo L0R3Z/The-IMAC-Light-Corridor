@@ -581,7 +581,7 @@ typedef struct Ball
         this->speed = Speed(0, this->defaultSpeed, 0);
     }
 
-    void checkAllCollisions(Corridor corridor, Player player, GLfloat gameDepth, Bonus* currentBonus, int* lives)
+    void checkAllCollisions(Corridor corridor, Player player, GLfloat gameDepth, Bonus* currentBonus)
     {
         int collideItemWalls = this->checkWallsCollisions(corridor.wallSteps);
         if (collideItemWalls == 1)
@@ -595,28 +595,29 @@ typedef struct Ball
 
         if (this->checkPlayerCollisions(player, gameDepth))
         {
-            if (currentBonus->type == "sticky")
-            {
-                *lives += 1;
-                currentBonus->type = "";
-            }
-            else
-            {
-                const GLfloat MAX_SPEED = std::abs(this->speed.y);
+            // if (currentBonus->type == "sticky")
+            // {
+            //     // *lives += 1;
+            //     // resetBall();
+            //     // currentBonus->type = "";
+            // }
+            // else
+            // {
+            const GLfloat MAX_SPEED = std::abs(this->speed.y);
 
-                // Calculer la distance du point d'impact par rapport au centre de la raquette
-                float distanceFromCenterX = this->pos.x - player.pos.x;
-                float distanceFromCenterZ = this->pos.z - player.pos.z;
+            // Calculer la distance du point d'impact par rapport au centre de la raquette
+            float distanceFromCenterX = this->pos.x - player.pos.x;
+            float distanceFromCenterZ = this->pos.z - player.pos.z;
 
-                // Calculer la direction du rebondissement en fonction de la distance du point d'impact
-                float reboundDirectionX = distanceFromCenterX / (player.width / 2);
-                float reboundDirectionZ = distanceFromCenterZ / (player.height / 2);
+            // Calculer la direction du rebondissement en fonction de la distance du point d'impact
+            float reboundDirectionX = distanceFromCenterX / (player.width / 2);
+            float reboundDirectionZ = distanceFromCenterZ / (player.height / 2);
 
-                // Mettre à jour les composantes de vitesse en fonction de la direction du rebondissement
-                this->speed.x = reboundDirectionX * MAX_SPEED; // Aucun mouvement horizontal
-                this->speed.y = -this->speed.y; // Inverser la direction verticale
-                this->speed.z = reboundDirectionZ * MAX_SPEED; // Utiliser la direction du rebondissement pour la vitesse en Z
-            }
+            // Mettre à jour les composantes de vitesse en fonction de la direction du rebondissement
+            this->speed.x = reboundDirectionX * MAX_SPEED; // Aucun mouvement horizontal
+            this->speed.y = -this->speed.y; // Inverser la direction verticale
+            this->speed.z = reboundDirectionZ * MAX_SPEED; // Utiliser la direction du rebondissement pour la vitesse en Z
+            // }
         }
 
         int collideItemCorridor = this->checkCorridorCollisions(corridor);
@@ -846,6 +847,7 @@ typedef struct Game
         this->parameters.gameDepth = 0;
         this->nbOfBallsLaunched = 0;
         this->currentBonus = Bonus("");
+        this->score = 0;
 
         this->corridor.generateCorridor();
     }
@@ -889,14 +891,12 @@ typedef struct Game
     {
         printf("\nYou... %s", "won :)");
         this->gameState = 12;
-        // this->loadGame();
     }
 
     void looseGame()
     {
         printf("\nYou... %s", "lost :(");
         this->gameState = 11;
-        // this->loadGame();
     }
 
     void takeDamage()
@@ -909,12 +909,17 @@ typedef struct Game
         }
         else
         {
-            this->balls[0].resetPosition(this->player.pos, this->parameters.gameDepth);
-            this->balls[0].resetSpeed();
-            this->balls[0].isLaunched = false;
-            this->gameState = 1;
-            this->nbOfBallsLaunched--;
+            this->resetBallState();
         }
+    }
+
+    void resetBallState()
+    {
+        this->balls[0].resetPosition(this->player.pos, this->parameters.gameDepth);
+        this->balls[0].resetSpeed();
+        this->balls[0].isLaunched = false;
+        this->gameState = 1;
+        this->nbOfBallsLaunched--;
     }
 
     void moveFront(GLint distance)
@@ -954,7 +959,7 @@ typedef struct Game
         }
     }
 
-    void checkBonuses()
+    void checkBonus()
     {
         Bonus tempBonus = this->balls[0].checkBonusCollisions(this->corridor.wallSteps);
         if (tempBonus.type != "")
@@ -971,6 +976,12 @@ typedef struct Game
             {
                 this->currentBonus.type = "sticky";
             }
+        }
+
+        // Check for activating sticky effect
+        if (this->currentBonus.type == "sticky" && this->balls[0].checkPlayerCollisions(this->player, this->parameters.gameDepth))
+        {
+            this->resetBallState();
         }
     }
 } Game;

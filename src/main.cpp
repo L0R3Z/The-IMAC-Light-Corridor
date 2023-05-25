@@ -32,31 +32,6 @@ vector<Position> posBalls;
 
 static const float _viewSize = myGame.parameters.buildingHeight; // Correspond à building height à cause du cadrage sur le tunnel (peut changer)
 
-struct Vertex
-{
-	GLfloat positionX;
-	GLfloat positionY;
-	GLfloat colorR;
-	GLfloat colorG;
-	GLfloat colorB;
-
-	Vertex(int positionX, int positionY)
-	{
-		this->positionX = (_viewSize * aspectRatio) / WINDOW_WIDTH * positionX - (_viewSize * aspectRatio) / 2.0;
-		this->positionY = -_viewSize / WINDOW_HEIGHT * positionY + _viewSize / 2.0;
-		this->colorR = ((((GLfloat)(rand() % 180)) + 75) / 255);
-		this->colorG = ((((GLfloat)(rand() % 180)) + 75) / 255);
-		this->colorB = ((((GLfloat)(rand() % 180)) + 75) / 255);
-		printf("%f \n", _viewSize);
-		printf("%i %i \n", positionX, positionY);
-
-		printf("%f %f \n", this->positionX, this->positionY);
-	}
-};
-
-vector<Vertex> pointsToDraw;
-int formToDraw = GL_POINTS;
-
 /* Minimal time wanted between two images */
 static const double FRAMERATE_IN_SECONDS = 1./60.;
 
@@ -84,10 +59,6 @@ void mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
 {
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
-		// bibux
-		// glfwGetCursorPos(window, &xpos, &ypos);
-		// printf("%f %f \n", xpos, ypos);
-		// pointsToDraw.push_back(Vertex(xpos, ypos));
 		if (myGame.gameState == 1)
 		{
 			// Launch the first unlaunched ball in the array
@@ -134,14 +105,6 @@ void onKey(GLFWwindow *window, int key, int scancode, int action, int mods)
 				glfwSetWindowShouldClose(window, GLFW_TRUE);
 				break;
 
-			// case GLFW_KEY_L:
-			// 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			// 	break;
-
-			// case GLFW_KEY_P:
-			// 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			// 	break;
-
 			default:
 				std::cout << "Touche non gérée (" << key << ")" << std::endl;
 		}
@@ -162,7 +125,7 @@ void onKey(GLFWwindow *window, int key, int scancode, int action, int mods)
 					break;
 
 				case GLFW_KEY_C:
-					myGame.balls[0].checkAllCollisions(myGame.corridor, myGame.player, myGame.parameters.gameDepth, &myGame.currentBonus, &myGame.lives);
+					myGame.balls[0].checkAllCollisions(myGame.corridor, myGame.player, myGame.parameters.gameDepth, &myGame.currentBonus);
 					break;
 
 				case GLFW_KEY_KP_9:
@@ -466,17 +429,6 @@ void draw()
 			drawVictoryMenu(myGame, textures);
 			break;
 	}
-
-	// Test drawing function
-	// drawTestTextures();
-	// glPointSize(25.0);
-	// glBegin(formToDraw);
-	// for (unsigned int i = 0; i < pointsToDraw.size(); i++)
-	// {
-	//     glColor4f(pointsToDraw.at(i).colorR, pointsToDraw.at(i).colorG, pointsToDraw.at(i).colorB, 1.0);
-	// 	glVertex3f(pointsToDraw.at(i).positionX,0, pointsToDraw.at(i).positionY);
-	// }
-	// glEnd();
 }
 
 int main()
@@ -570,8 +522,8 @@ int main()
 					// myGame.score++;
 				}
 
-				ball.checkAllCollisions(myGame.corridor, myGame.player, myGame.parameters.gameDepth, &myGame.currentBonus, &myGame.lives);
-				myGame.checkBonuses();
+				myGame.checkBonus();
+				ball.checkAllCollisions(myGame.corridor, myGame.player, myGame.parameters.gameDepth, &myGame.currentBonus);
 				myGame.checkWinDamage();
 			}
 		}
