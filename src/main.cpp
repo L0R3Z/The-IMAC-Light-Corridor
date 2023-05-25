@@ -305,6 +305,7 @@ GLuint loadImage(const char *filename)
 // Function that load the textures used in game
 void loadTextures()
 {
+	// 0 to 9
 	textures.push_back(loadImage("../res/0.png"));
 	textures.push_back(loadImage("../res/1.png"));
 	textures.push_back(loadImage("../res/2.png"));
@@ -315,9 +316,9 @@ void loadTextures()
 	textures.push_back(loadImage("../res/7.png"));
 	textures.push_back(loadImage("../res/8.png"));
 	textures.push_back(loadImage("../res/9.png"));
-	textures.push_back(loadImage("../res/kirby.png"));
+	
+	// 10 to 18
 	textures.push_back(loadImage("../res/lifeIcon.png"));
-	textures.push_back(loadImage("../res/stoneWall.png"));
 	textures.push_back(loadImage("../res/title.png"));
 	textures.push_back(loadImage("../res/names.png"));
 	textures.push_back(loadImage("../res/startButton.png"));
@@ -325,14 +326,30 @@ void loadTextures()
 	textures.push_back(loadImage("../res/restartButton.png"));
 	textures.push_back(loadImage("../res/exitSmallButton.png"));
 	textures.push_back(loadImage("../res/gameOver.png"));
-	textures.push_back(loadImage("../res/sky.png"));
-	textures.push_back(loadImage("../res/leftWall.png"));
-	textures.push_back(loadImage("../res/rightWall.png"));
-	textures.push_back(loadImage("../res/floorTile.png"));
-	textures.push_back(loadImage("../res/wallTile.png"));
-	textures.push_back(loadImage("../res/bottomWall.png"));
-	textures.push_back(loadImage("../res/itemBox.png"));
-	textures.push_back(loadImage("../res/steelBallTexture.png"));
+	textures.push_back(loadImage("../res/basic_ball.png"));
+
+	// 19 to 26
+	textures.push_back(loadImage("../res/kirby_ball.png"));
+	textures.push_back(loadImage("../res/kirby_bonusBox.png"));
+	textures.push_back(loadImage("../res/kirby_wallTile.png"));
+	textures.push_back(loadImage("../res/kirby_leftWall.png"));
+	textures.push_back(loadImage("../res/kirby_rightWall.png"));
+	textures.push_back(loadImage("../res/kirby_bottomWall.png"));
+	textures.push_back(loadImage("../res/kirby_floorTile.png"));
+	textures.push_back(loadImage("../res/kirby_sky.png"));
+
+	// 27 to 34
+	textures.push_back(loadImage("../res/mario_ball.png"));
+	textures.push_back(loadImage("../res/mario_bonusBox.png"));
+	textures.push_back(loadImage("../res/mario_wallTile.png"));
+	textures.push_back(loadImage("../res/mario_leftWall.png"));
+	textures.push_back(loadImage("../res/mario_rightWall.png"));
+	textures.push_back(loadImage("../res/mario_bottomWall.png"));
+	textures.push_back(loadImage("../res/mario_floorTile.png"));
+	textures.push_back(loadImage("../res/mario_sky.png"));
+	
+	
+	
 }
 
 // Function that delete the textures used in game

@@ -810,18 +810,30 @@ typedef struct Game
         {
             case 1:
                 this->corridor.colorRings = Colors(140./255, 0, 116./255);
-                this->corridor.ballTexture = myTextures[10];
-                this->corridor.bonusBoxTexture = myTextures[26];
-                this->corridor.wallsTexture = myTextures[24];
-                this->corridor.leftWallTexture = myTextures[21];
-                this->corridor.rightWallTexture = myTextures[22];
-                this->corridor.bottomTexture = myTextures[25];
-                this->corridor.groundTexture = myTextures[23];
-                this->corridor.ceilingTexture = myTextures[20];
+                this->corridor.ballTexture = myTextures[19];
+                this->corridor.bonusBoxTexture = myTextures[20];
+                this->corridor.wallsTexture = myTextures[21];
+                this->corridor.leftWallTexture = myTextures[22];
+                this->corridor.rightWallTexture = myTextures[23];
+                this->corridor.bottomTexture = myTextures[24];
+                this->corridor.groundTexture = myTextures[25];
+                this->corridor.ceilingTexture = myTextures[26];
                 printf("Rainbow Resort loaded\n");
                 break;
-            default:
+            case 2:
+                this->corridor.colorRings = Colors(1, 1, 1);
                 this->corridor.ballTexture = myTextures[27];
+                this->corridor.bonusBoxTexture = myTextures[28];
+                this->corridor.wallsTexture = myTextures[29];
+                this->corridor.leftWallTexture = myTextures[30];
+                this->corridor.rightWallTexture = myTextures[31];
+                this->corridor.bottomTexture = myTextures[32];
+                this->corridor.groundTexture = myTextures[33];
+                this->corridor.ceilingTexture = myTextures[34];
+                printf("Mushroom Kingdom loaded\n");
+                break;
+            default:
+                this->corridor.ballTexture = myTextures[18];
                 this->renderSkinId = 0;
                 break;
         }
