@@ -645,9 +645,12 @@ void drawInterface(Game myGame, std::vector<GLuint> myTextures, std::vector<Posi
 	glDisable(GL_TEXTURE_2D);
 
 	// Score
+	int score = myGame.score;
 	for (int i = 0; i < 6; i++)
 	{
-		drawSimpleTexturedSquare(5*myGame.parameters.buildingWidth/12-(i*myGame.parameters.buildingWidth/20),11*myGame.parameters.buildingHeight/24,myGame.parameters.buildingHeight/12,myGame.parameters.buildingHeight/12,myTextures[0], tempColor);
+		int digit = score % 10;
+  		score /= 10;
+		drawSimpleTexturedSquare(5*myGame.parameters.buildingWidth/12-(i*myGame.parameters.buildingWidth/20),11*myGame.parameters.buildingHeight/24,myGame.parameters.buildingHeight/12,myGame.parameters.buildingHeight/12,myTextures[digit], tempColor);
 	}
 	glDisable(GL_TEXTURE_2D);
 }
@@ -711,8 +714,11 @@ void drawVictoryMenu(Game myGame, std::vector<GLuint> myTextures) {
 
 	// Score
 	tempColor.updateColors(57./255,181./255,74./255);
+	int score = myGame.score;
 	for (int i = 0; i < 6; i++)
 	{
-		drawSimpleTexturedSquare(myGame.parameters.buildingWidth/4-(i*myGame.parameters.buildingWidth/8.5),myGame.parameters.buildingHeight/12,myGame.parameters.buildingHeight/6,myGame.parameters.buildingHeight/6,myTextures[0], tempColor);
+		int digit = score % 10;
+  		score /= 10;
+		drawSimpleTexturedSquare(myGame.parameters.buildingWidth/4-(i*myGame.parameters.buildingWidth/8.5),myGame.parameters.buildingHeight/12,myGame.parameters.buildingHeight/6,myGame.parameters.buildingHeight/6,myTextures[digit], tempColor);
 	}
 }
