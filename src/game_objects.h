@@ -299,14 +299,18 @@ typedef struct Bonus
     {
         this->alive = true;
 
-        int typeId = rand() % 2;
-        if (typeId == 0)
+        int typeId = rand() % 5;
+        if (typeId == 0 || typeId == 1)
         {
             this->type = "life";
         }
-        else if (typeId == 1)
+        else if (typeId == 2 || typeId == 3)
         {
             this->type = "sticky";
+        }
+        else if (typeId == 4)
+        {
+            this->type = "treasure";
         }
 
         int xLeftLimit = - width / 3; int xRightLimit = width / 3;
@@ -975,6 +979,11 @@ typedef struct Game
             else if (tempBonus.type == "sticky")
             {
                 this->currentBonus.type = "sticky";
+            }
+            // TREASURE EFFECT
+            else if (tempBonus.type == "treasure")
+            {
+                this->score +=9000;
             }
         }
 

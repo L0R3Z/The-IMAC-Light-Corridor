@@ -27,7 +27,7 @@ Bonus
     [CHECK] fonctionnement général des bonus
     [CHECK]- bonus qui fait gagner une vie
     [CHECK] bonus qui fait coller la balle à la raquette
-    - améliorer le sticky bonus
+    [CHECK] améliorer le sticky bonus
     - OPTIONNEL : bonus qui aggrandi la raquette
 
 Menu
