@@ -48,7 +48,7 @@ typedef struct Speed
     }
 } Speed;
 
-// Tool struct for colors
+// Struct for colors
 typedef struct Colors
 {
     float r, g, b, h, s, l;
@@ -204,13 +204,6 @@ typedef struct Colors
     Colors displayColor(std::vector<Position> posBalls, Position posPlayer, Position posObject, GLfloat gameDepth)
     {
         std::vector<float> distanceBalls;
-        
-        // Position update based on game position
-        // for (int i = 0; i < posBalls.size(); i++)
-	    // {
-        //     posBalls[i].y -= gameDepth;
-        // }
-        // posObject.y -= gameDepth;
 
         // Position update based on game position
         posBalls[0].y -= gameDepth;
@@ -285,8 +278,7 @@ typedef struct Bonus
     std::string type;
     bool alive = false;
     void (*effect)();
-
-    // Currently used constructor
+    
     Bonus() {}
 
     // For empty bonuses
@@ -295,10 +287,12 @@ typedef struct Bonus
         this->type = "";
     }
 
+    // Currently used constructor
     Bonus(float width, float depth, float height, float wallStepY)
     {
         this->alive = true;
 
+        // Choose a random effect
         int typeId = rand() % 5;
         if (typeId == 0 || typeId == 1)
         {
@@ -338,7 +332,6 @@ typedef struct WallStep
     // Currently used constructor
     WallStep(GLfloat y)
     {
-        // this->depth = depth;
         this->pos = Position(0, y, 0);
         this->color = Colors();
     }
@@ -481,7 +474,6 @@ typedef struct Corridor
 // Player struct for the racket that the player controls
 typedef struct Player : Wall
 {
-
     Player()
     {
         this->pos.y = 0;
@@ -551,7 +543,6 @@ typedef struct Ball
         this->pos = Position(0, rad + 1, 0);
         this->defaultSpeed = speed;
         this->speed = Speed(0, speed, 0);
-        // this->pos = Position(0, 12 * 10., 0);
     }
 
     // Move the ball with precise x, y and z values
@@ -575,18 +566,22 @@ typedef struct Ball
         this->moveBall(this->speed.x, this->speed.y, this->speed.z);
     }
 
+    // Reset ball position
     void resetPosition(Position playerPos, GLfloat gameDepth)
     {
         this->pos = Position(playerPos.x, this->radius + gameDepth + 1, playerPos.z);
     }
 
+    // Reset ball speed
     void resetSpeed()
     {
         this->speed = Speed(0, this->defaultSpeed, 0);
     }
 
+    // Check every possible collisions with the ball
     void checkAllCollisions(Corridor corridor, Player player, GLfloat gameDepth, Bonus* currentBonus)
     {
+        // Handle collision with walls
         int collideItemWalls = this->checkWallsCollisions(corridor.wallSteps);
         if (collideItemWalls == 1)
         {
@@ -597,16 +592,9 @@ typedef struct Ball
             this->speed.x = -this->speed.x;
         }
 
+        // Handle collision with player
         if (this->checkPlayerCollisions(player, gameDepth))
         {
-            // if (currentBonus->type == "sticky")
-            // {
-            //     // *lives += 1;
-            //     // resetBall();
-            //     // currentBonus->type = "";
-            // }
-            // else
-            // {
             const GLfloat MAX_SPEED = std::abs(this->speed.y);
 
             // Calculer la distance du point d'impact par rapport au centre de la raquette
@@ -624,6 +612,7 @@ typedef struct Ball
             // }
         }
 
+        // Handle collision with corridor
         int collideItemCorridor = this->checkCorridorCollisions(corridor);
         if (collideItemCorridor == 1)
         {
@@ -665,10 +654,6 @@ typedef struct Ball
             float ballMaxY = nextY + this->radius;
             float ballMinZ = nextZ - this->radius;
             float ballMaxZ = nextZ + this->radius;
-
-            // printf("bonus width: %f\n ", bonus.width);
-            // printf("bonus height: %f, ", bonus.height);
-            // printf("bonus depth: %f\n, ", bonus.depth);
 
             // Check if the potential new position collides with the wall
             if (ballMaxX >= bonus.pos.x - bonus.width / 2 && ballMinX <= bonus.pos.x + bonus.width / 2 &&
@@ -785,6 +770,7 @@ typedef struct Ball
 
 } Ball;
 
+// Tool struct to organize the game parameters
 typedef struct GameParameters
 {
     GLfloat buildingWidth;
@@ -835,9 +821,10 @@ typedef struct Game
 
     void loadMenu() {}
 
+    // Function to play when a new game begin
     void loadGame()
     {
-        // Déclaration des multiples variables utiles au jeu
+        // Déclaration des valeurs par défaut des multiples variables utiles au jeu
         this->corridor = Corridor(this->parameters.buildingDepth, rand() % 30 + 10, this->parameters.buildingWidth, this->parameters.buildingHeight); // Profondeur d'une étape (buildingDepth) / Nombre d'étapes
         this->player = Player(this->parameters.buildingWidth / 6);
         if (this->balls.empty())
@@ -856,6 +843,7 @@ typedef struct Game
         this->corridor.generateCorridor();
     }
 
+    // Load a random skin
     void loadSkin(std::vector<GLuint> myTextures) {
         this->renderSkinId = rand() % 4;
         switch (this->renderSkinId)
@@ -898,22 +886,22 @@ typedef struct Game
         }
     }
 
+    // Win the game
     void winGame()
     {
-        printf("\nYou... %s", "won :)");
         this->gameState = 12;
     }
 
+    // Loose the game
     void looseGame()
     {
-        printf("\nYou... %s", "lost :(");
         this->gameState = 11;
     }
 
+    // Take damage (when the ball go behind the player)
     void takeDamage()
     {
         this->lives--;
-        printf("\nRemaining lives: %i", this->lives);
         if (this->lives == 0)
         {
             this->looseGame();
@@ -924,6 +912,7 @@ typedef struct Game
         }
     }
 
+    // Reset ball state (for sticky bonus)
     void resetBallState()
     {
         this->balls[0].resetPosition(this->player.pos, this->parameters.gameDepth);
@@ -933,8 +922,10 @@ typedef struct Game
         this->nbOfBallsLaunched--;
     }
 
+    // Move front inside the corridor
     void moveFront(GLint distance)
     {
+        // Can't move if there is a wall in front of the player !
         if (!this->player.checkPotentialCollisionWithWalls(distance, this->parameters.gameDepth, this->corridor.wallSteps))
         {
             if ((this->balls[0].pos.y - this->parameters.gameDepth - distance - 2) > 0)
@@ -944,12 +935,13 @@ typedef struct Game
                 {
                     this->balls[0].moveBall(0, distance, 0);
                 }
+                // Increase the score
                 this->score += distance * 50;
-                printf("%i\n", this->score);
             }
         }
     }
 
+    // Check if player won or if they're taking damages
     void checkWinDamage()
     {
         for (Ball ball : this->balls)
@@ -970,6 +962,7 @@ typedef struct Game
         }
     }
 
+    // Handle the bonus
     void checkBonus()
     {
         Bonus tempBonus = this->balls[0].checkBonusCollisions(this->corridor.wallSteps);

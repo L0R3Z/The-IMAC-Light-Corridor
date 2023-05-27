@@ -47,7 +47,6 @@ void onWindowResized(GLFWwindow *window, int width, int height)
 	WINDOW_WIDTH = width;
 	WINDOW_HEIGHT = height;
 	glViewport(0, 0, width, height);
-	// glViewport(0, 0, width/scalingFactor, height/scalingFactor);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(myGame.parameters.aperture, aspectRatio, Z_NEAR, Z_FAR);
@@ -80,11 +79,9 @@ void mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
 
 void cursor_position_callback(GLFWwindow *window, double xpos, double ypos)
 {
-	// if()
+	// Déplacer le joueur et la balle lorsque l'on déplace la souris
 	GLfloat convertedX = (_viewSize * aspectRatio) / WINDOW_WIDTH * xpos - (_viewSize * aspectRatio) / 2.0;
 	GLfloat convertedY = -_viewSize / WINDOW_HEIGHT * ypos + _viewSize / 2.0;
-	// printf("Converted X: %f, ", convertedX);
-	// printf("Converted Y: %f\n", convertedY);
 
 	myGame.player.updatePositionMouse(xpos, ypos, WINDOW_WIDTH, WINDOW_HEIGHT, _viewSize, aspectRatio, myGame.parameters.buildingWidth-myGame.player.width, myGame.parameters.buildingHeight-myGame.player.height);
 	for (Ball &ball : myGame.balls)
@@ -100,7 +97,6 @@ void onKey(GLFWwindow *window, int key, int scancode, int action, int mods)
 	{
 		switch (key)
 		{
-			// case GLFW_KEY_A:
 			case GLFW_KEY_ESCAPE:
 				glfwSetWindowShouldClose(window, GLFW_TRUE);
 				break;
@@ -129,14 +125,12 @@ void onKey(GLFWwindow *window, int key, int scancode, int action, int mods)
 					break;
 
 				case GLFW_KEY_KP_9:
-					// if(dist_zoom<100.0f) dist_zoom*=1.1;
 					if (dist_zoom < 100.0f)
 						dist_zoom += 1;
 					std::cout << "Zoom is " << dist_zoom << std::endl;
 					break;
 
 				case GLFW_KEY_KP_3:
-					// if(dist_zoom>1.0f) dist_zoom*=0.9;
 					if (dist_zoom > 1.0f)
 						dist_zoom -= 1;
 					std::cout << "Zoom is " << dist_zoom << std::endl;
@@ -174,9 +168,9 @@ void onKey(GLFWwindow *window, int key, int scancode, int action, int mods)
 					break;
 			}
 		}
+		// If player is in a menu
 		else
 		{
-			printf("%i", myGame.gameState);
 			switch (key)
 			{
 				case GLFW_KEY_J:
@@ -486,7 +480,6 @@ int main()
 
 	loadTextures();
 	
-	
 	GLFWimage icon = loadIcon("../res/lifeIcon.png");
 	glfwSetWindowIcon(window, 1, &icon);
 
@@ -495,7 +488,6 @@ int main()
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
-		// printf("%i\n", myGame.score);
 		/* Cleaning buffers and setting Matrix Mode */
 		glClearColor(0.0, 0.0, 0., 0.0);
 
@@ -503,7 +495,6 @@ int main()
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
-		// glScalef(scalingFactor, scalingFactor, 1.0f);
 		setCamera();
 
 		// GAMESTATES
@@ -519,7 +510,6 @@ int main()
 			{
 				if (ball.isLaunched) {
 					ball.gameMove();
-					// myGame.score++;
 				}
 
 				myGame.checkBonus();

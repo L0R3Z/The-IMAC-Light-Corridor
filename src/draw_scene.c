@@ -434,7 +434,6 @@ void drawBalls(std::vector<Ball> balls, GLuint ballsTexture)
 {
 	for (Ball ball : balls)
 	{
-		// printf("inside drawBalls, pos y of ball: %f\n", ball.pos.y);
 		glPushMatrix();
 			if(myGame.balls[0].isLaunched) glTranslatef(ball.pos.x, ball.pos.y, ball.pos.z);
 			else glTranslatef(ball.pos.x, ball.pos.y, ball.pos.z);
