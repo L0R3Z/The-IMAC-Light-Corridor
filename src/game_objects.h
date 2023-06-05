@@ -845,7 +845,7 @@ typedef struct Game
 
     // Load a random skin
     void loadSkin(std::vector<GLuint> myTextures) {
-        this->renderSkinId = rand() % 4;
+        this->renderSkinId = rand() % 5;
         switch (this->renderSkinId)
         {
             case 1:
@@ -878,6 +878,18 @@ typedef struct Game
                 this->corridor.colorRings = Colors(1.,1.,1.);
                 this->corridor.ballTexture = myTextures[18];
                 printf("White Corridor loaded\n");
+                break;
+            case 4:
+                this->corridor.colorRings = Colors(24./255, 67./255, 68./255);
+                this->corridor.ballTexture = myTextures[35];
+                this->corridor.bonusBoxTexture = myTextures[36];
+                this->corridor.wallsTexture = myTextures[37];
+                this->corridor.leftWallTexture = myTextures[38];
+                this->corridor.rightWallTexture = myTextures[39];
+                this->corridor.bottomTexture = myTextures[40];
+                this->corridor.groundTexture = myTextures[41];
+                this->corridor.ceilingTexture = myTextures[42];
+                printf("Hyrule Dungeon loaded\n");
                 break;
             default:
                 this->corridor.ballTexture = myTextures[18];

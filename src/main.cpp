@@ -304,6 +304,16 @@ void loadTextures()
 	textures.push_back(loadImage("../res/mario_bottomWall.png"));
 	textures.push_back(loadImage("../res/mario_floorTile.png"));
 	textures.push_back(loadImage("../res/mario_sky.png"));
+
+	// 35 to 42
+	textures.push_back(loadImage("../res/zelda_ball.png"));
+	textures.push_back(loadImage("../res/zelda_bonusBox.png"));
+	textures.push_back(loadImage("../res/zelda_wallTile.png"));
+	textures.push_back(loadImage("../res/zelda_leftWall.png"));
+	textures.push_back(loadImage("../res/zelda_rightWall.png"));
+	textures.push_back(loadImage("../res/zelda_bottomWall.png"));
+	textures.push_back(loadImage("../res/zelda_floorTile.png"));
+	textures.push_back(loadImage("../res/zelda_sky.png"));
 	
 	
 	

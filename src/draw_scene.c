@@ -344,9 +344,10 @@ void drawWallStep(std::vector<WallStep> myWallSteps, Corridor myCorridor, std::v
 				drawSquareLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.colorCeillingWalls, tempPos1, tempPos2, tempPos3, tempPos4);
 			} else if (myGame.renderSkinId == 1) {
 				drawTilesetLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.groundTexture, buildingWidth / 2, buildingDepth / 2, tempPos1, tempPos2, tempPos3, tempPos4);
-			}
-			else {
-				drawTilesetLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.groundTexture, buildingWidth, buildingDepth, tempPos1, tempPos2, tempPos3, tempPos4);
+			} else if (myGame.renderSkinId == 2) {
+				drawTilesetLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.groundTexture, buildingWidth / 1.5, buildingDepth / 1.5, tempPos1, tempPos2, tempPos3, tempPos4);
+			} else {
+				drawTilesetLight(myGame.parameters.gameDepth, 1, posBalls, posPlayer, myCorridor.groundTexture, buildingWidth / 2.5, buildingDepth / 2.5, tempPos1, tempPos2, tempPos3, tempPos4);
 			}
 		glPopMatrix();
 
@@ -454,7 +455,10 @@ void drawWall(std::vector<Wall> myWalls, std::vector<Position> posBalls, Positio
 					drawTilesetLight(myGame.parameters.gameDepth, 1., posBalls, posPlayer, wallsTexture, myWalls[i].width/4, myWalls[i].height/4,  tempPos1, tempPos2, tempPos3, tempPos4);		
 				} else if (myGame.renderSkinId == 3) {
 					drawSquareLight(myGame.parameters.gameDepth, 0.8, posBalls, posPlayer, Colors(1.,1.,1.), tempPos1, tempPos2, tempPos3, tempPos4);
-				} else {
+				} else if (myGame.renderSkinId == 4) {
+					drawTilesetLight(myGame.parameters.gameDepth, 1., posBalls, posPlayer, wallsTexture, myWalls[i].width/2, myWalls[i].height/2,  tempPos1, tempPos2, tempPos3, tempPos4);		
+				}
+				else {
 					drawTilesetLight(myGame.parameters.gameDepth, 0.75, posBalls, posPlayer, wallsTexture, myWalls[i].width/2, myWalls[i].height/2,  tempPos1, tempPos2, tempPos3, tempPos4);		
 				}
 			glPopMatrix();
