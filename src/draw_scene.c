@@ -484,7 +484,7 @@ void drawBalls(std::vector<Ball> balls, GLuint ballsTexture)
 			gluQuadricTexture(myQuadric, GL_TRUE); // Enable texture coordinates for the quadric
 			gluSphere(myQuadric, 1.0, NB_SEG_CIRCLE, NB_SEG_CIRCLE); // Render the sphere using the quadric
 			gluDeleteQuadric(myQuadric);
-			delete myQuadric;
+			myQuadric = NULL;
 			glBindTexture(GL_TEXTURE_2D, 0);
 			glDisable(GL_TEXTURE_2D);
 		glPopMatrix();
