@@ -50,6 +50,7 @@ void onWindowResized(GLFWwindow *window, int width, int height)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(myGame.parameters.aperture, aspectRatio, Z_NEAR, Z_FAR);
+	setCamera();
 }
 
 /* User mouse button handling function */
@@ -494,8 +495,6 @@ int main()
 
 	printf("corridor numberOfSteps: %i", myGame.corridor.numberOfSteps);
 
-	setCamera();
-
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
@@ -508,8 +507,6 @@ int main()
 		// glLoadIdentity();
 		// gluPerspective(myGame.parameters.aperture, aspectRatio, Z_NEAR, Z_FAR);
 		// setCamera();
-		
-		
 
 		// GAMESTATES
 		// 1: game when no ball moving
