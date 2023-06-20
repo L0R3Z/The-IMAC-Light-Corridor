@@ -50,7 +50,6 @@ void onWindowResized(GLFWwindow *window, int width, int height)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(myGame.parameters.aperture, aspectRatio, Z_NEAR, Z_FAR);
-	glMatrixMode(GL_MODELVIEW);
 }
 
 /* User mouse button handling function */
@@ -503,9 +502,12 @@ int main()
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glMatrixMode(GL_MODELVIEW);
+		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
+		gluPerspective(myGame.parameters.aperture, aspectRatio, Z_NEAR, Z_FAR);
 		setCamera();
+		
+		
 
 		// GAMESTATES
 		// 1: game when no ball moving
