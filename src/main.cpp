@@ -494,6 +494,8 @@ int main()
 
 	printf("corridor numberOfSteps: %i", myGame.corridor.numberOfSteps);
 
+	setCamera();
+
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
@@ -502,10 +504,10 @@ int main()
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		gluPerspective(myGame.parameters.aperture, aspectRatio, Z_NEAR, Z_FAR);
-		setCamera();
+		// glMatrixMode(GL_PROJECTION);
+		// glLoadIdentity();
+		// gluPerspective(myGame.parameters.aperture, aspectRatio, Z_NEAR, Z_FAR);
+		// setCamera();
 		
 		
 
