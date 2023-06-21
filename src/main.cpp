@@ -52,7 +52,10 @@ void onWindowResized(GLFWwindow *window, int width, int height)
 	float top = Z_NEAR * tanf(myGame.parameters.aperture * 0.5f * 3.14 / 180.0f);
 	float right = top * aspectRatio;
 	glFrustum(-right, right, -top, top, Z_NEAR, Z_FAR);
+	
+	glMatrixMode(GL_MODELVIEW);
 	setCamera();
+	//glLoadIdentity();
 }
 
 /* User mouse button handling function */
@@ -504,6 +507,8 @@ int main()
 		glClearColor(0.0, 0.0, 0., 0.0);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		setCamera();
 
 		// GAMESTATES
 		// 1: game when no ball moving
