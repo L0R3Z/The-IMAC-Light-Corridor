@@ -49,7 +49,9 @@ void onWindowResized(GLFWwindow *window, int width, int height)
 	glViewport(0, 0, width, height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(myGame.parameters.aperture, aspectRatio, Z_NEAR, Z_FAR);
+	float top = Z_NEAR * tanf(myGame.parameters.aperture * 0.5f * 3.14 / 180.0f);
+	float right = top * aspectRatio;
+	glFrustum(-right, right, -top, top, Z_NEAR, Z_FAR);
 	setCamera();
 }
 
@@ -502,11 +504,6 @@ int main()
 		glClearColor(0.0, 0.0, 0., 0.0);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		// glMatrixMode(GL_PROJECTION);
-		// glLoadIdentity();
-		// gluPerspective(myGame.parameters.aperture, aspectRatio, Z_NEAR, Z_FAR);
-		// setCamera();
 
 		// GAMESTATES
 		// 1: game when no ball moving
