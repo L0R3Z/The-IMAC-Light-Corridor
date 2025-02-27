@@ -1,31 +1,81 @@
-# OpenGLTemplate
+# The Light Corridor
 
-Welcome !
+&nbsp;
 
-This is a small template for starting new project with openGL.
+![The Light Corridor](https://www.guilhemduval.fr/images/thumbnail_lightcorridor.jpg)
 
-## Compiling
+&nbsp; 
 
-You need to install [CMake](https://cmake.org/download/).
+*The Light Corridor* est une réinterprétation du jeu classique *The Light Corridor* sorti sur Atari ST et Amiga en 1990. Ce projet est une implémentation technique entièrement développée en OpenGL.
 
-To use CMake I recommend this VS Code extension : [ms-vscode.cmake-tools](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools). You will need to setup the extension with a compiler. Here is [the tutorial](https://code.visualstudio.com/docs/cpp/cmake-linux). It is based on Linux but at the bottom of the page you will find the explanations to adapt it for [Windows](https://code.visualstudio.com/docs/cpp/config-msvc) and [Mac](https://code.visualstudio.com/docs/cpp/config-clang-mac).
+Le jeu repose sur un moteur graphique conçu sur mesure, sans aucun shader, incluant un système de lumière entièrement développés. Plusieurs thèmes graphiques sont disponibles pour offrir une expérience visuelle variée.
 
-Alternatively you can just create a *build* folder at the root of this project, open a terminal and run `cmake ..` ; chances are it will detect what compiler you have installed and generate the appropriate Makefile / Visual Studio solution / Xcode project.
+&nbsp; 
 
-## main.cpp
+## 🛠 Technologies utilisées
 
-In here we initialize [*glfw*](https://www.glfw.org/docs/latest/) (the library that handles the window and user inputs), create a window and then start the app. You don't really need to modify this file, except to change your window name or initial size.
+- **Langage** : C, C++
+- **Bibliothèques** : OpenGL, GLFW, GLM
+- **Moteur graphique** : Développement maison en OpenGL, sans shader
+- **Système de lumière** : Implémentation propriétaire sans shader
 
-## User inputs
+&nbsp; 
+  
+## 📷 Aperçu
 
-To learn more about the parameters you receive in the callbacks, read [glfw's documentation](https://www.glfw.org/docs/latest/input_guide.html).
+![Aperçu de The Light Corridor](https://www.guilhemduval.fr/images/single_lightcorridor.jpeg)
 
-## App
+&nbsp; 
 
-This is the actual root of your project. This is where your drawing code should go, as well as handling inputs from the user.
+## 🚀 Installation et exécution
 
-## Assets
+### 🖥 Prérequis
 
-As the asset paths are relative to the executable, we have two options: copy the asset folder next to the executable or use cmake's tricks to get the absolute project path to reference our assets.
+- **Système d'exploitation** : Windows, macOS ou Linux
+- **Compilateur** : GCC, Clang ou MSVC
+- **Outils de construction** : [CMake](https://cmake.org/) installé
+- **Bibliothèques** : [GLFW](https://www.glfw.org/) incluse dans le dossier `third_party/`
 
- I chose the second option for my example (tips found [here](https://shot511.github.io/2018-05-29-how-to-setup-opengl-project-with-cmake/#:~:text=link_directories(%24%7BCMAKE_SOURCE_DIR%7D/lib)-,Resources,-Every%20OpenGL%20project))
+### 📥 Cloner le dépôt
+
+```bash
+git clone https://github.com/L0R3Z/The-IMAC-Light-Corridor.git
+cd The-IMAC-Light-Corridor
+```
+
+### 🏗 Compilation
+
+1. **Installer CMake** : Téléchargez et installez [CMake](https://cmake.org/download/).
+2. **Utilisation avec VS Code** :
+   - Il est recommandé d'utiliser l'extension `ms-vscode.cmake-tools`.
+   - Configurez l'extension avec votre compilateur. Voir [ce tutoriel](https://cmake.org/cmake/help/latest/guide/tutorial/) pour plus de détails.
+
+3. **Compilation manuelle avec CMake** :
+   - Créez un dossier de compilation et exécutez CMake :
+
+     ```bash
+     mkdir build && cd build
+     cmake ..
+     ```
+
+   - CMake détectera automatiquement le compilateur et générera les fichiers appropriés (Makefile, Visual Studio solution, Xcode project, etc.).
+
+4. **Compiler le projet** :
+   - **Sur Linux/macOS** :
+     ```bash
+     make
+     ```
+   - **Sur Windows (Visual Studio)** :
+     Ouvrez `LightCorridor.sln` et compilez le projet.
+
+5. **Exécutable généré** :
+   - L'exécutable se trouvera dans `build` ou un sous-dossier selon votre système.
+
+### 🎮 Lancer le jeu
+
+- **Linux/macOS** :
+  ```bash
+  ./LightCorridor
+  ```
+- **Windows** :
+  Exécutez `LightCorridor.exe` depuis l'Explorateur de fichiers ou via l'invite de commandes.
